@@ -1,0 +1,133 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "search": "Search",
+    "searchPlaceholder": "Search products...",
+    "noResults": "No results found",
+    "seeAll": "See all",
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "price": "Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "free": "Free",
+    "currency": "USD"
+  },
+  "nav": {
+    "home": "Home",
+    "collections": "Collections",
+    "search": "Search",
+    "cart": "Cart",
+    "account": "My Account",
+    "login": "Sign in",
+    "register": "Register",
+    "logout": "Sign out"
+  },
+  "home": {
+    "hero": {
+      "title": "Cark Zımpara",
+      "subtitle": "Professional abrasive solutions"
+    },
+    "featuredCollections": "Featured Collections",
+    "featuredProducts": "Featured Products"
+  },
+  "collection": {
+    "allCollections": "All Collections",
+    "products": "products",
+    "filter": "Filter",
+    "sort": "Sort",
+    "sortOptions": {
+      "manual": "Featured",
+      "bestSelling": "Best selling",
+      "titleAsc": "Name (A-Z)",
+      "titleDesc": "Name (Z-A)",
+      "priceAsc": "Price (low to high)",
+      "priceDesc": "Price (high to low)",
+      "createdDesc": "Newest"
+    },
+    "loadMore": "Load more",
+    "noProducts": "No products found in this collection"
+  },
+  "product": {
+    "description": "Description",
+    "specifications": "Specifications",
+    "relatedProducts": "Related Products",
+    "selectVariant": "Select option",
+    "quantity": "Quantity",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "outOfStock": "Out of Stock",
+    "sku": "SKU",
+    "shareProduct": "Share Product"
+  },
+  "cart": {
+    "title": "My Cart",
+    "empty": "Your cart is empty",
+    "emptyDescription": "You haven't added any products to your cart yet.",
+    "continueShopping": "Continue shopping",
+    "remove": "Remove",
+    "checkout": "Proceed to checkout",
+    "itemCount": "{count} items"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search products, collections...",
+    "results": "Search Results",
+    "resultsFor": "Results for \"{query}\"",
+    "noResults": "No results found for \"{query}\""
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot password",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register",
+      "orContinueWith": "or continue with",
+      "withGoogle": "Sign in with Google"
+    },
+    "register": {
+      "title": "Register",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Register",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailInUse": "This email address is already in use",
+      "generic": "An error occurred, please try again"
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "profile": "Profile",
+    "orders": "My Orders",
+    "addresses": "My Addresses",
+    "noOrders": "You haven't placed any orders yet",
+    "orderNumber": "Order #",
+    "orderDate": "Date",
+    "orderStatus": "Status",
+    "orderTotal": "Total"
+  },
+  "footer": {
+    "tagline": "Professional abrasive solutions. Quality and trust at your service.",
+    "store": "Store",
+    "account": "Account",
+    "contact": "Contact",
+    "rights": "All rights reserved."
+  }
+}

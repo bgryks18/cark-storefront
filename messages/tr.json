@@ -1,0 +1,133 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "retry": "Tekrar dene",
+    "close": "Kapat",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "confirm": "Onayla",
+    "search": "Ara",
+    "searchPlaceholder": "Ürün ara...",
+    "noResults": "Sonuç bulunamadı",
+    "seeAll": "Tümünü gör",
+    "addToCart": "Sepete ekle",
+    "outOfStock": "Stokta yok",
+    "inStock": "Stokta var",
+    "price": "Fiyat",
+    "quantity": "Miktar",
+    "total": "Toplam",
+    "subtotal": "Ara toplam",
+    "free": "Ücretsiz",
+    "currency": "TRY"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "collections": "Koleksiyonlar",
+    "search": "Arama",
+    "cart": "Sepet",
+    "account": "Hesabım",
+    "login": "Giriş yap",
+    "register": "Kayıt ol",
+    "logout": "Çıkış yap"
+  },
+  "home": {
+    "hero": {
+      "title": "Cark Zımpara",
+      "subtitle": "Profesyonel zımpara çözümleri"
+    },
+    "featuredCollections": "Öne Çıkan Koleksiyonlar",
+    "featuredProducts": "Öne Çıkan Ürünler"
+  },
+  "collection": {
+    "allCollections": "Tüm Koleksiyonlar",
+    "products": "ürün",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "sortOptions": {
+      "manual": "Öne çıkanlar",
+      "bestSelling": "En çok satanlar",
+      "titleAsc": "İsim (A-Z)",
+      "titleDesc": "İsim (Z-A)",
+      "priceAsc": "Fiyat (düşükten yükseğe)",
+      "priceDesc": "Fiyat (yüksekten düşüğe)",
+      "createdDesc": "En yeniler"
+    },
+    "loadMore": "Daha fazla yükle",
+    "noProducts": "Bu koleksiyonda ürün bulunamadı"
+  },
+  "product": {
+    "description": "Açıklama",
+    "specifications": "Özellikler",
+    "relatedProducts": "Benzer Ürünler",
+    "selectVariant": "Seçenek seçin",
+    "quantity": "Adet",
+    "addToCart": "Sepete Ekle",
+    "buyNow": "Hemen Satın Al",
+    "outOfStock": "Stokta Yok",
+    "sku": "Stok Kodu",
+    "shareProduct": "Ürünü Paylaş"
+  },
+  "cart": {
+    "title": "Sepetim",
+    "empty": "Sepetiniz boş",
+    "emptyDescription": "Henüz sepetinize ürün eklemediniz.",
+    "continueShopping": "Alışverişe devam et",
+    "remove": "Kaldır",
+    "checkout": "Ödemeye geç",
+    "itemCount": "{count} ürün"
+  },
+  "search": {
+    "title": "Arama",
+    "placeholder": "Ürün, koleksiyon ara...",
+    "results": "Arama Sonuçları",
+    "resultsFor": "\"{query}\" için sonuçlar",
+    "noResults": "\"{query}\" için sonuç bulunamadı"
+  },
+  "auth": {
+    "login": {
+      "title": "Giriş Yap",
+      "email": "E-posta",
+      "password": "Şifre",
+      "submit": "Giriş Yap",
+      "forgotPassword": "Şifremi unuttum",
+      "noAccount": "Hesabınız yok mu?",
+      "registerLink": "Kayıt olun",
+      "orContinueWith": "veya şununla devam edin",
+      "withGoogle": "Google ile giriş yap"
+    },
+    "register": {
+      "title": "Kayıt Ol",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "password": "Şifre",
+      "submit": "Kayıt Ol",
+      "hasAccount": "Zaten hesabınız var mı?",
+      "loginLink": "Giriş yapın"
+    },
+    "errors": {
+      "invalidCredentials": "E-posta veya şifre hatalı",
+      "emailInUse": "Bu e-posta adresi zaten kullanımda",
+      "generic": "Bir hata oluştu, lütfen tekrar deneyin"
+    }
+  },
+  "account": {
+    "title": "Hesabım",
+    "profile": "Profil",
+    "orders": "Siparişlerim",
+    "addresses": "Adreslerim",
+    "noOrders": "Henüz sipariş vermediniz",
+    "orderNumber": "Sipariş No",
+    "orderDate": "Tarih",
+    "orderStatus": "Durum",
+    "orderTotal": "Toplam"
+  },
+  "footer": {
+    "tagline": "Profesyonel zımpara çözümleri. Kalite ve güven ile hizmetinizdeyiz.",
+    "store": "Mağaza",
+    "account": "Hesap",
+    "contact": "İletişim",
+    "rights": "Tüm hakları saklıdır."
+  }
+}
