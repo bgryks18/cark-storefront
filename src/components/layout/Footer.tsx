@@ -15,7 +15,7 @@ export function Footer() {
           {/* Marka */}
           <div className="col-span-full lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-1">
-              <span className="text-lg font-bold text-primary">Cark</span>
+              <span className="text-lg font-bold text-primary">Çark</span>
               <span className="text-lg font-bold text-black-dark">Zımpara</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-muted">
@@ -81,7 +81,7 @@ export function Footer() {
         {/* Alt çizgi */}
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-text-muted">
-            © {year} Cark Zımpara. {ft('rights')}
+            © {year} {ft('brandName')}. {ft('rights')}
           </p>
           <p className="text-xs text-text-muted">shop.carkzimpara.com</p>
         </div>

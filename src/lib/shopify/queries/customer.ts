@@ -148,9 +148,11 @@ function throwIfCustomerErrors(errors: CustomerUserError[], context: string): vo
 // ─── Fonksiyonlar ─────────────────────────────────────────────────────────────
 
 export async function getCustomer(customerAccessToken: string): Promise<ShopifyCustomer | null> {
-  const data = await shopifyFetch<{ customer: ShopifyCustomer | null }>(CUSTOMER_QUERY, {
-    customerAccessToken,
-  });
+  const data = await shopifyFetch<{ customer: ShopifyCustomer | null }>(
+    CUSTOMER_QUERY,
+    { customerAccessToken },
+    { cache: 'no-store' },
+  );
 
   return data.customer;
 }
@@ -163,7 +165,7 @@ export async function createCustomer(
       customer: { id: string; email: string; firstName: string | null; lastName: string | null } | null;
       customerUserErrors: CustomerUserError[];
     };
-  }>(CUSTOMER_CREATE_MUTATION, { input });
+  }>(CUSTOMER_CREATE_MUTATION, { input }, { cache: 'no-store' });
 
   throwIfCustomerErrors(data.customerCreate.customerUserErrors, 'create');
 
@@ -183,7 +185,7 @@ export async function createCustomerAccessToken(
       customerAccessToken: { accessToken: string; expiresAt: string } | null;
       customerUserErrors: CustomerUserError[];
     };
-  }>(CUSTOMER_ACCESS_TOKEN_CREATE_MUTATION, { input: { email, password } });
+  }>(CUSTOMER_ACCESS_TOKEN_CREATE_MUTATION, { input: { email, password } }, { cache: 'no-store' });
 
   throwIfCustomerErrors(data.customerAccessTokenCreate.customerUserErrors, 'accessTokenCreate');
 
@@ -197,7 +199,7 @@ export async function createCustomerAccessToken(
 export async function deleteCustomerAccessToken(accessToken: string): Promise<void> {
   await shopifyFetch(CUSTOMER_ACCESS_TOKEN_DELETE_MUTATION, {
     customerAccessToken: accessToken,
-  });
+  }, { cache: 'no-store' });
 }
 
 export async function updateCustomer(
@@ -215,7 +217,7 @@ export async function updateCustomer(
       customer: { id: string } | null;
       customerUserErrors: CustomerUserError[];
     };
-  }>(CUSTOMER_UPDATE_MUTATION, { customerAccessToken, customer });
+  }>(CUSTOMER_UPDATE_MUTATION, { customerAccessToken, customer }, { cache: 'no-store' });
 
   throwIfCustomerErrors(data.customerUpdate.customerUserErrors, 'update');
 }
@@ -223,7 +225,7 @@ export async function updateCustomer(
 export async function recoverCustomerPassword(email: string): Promise<void> {
   const data = await shopifyFetch<{
     customerRecover: { customerUserErrors: CustomerUserError[] };
-  }>(CUSTOMER_RECOVER_MUTATION, { email });
+  }>(CUSTOMER_RECOVER_MUTATION, { email }, { cache: 'no-store' });
 
   throwIfCustomerErrors(data.customerRecover.customerUserErrors, 'recover');
 }

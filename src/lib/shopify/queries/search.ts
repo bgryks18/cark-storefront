@@ -144,6 +144,7 @@ export async function getPredictiveSearch(
   const data = await shopifyFetch<{ predictiveSearch: PredictiveSearchResult }>(
     PREDICTIVE_SEARCH_QUERY,
     { query, country, language },
+    { cache: 'no-store' },
   );
 
   return data.predictiveSearch;
@@ -171,7 +172,7 @@ export async function searchProducts(params: SearchParams): Promise<SearchResult
         endCursor: string | null;
       };
     };
-  }>(SEARCH_QUERY, { query, first, after, sortKey, reverse, country, language });
+  }>(SEARCH_QUERY, { query, first, after, sortKey, reverse, country, language }, { cache: 'no-store' });
 
   return {
     totalCount: data.search.totalCount,

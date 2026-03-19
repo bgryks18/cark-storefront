@@ -1,5 +1,7 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
+
 import { usePathname, useRouter } from '@/i18n/navigation';
 
 interface SortOption {
@@ -16,12 +18,16 @@ interface SortSelectProps {
 export function SortSelect({ options, currentSort, label }: SortSelectProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value;
-    const params = new URLSearchParams();
+    // Mevcut filter param'larını koru
+    const params = new URLSearchParams(searchParams.toString());
     if (value && value !== options[0]?.value) {
       params.set('sort', value);
+    } else {
+      params.delete('sort');
     }
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname);

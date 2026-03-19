@@ -33,7 +33,7 @@
   },
   "home": {
     "hero": {
-      "title": "Cark Zımpara",
+      "title": "Çark Zımpara",
       "subtitle": "Profesyonel zımpara çözümleri"
     },
     "featuredCollections": "Öne Çıkan Koleksiyonlar",
@@ -54,7 +54,12 @@
       "createdDesc": "En yeniler"
     },
     "loadMore": "Daha fazla yükle",
-    "noProducts": "Bu koleksiyonda ürün bulunamadı"
+    "noProducts": "Bu koleksiyonda ürün bulunamadı",
+    "filters": "Filtreler",
+    "clearFilters": "Temizle",
+    "activeFiltersCount": "{count} filtre aktif",
+    "showFilters": "Filtreleri göster",
+    "hideFilters": "Filtreleri gizle"
   },
   "product": {
     "description": "Açıklama",
@@ -75,7 +80,10 @@
     "continueShopping": "Alışverişe devam et",
     "remove": "Kaldır",
     "checkout": "Ödemeye geç",
-    "itemCount": "{count} ürün"
+    "itemCount": "{count} ürün",
+    "removeConfirmTitle": "Ürünü kaldır",
+    "removeConfirmMessage": "Bu ürünü sepetten kaldırmak istiyor musunuz?",
+    "removeConfirmLabel": "Kaldır"
   },
   "search": {
     "title": "Arama",
@@ -124,6 +132,7 @@
     "orderTotal": "Toplam"
   },
   "footer": {
+    "brandName": "Çark Zımpara",
     "tagline": "Profesyonel zımpara çözümleri. Kalite ve güven ile hizmetinizdeyiz.",
     "store": "Mağaza",
     "account": "Hesap",

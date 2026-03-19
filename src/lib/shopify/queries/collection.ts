@@ -39,6 +39,7 @@ const COLLECTION_QUERY = `#graphql
   }
   ${SEO_FRAGMENT}
   ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
   ${PRODUCT_CARD_FRAGMENT}
 `;
 
@@ -120,14 +121,11 @@ export async function getCollection(
 ): Promise<ShopifyCollection | null> {
   const { handle, first = 24, after, sortKey = 'MANUAL', reverse = false, filters, locale } = params;
 
-  const data = await shopifyFetch<{ collection: ShopifyCollection | null }>(COLLECTION_QUERY, {
-    handle,
-    first,
-    after,
-    sortKey,
-    reverse,
-    filters,
-  }, locale);
+  const data = await shopifyFetch<{ collection: ShopifyCollection | null }>(
+    COLLECTION_QUERY,
+    { handle, first, after, sortKey, reverse, filters },
+    { locale, next: { revalidate: 3600, tags: [`collection-${handle}`, 'collections'] } },
+  );
 
   return data.collection;
 }
@@ -139,6 +137,7 @@ export async function getCollections(
   const data = await shopifyFetch<{ collections: Connection<ShopifyCollection> }>(
     COLLECTIONS_QUERY,
     { first, after },
+    { next: { revalidate: 3600, tags: ['collections'] } },
   );
 
   return data.collections;
@@ -147,7 +146,7 @@ export async function getCollections(
 export async function getCollectionFilters(handle: string): Promise<ProductFilter[]> {
   const data = await shopifyFetch<{
     collection: { products: { filters: ProductFilter[] } } | null;
-  }>(COLLECTION_FILTERS_QUERY, { handle });
+  }>(COLLECTION_FILTERS_QUERY, { handle }, { next: { revalidate: 3600, tags: [`collection-${handle}`] } });
 
   return data.collection?.products.filters ?? [];
 }

@@ -3,13 +3,18 @@ import { shopifyFetch } from '../client';
 
 import type { CartLineInput, ShopifyCart } from '../types';
 
+// ─── Shared error/warning types ───────────────────────────────────────────────
+
+export type CartUserError = { code: string | null; field: string[] | null; message: string };
+export type CartWarning = { code: string; message: string };
+
 // ─── Mutations & Queries ──────────────────────────────────────────────────────
 
 const CART_CREATE_MUTATION = `#graphql
   mutation CartCreate($lines: [CartLineInput!], $buyerIdentityInput: CartBuyerIdentityInput) {
     cartCreate(input: { lines: $lines, buyerIdentity: $buyerIdentityInput }) {
       cart { ...CartFields }
-      userErrors { field message }
+      userErrors { code field message }
     }
   }
   ${CART_FRAGMENT}
@@ -28,7 +33,8 @@ const CART_LINES_ADD_MUTATION = `#graphql
   mutation CartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
     cartLinesAdd(cartId: $cartId, lines: $lines) {
       cart { ...CartFields }
-      userErrors { field message }
+      userErrors { code field message }
+      warnings { code message }
     }
   }
   ${CART_FRAGMENT}
@@ -38,7 +44,8 @@ const CART_LINES_UPDATE_MUTATION = `#graphql
   mutation CartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
     cartLinesUpdate(cartId: $cartId, lines: $lines) {
       cart { ...CartFields }
-      userErrors { field message }
+      userErrors { code field message }
+      warnings { code message }
     }
   }
   ${CART_FRAGMENT}
@@ -48,7 +55,7 @@ const CART_LINES_REMOVE_MUTATION = `#graphql
   mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
     cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
       cart { ...CartFields }
-      userErrors { field message }
+      userErrors { code field message }
     }
   }
   ${CART_FRAGMENT}
@@ -58,76 +65,73 @@ const CART_BUYER_IDENTITY_UPDATE_MUTATION = `#graphql
   mutation CartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
     cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
       cart { ...CartFields }
-      userErrors { field message }
+      userErrors { code field message }
     }
   }
   ${CART_FRAGMENT}
 `;
 
-// ─── Yardımcı: userErrors kontrolü ───────────────────────────────────────────
-
-function throwIfErrors(userErrors: { field: string[] | null; message: string }[], context: string) {
-  if (userErrors.length > 0) {
-    throw new Error(`[Cart ${context}] ${userErrors.map((e) => e.message).join(', ')}`);
-  }
-}
-
 // ─── Fonksiyonlar ─────────────────────────────────────────────────────────────
 
 export async function createCart(lines: CartLineInput[] = []): Promise<ShopifyCart> {
   const data = await shopifyFetch<{
-    cartCreate: { cart: ShopifyCart; userErrors: { field: string[] | null; message: string }[] };
-  }>(CART_CREATE_MUTATION, { lines });
+    cartCreate: { cart: ShopifyCart; userErrors: CartUserError[] };
+  }>(CART_CREATE_MUTATION, { lines }, { cache: 'no-store' });
 
-  throwIfErrors(data.cartCreate.userErrors, 'create');
+  // create'te hata varsa sepet oluşturulmamış demektir — throw et
+  if (data.cartCreate.userErrors.length > 0) {
+    throw new Error(data.cartCreate.userErrors.map((e) => e.message).join(', '));
+  }
   return data.cartCreate.cart;
 }
 
 export async function getCart(cartId: string): Promise<ShopifyCart | null> {
-  const data = await shopifyFetch<{ cart: ShopifyCart | null }>(CART_QUERY, { cartId });
+  const data = await shopifyFetch<{ cart: ShopifyCart | null }>(CART_QUERY, { cartId }, { cache: 'no-store' });
   return data.cart;
 }
 
 export async function addCartLines(
   cartId: string,
   lines: CartLineInput[],
-): Promise<ShopifyCart> {
+): Promise<{ cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] }> {
   const data = await shopifyFetch<{
-    cartLinesAdd: { cart: ShopifyCart; userErrors: { field: string[] | null; message: string }[] };
-  }>(CART_LINES_ADD_MUTATION, { cartId, lines });
+    cartLinesAdd: { cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] };
+  }>(CART_LINES_ADD_MUTATION, { cartId, lines }, { cache: 'no-store' });
 
-  throwIfErrors(data.cartLinesAdd.userErrors, 'addLines');
-  return data.cartLinesAdd.cart;
+  return {
+    cart: data.cartLinesAdd.cart,
+    userErrors: data.cartLinesAdd.userErrors,
+    warnings: data.cartLinesAdd.warnings ?? [],
+  };
 }
 
 export async function updateCartLines(
   cartId: string,
   lines: { id: string; quantity: number }[],
-): Promise<ShopifyCart> {
+): Promise<{ cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] }> {
   const data = await shopifyFetch<{
-    cartLinesUpdate: {
-      cart: ShopifyCart;
-      userErrors: { field: string[] | null; message: string }[];
-    };
-  }>(CART_LINES_UPDATE_MUTATION, { cartId, lines });
+    cartLinesUpdate: { cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] };
+  }>(CART_LINES_UPDATE_MUTATION, { cartId, lines }, { cache: 'no-store' });
 
-  throwIfErrors(data.cartLinesUpdate.userErrors, 'updateLines');
-  return data.cartLinesUpdate.cart;
+  return {
+    cart: data.cartLinesUpdate.cart,
+    userErrors: data.cartLinesUpdate.userErrors,
+    warnings: data.cartLinesUpdate.warnings ?? [],
+  };
 }
 
 export async function removeCartLines(
   cartId: string,
   lineIds: string[],
-): Promise<ShopifyCart> {
+): Promise<{ cart: ShopifyCart; userErrors: CartUserError[] }> {
   const data = await shopifyFetch<{
-    cartLinesRemove: {
-      cart: ShopifyCart;
-      userErrors: { field: string[] | null; message: string }[];
-    };
-  }>(CART_LINES_REMOVE_MUTATION, { cartId, lineIds });
+    cartLinesRemove: { cart: ShopifyCart; userErrors: CartUserError[] };
+  }>(CART_LINES_REMOVE_MUTATION, { cartId, lineIds }, { cache: 'no-store' });
 
-  throwIfErrors(data.cartLinesRemove.userErrors, 'removeLines');
-  return data.cartLinesRemove.cart;
+  return {
+    cart: data.cartLinesRemove.cart,
+    userErrors: data.cartLinesRemove.userErrors,
+  };
 }
 
 export async function updateCartBuyerIdentity(
@@ -135,15 +139,14 @@ export async function updateCartBuyerIdentity(
   customerAccessToken: string,
 ): Promise<ShopifyCart> {
   const data = await shopifyFetch<{
-    cartBuyerIdentityUpdate: {
-      cart: ShopifyCart;
-      userErrors: { field: string[] | null; message: string }[];
-    };
+    cartBuyerIdentityUpdate: { cart: ShopifyCart; userErrors: CartUserError[] };
   }>(CART_BUYER_IDENTITY_UPDATE_MUTATION, {
     cartId,
     buyerIdentity: { customerAccessToken },
-  });
+  }, { cache: 'no-store' });
 
-  throwIfErrors(data.cartBuyerIdentityUpdate.userErrors, 'buyerIdentityUpdate');
+  if (data.cartBuyerIdentityUpdate.userErrors.length > 0) {
+    throw new Error(data.cartBuyerIdentityUpdate.userErrors.map((e) => e.message).join(', '));
+  }
   return data.cartBuyerIdentityUpdate.cart;
 }

@@ -33,7 +33,7 @@
   },
   "home": {
     "hero": {
-      "title": "Cark Zımpara",
+      "title": "Çark Zımpara",
       "subtitle": "Professional abrasive solutions"
     },
     "featuredCollections": "Featured Collections",
@@ -54,7 +54,12 @@
       "createdDesc": "Newest"
     },
     "loadMore": "Load more",
-    "noProducts": "No products found in this collection"
+    "noProducts": "No products found in this collection",
+    "filters": "Filters",
+    "clearFilters": "Clear",
+    "activeFiltersCount": "{count} filters active",
+    "showFilters": "Show filters",
+    "hideFilters": "Hide filters"
   },
   "product": {
     "description": "Description",
@@ -75,7 +80,10 @@
     "continueShopping": "Continue shopping",
     "remove": "Remove",
     "checkout": "Proceed to checkout",
-    "itemCount": "{count} items"
+    "itemCount": "{count} items",
+    "removeConfirmTitle": "Remove item",
+    "removeConfirmMessage": "Are you sure you want to remove this item from your cart?",
+    "removeConfirmLabel": "Remove"
   },
   "search": {
     "title": "Search",
@@ -124,6 +132,7 @@
     "orderTotal": "Total"
   },
   "footer": {
+    "brandName": "Çark Zımpara",
     "tagline": "Professional abrasive solutions. Quality and trust at your service.",
     "store": "Store",
     "account": "Account",

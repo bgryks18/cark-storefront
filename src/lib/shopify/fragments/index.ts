@@ -45,8 +45,6 @@ export const PRODUCT_VARIANT_FRAGMENT = `#graphql
       ...ImageFields
     }
   }
-  ${MONEY_FRAGMENT}
-  ${IMAGE_FRAGMENT}
 `;
 
 export const PRODUCT_CARD_FRAGMENT = `#graphql
@@ -80,8 +78,6 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
       }
     }
   }
-  ${MONEY_FRAGMENT}
-  ${IMAGE_FRAGMENT}
 `;
 
 export const CART_LINE_FRAGMENT = `#graphql
@@ -92,6 +88,9 @@ export const CART_LINE_FRAGMENT = `#graphql
       ... on ProductVariant {
         id
         title
+        sku
+        quantityAvailable
+        quantityRule { maximum }
         selectedOptions { name value }
         product {
           id
@@ -107,8 +106,6 @@ export const CART_LINE_FRAGMENT = `#graphql
       compareAtAmountPerQuantity { ...MoneyFields }
     }
   }
-  ${IMAGE_FRAGMENT}
-  ${MONEY_FRAGMENT}
 `;
 
 export const CART_FRAGMENT = `#graphql
@@ -139,6 +136,8 @@ export const CART_FRAGMENT = `#graphql
     }
   }
   ${CART_LINE_FRAGMENT}
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
 `;
 
 export const ADDRESS_FRAGMENT = `#graphql

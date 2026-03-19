@@ -14,8 +14,21 @@ export default async function HomePage({ params }: HomePageProps) {
   const t = await getTranslations({ locale, namespace: 'home' });
   const nav = await getTranslations({ locale, namespace: 'nav' });
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shop.carkzimpara.com';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: t('hero.title'),
+    url: siteUrl,
+    sameAs: [],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ─── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-linear-to-br from-primary to-primary-dark text-white">
         <div aria-hidden="true" className="pointer-events-none absolute -right-40 -top-40 h-125 w-125 rounded-full bg-white/5" />

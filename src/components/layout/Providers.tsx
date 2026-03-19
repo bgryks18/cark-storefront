@@ -6,6 +6,8 @@ import { SessionProvider } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 
+import { ModalProvider } from '@/contexts/ModalContext';
+
 interface ProvidersProps {
   children: React.ReactNode;
 }
@@ -27,7 +29,9 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <ModalProvider>{children}</ModalProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </SessionProvider>
   );

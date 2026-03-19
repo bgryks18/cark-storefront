@@ -1,19 +1,20 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
+import { Suspense } from 'react';
 
 import { Container } from '@/components/ui/Container';
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 import { SortSelect } from '@/components/ui/SortSelect';
+import { FilterPanel } from '@/components/ui/FilterPanel';
 import { Link } from '@/i18n/navigation';
-import { getCollection } from '@/lib/shopify/queries/collection';
+import { getCollection, getCollectionFilters } from '@/lib/shopify/queries/collection';
 import { flattenConnection } from '@/lib/shopify/normalize';
 import type { SortKey } from '@/lib/shopify/types';
-import { Suspense } from 'react';
 
 interface CollectionPageProps {
   params: Promise<{ locale: string; handle: string }>;
-  searchParams: Promise<{ sort?: string }>;
+  searchParams: Promise<{ sort?: string; filter?: string | string[] }>;
 }
 
 const SORT_MAP: Record<string, { sortKey: SortKey; reverse: boolean }> = {
@@ -65,9 +66,27 @@ export async function generateMetadata({ params }: CollectionPageProps) {
   };
 }
 
-async function ProductGrid({ handle, sort, locale }: { handle: string; sort: string; locale: string }) {
+async function ProductGrid({
+  handle,
+  sort,
+  locale,
+  activeFilters,
+}: {
+  handle: string;
+  sort: string;
+  locale: string;
+  activeFilters: string[];
+}) {
   const { sortKey, reverse } = SORT_MAP[sort] ?? SORT_MAP.manual;
-  const collection = await getCollection({ handle, first: 48, sortKey, reverse, locale });
+  // Shopify filter input'ları URL'den JSON olarak gelir, parse edip geçiriyoruz
+  const filters = activeFilters.flatMap((f) => {
+    try {
+      return [JSON.parse(f) as Record<string, unknown>];
+    } catch {
+      return [];
+    }
+  });
+  const collection = await getCollection({ handle, first: 48, sortKey, reverse, locale, filters: filters.length ? filters : undefined });
 
   if (!collection) notFound();
 
@@ -102,14 +121,28 @@ function ProductGridSkeleton() {
 
 export default async function CollectionPage({ params, searchParams }: CollectionPageProps) {
   const { locale, handle } = await params;
-  const { sort = 'manual' } = await searchParams;
+  const { sort = 'manual', filter } = await searchParams;
+  const activeFilters = Array.isArray(filter) ? filter : filter ? [filter] : [];
 
-  const [collection, t] = await Promise.all([
+  const [collection, filters, t] = await Promise.all([
     getCollection({ handle, first: 1, locale }),
+    getCollectionFilters(handle),
     getTranslations({ locale, namespace: 'collection' }),
   ]);
 
   if (!collection) notFound();
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shop.carkzimpara.com';
+  const localePfx = locale === 'en' ? '/en' : '';
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: locale === 'tr' ? 'Ana Sayfa' : 'Home', item: `${siteUrl}${localePfx}/` },
+      { '@type': 'ListItem', position: 2, name: locale === 'tr' ? 'Koleksiyonlar' : 'Collections', item: `${siteUrl}${localePfx}/collections` },
+      { '@type': 'ListItem', position: 3, name: collection.title, item: `${siteUrl}${localePfx}/collections/${handle}` },
+    ],
+  };
 
   const sortOptions = [
     { value: 'manual',      label: t('sortOptions.manual') },
@@ -123,6 +156,10 @@ export default async function CollectionPage({ params, searchParams }: Collectio
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ─── Koleksiyon başlığı ────────────────────────────────────────────── */}
       <section className="border-b border-border bg-surface">
         <Container className="py-8 sm:py-10">
@@ -164,18 +201,27 @@ export default async function CollectionPage({ params, searchParams }: Collectio
       {/* ─── Ürün ızgarası ────────────────────────────────────────────────── */}
       <section className="py-8 sm:py-10">
         <Container>
-          {/* Sıralama çubuğu */}
-          <div className="mb-6 flex items-center justify-end">
-            <SortSelect
-              options={sortOptions}
-              currentSort={sort}
-              label={t('sort')}
-            />
-          </div>
+          {/* Mobile: dikey yığın; Desktop: yatay (sidebar + içerik) */}
+          <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+            {/* FilterPanel: mobilde toggle+panel, desktopda sidebar */}
+            <FilterPanel filters={filters} />
 
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductGrid handle={handle} sort={sort} locale={locale} />
-          </Suspense>
+            {/* Ana içerik */}
+            <div className="min-w-0 flex-1">
+              {/* Sıralama çubuğu */}
+              <div className="mb-6 flex items-center justify-end">
+                <SortSelect
+                  options={sortOptions}
+                  currentSort={sort}
+                  label={t('sort')}
+                />
+              </div>
+
+              <Suspense fallback={<ProductGridSkeleton />}>
+                <ProductGrid handle={handle} sort={sort} locale={locale} activeFilters={activeFilters} />
+              </Suspense>
+            </div>
+          </div>
         </Container>
       </section>
     </>

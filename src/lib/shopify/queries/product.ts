@@ -1,4 +1,4 @@
-import { PRODUCT_CARD_FRAGMENT, PRODUCT_VARIANT_FRAGMENT, SEO_FRAGMENT } from '../fragments';
+import { IMAGE_FRAGMENT, MONEY_FRAGMENT, PRODUCT_CARD_FRAGMENT, PRODUCT_VARIANT_FRAGMENT, SEO_FRAGMENT } from '../fragments';
 import { shopifyFetch } from '../client';
 
 import type { Connection, ShopifyProduct, SortKey } from '../types';
@@ -50,6 +50,8 @@ const PRODUCT_DETAIL_QUERY = `#graphql
     }
   }
   ${SEO_FRAGMENT}
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
   ${PRODUCT_VARIANT_FRAGMENT}
 `;
 
@@ -75,6 +77,8 @@ const PRODUCTS_QUERY = `#graphql
       pageInfo { hasNextPage hasPreviousPage startCursor endCursor }
     }
   }
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
   ${PRODUCT_CARD_FRAGMENT}
 `;
 
@@ -84,6 +88,8 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
       ...ProductCardFields
     }
   }
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
   ${PRODUCT_CARD_FRAGMENT}
 `;
 
@@ -93,7 +99,7 @@ export async function getProduct(handle: string, locale?: string): Promise<Shopi
   const data = await shopifyFetch<{ product: ShopifyProduct | null }>(
     PRODUCT_DETAIL_QUERY,
     { handle },
-    locale,
+    { locale, next: { revalidate: 3600, tags: [`product-${handle}`, 'products'] } },
   );
 
   return data.product;
@@ -108,11 +114,12 @@ export interface GetProductsParams {
 }
 
 export async function getProducts(params: GetProductsParams = {}): Promise<Connection<ShopifyProduct>> {
-  const { first = 24, after, sortKey = 'MANUAL', reverse = false, query } = params;
+  const { first = 24, after, sortKey, reverse = false, query } = params;
 
   const data = await shopifyFetch<{ products: Connection<ShopifyProduct> }>(
     PRODUCTS_QUERY,
     { first, after, sortKey, reverse, query },
+    { next: { revalidate: 3600, tags: ['products'] } },
   );
 
   return data.products;
@@ -122,6 +129,7 @@ export async function getRecommendedProducts(productId: string, count = 8): Prom
   const data = await shopifyFetch<{ productRecommendations: ShopifyProduct[] }>(
     RECOMMENDED_PRODUCTS_QUERY,
     { productId },
+    { next: { revalidate: 3600, tags: ['products'] } },
   );
 
   return data.productRecommendations.slice(0, count);

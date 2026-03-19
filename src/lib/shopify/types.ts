@@ -121,6 +121,9 @@ export interface CartLineItem {
   merchandise: {
     id: string;
     title: string;
+    sku: string | null;
+    quantityAvailable: number | null;
+    quantityRule: { maximum: number | null } | null;
     selectedOptions: SelectedOption[];
     product: Pick<ShopifyProduct, 'id' | 'handle' | 'title' | 'featuredImage'>;
   };

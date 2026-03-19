@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { User } from 'lucide-react';
 
 import { useSession, signOut } from 'next-auth/react';
 
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
-import { cartItemCountAtom } from '@/store/cartAtom';
+import { useCart } from '@/hooks/useCart';
 import { Container } from '@/components/ui/Container';
 
 import { Badge } from '../ui/Badge';
@@ -63,7 +62,7 @@ export function Navbar() {
   const t = useTranslations('nav');
   const { data: session } = useSession();
   const isAuthenticated = !!session;
-  const cartCount = useAtomValue(cartItemCountAtom);
+  const { itemCount: cartCount } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -104,7 +103,7 @@ export function Navbar() {
             className="flex shrink-0 items-center gap-1"
             onClick={() => setMobileOpen(false)}
           >
-            <span className="text-xl font-bold tracking-tight text-primary">Cark</span>
+            <span className="text-xl font-bold tracking-tight text-primary">Çark</span>
             <span className="text-xl font-bold tracking-tight text-black-dark">Zımpara</span>
           </Link>
 

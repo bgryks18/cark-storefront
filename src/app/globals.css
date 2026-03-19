@@ -7,6 +7,12 @@
 @theme {
   --font-sans: 'Ubuntu', sans-serif;
 
+  /* Font sizes */
+  --text-micro: 0.625rem;   /* 10px */
+  --text-micro--line-height: 1rem;
+  --text-tiny: 0.6875rem;   /* 11px */
+  --text-tiny--line-height: 1rem;
+
   /* Primary */
   --color-primary: #3d5bdf;
   --color-primary-dark: #2141d0;
@@ -30,6 +36,9 @@
   --color-red: #e74747;
   --color-red-light: #e06868;
   --color-red-dark: #971c1c;
+
+  /* Error (semantic alias) */
+  --color-error: #e74747;
 
   /* Green */
   --color-green: #3a9a3f;
@@ -201,4 +210,43 @@
     outline: 2px solid #fff;
     outline-offset: 2px;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out both;
+}
+
+@keyframes navDot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loadBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+.animate-load-bar {
+  animation: loadBar 1s ease-out infinite;
 }

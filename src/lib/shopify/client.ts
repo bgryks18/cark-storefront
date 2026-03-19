@@ -1,7 +1,3 @@
-import { GraphQLClient } from 'graphql-request';
-
-import type { ShopifyError } from './types';
-
 const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const storefrontToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
@@ -12,36 +8,52 @@ if (!storefrontToken) {
   throw new Error('NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN env değişkeni tanımlanmamış');
 }
 
-// ─── Storefront API client ────────────────────────────────────────────────────
+const endpoint = `https://${domain}/api/2024-10/graphql.json`;
 
-const storefrontEndpoint = `https://${domain}/api/2024-10/graphql.json`;
-
-export const storefrontClient = new GraphQLClient(storefrontEndpoint, {
-  headers: {
-    'X-Shopify-Storefront-Access-Token': storefrontToken,
-    'Content-Type': 'application/json',
-  },
-});
-
-// ─── Helper: Shopify hata kontrolü ───────────────────────────────────────────
-
-export function checkShopifyErrors(errors: ShopifyError[] | undefined, context: string): void {
-  if (errors && errors.length > 0) {
-    const messages = errors.map((e) => e.message).join(', ');
-    throw new Error(`[Shopify ${context}] ${messages}`);
-  }
+export interface ShopifyFetchOptions {
+  locale?: string;
+  cache?: RequestCache;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
 }
-
-// ─── Helper: Storefront query çalıştır ───────────────────────────────────────
 
 export async function shopifyFetch<
   TData,
   TVariables extends Record<string, unknown> = Record<string, unknown>,
->(query: string, variables?: TVariables, locale?: string): Promise<TData> {
-  const requestHeaders: Record<string, string> = {};
+>(query: string, variables?: TVariables, options?: ShopifyFetchOptions): Promise<TData> {
+  const { locale, cache, next } = options ?? {};
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Shopify-Storefront-Access-Token': storefrontToken!,
+  };
+
   if (locale) {
-    requestHeaders['Accept-Language'] = locale;
+    headers['Accept-Language'] = locale;
   }
-  const data = await storefrontClient.request<TData>(query, variables, requestHeaders);
-  return data;
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ query, variables }),
+    cache,
+    next,
+  });
+
+  if (!res.ok) {
+    throw new Error(`[Shopify] HTTP ${res.status}`);
+  }
+
+  const json = (await res.json()) as {
+    data?: TData;
+    errors?: Array<{ message: string }>;
+  };
+
+  if (json.errors?.length) {
+    throw new Error(`[Shopify] ${json.errors.map((e) => e.message).join(', ')}`);
+  }
+
+  return json.data as TData;
 }

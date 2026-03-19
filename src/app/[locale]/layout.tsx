@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 
 import { routing } from '@/i18n/routing';
 
-import { CartInitializer } from '@/components/cart/CartInitializer';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
+import { NavigationSpinner } from '@/components/layout/NavigationSpinner';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { Providers } from '@/components/layout/Providers';
 
 import '../globals.css';
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: LocaleLayoutProps): Promise<M
     openGraph: {
       type: 'website',
       locale: locale === 'tr' ? 'tr_TR' : 'en_US',
-      siteName: 'Cark Zımpara',
+      siteName: t('title'),
     },
     alternates: {
       canonical: siteUrl,
@@ -69,10 +70,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         </a>
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            <CartInitializer />
             <Navbar />
+            <NavigationSpinner />
             <main id="main-content" className="flex-1">
-              {children}
+              <PageTransition>{children}</PageTransition>
             </main>
             <Footer />
           </Providers>
