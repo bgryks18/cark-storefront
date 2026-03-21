@@ -10,6 +10,7 @@ export interface ConfirmOptions {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: 'danger' | 'default';
+  action?: () => Promise<void>;
 }
 
 interface ModalContextValue {
