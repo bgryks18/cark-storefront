@@ -47,7 +47,10 @@ function LanguageSwitcher() {
 
   return (
     <button
-      onClick={() => router.replace(pathname, { locale: locale === 'tr' ? 'en' : 'tr' })}
+      onClick={() => {
+        window.dispatchEvent(new CustomEvent('navigation-start'));
+        router.replace(pathname, { locale: locale === 'tr' ? 'en' : 'tr' });
+      }}
       className="flex h-9 items-center gap-1 rounded px-2 text-sm font-medium transition-colors hover:bg-gray-light"
       title={locale === 'tr' ? 'Switch to English' : "Türkçe'ye geç"}
     >

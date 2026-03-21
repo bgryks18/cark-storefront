@@ -6,9 +6,12 @@ import { usePathname } from 'next/navigation';
 
 import { Container } from '@/components/ui/Container';
 
+// Module-level flag: remount sonrası da loading state'i korur
+let pendingNavigation = false;
+
 export function NavigationSpinner() {
   const pathname = usePathname();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => pendingNavigation);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -16,16 +19,28 @@ export function NavigationSpinner() {
       if (anchor && anchor.href && !anchor.target && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
         const url = new URL(anchor.href);
         if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
+          pendingNavigation = true;
           setLoading(true);
         }
       }
     };
+    const handleNavigationStart = () => {
+      pendingNavigation = true;
+      setLoading(true);
+    };
     document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
+    window.addEventListener('navigation-start', handleNavigationStart);
+    return () => {
+      document.removeEventListener('click', handleClick);
+      window.removeEventListener('navigation-start', handleNavigationStart);
+    };
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
+    const timer = setTimeout(() => {
+      pendingNavigation = false;
+      setLoading(false);
+    }, 500);
     return () => clearTimeout(timer);
   }, [pathname]);
 
