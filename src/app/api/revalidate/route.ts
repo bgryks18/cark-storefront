@@ -27,11 +27,11 @@ export async function POST(req: NextRequest) {
   }
 
   if (topic.startsWith('products/')) {
-    revalidateTag('products', 'everything');
-    if (data.handle) revalidateTag(`product-${data.handle}`, 'everything');
+    revalidateTag('products', 'max');
+    if (data.handle) revalidateTag(`product-${data.handle}`, 'max');
   } else if (topic.startsWith('collections/')) {
-    revalidateTag('collections', 'everything');
-    if (data.handle) revalidateTag(`collection-${data.handle}`, 'everything');
+    revalidateTag('collections', 'max');
+    if (data.handle) revalidateTag(`collection-${data.handle}`, 'max');
   }
 
   return NextResponse.json({ revalidated: true, topic });
