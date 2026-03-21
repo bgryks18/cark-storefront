@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { ChevronLeft, ChevronRight, ShoppingBag, Trash2 } from 'lucide-react';
 
+import { CartErrorCode } from '@/lib/shopify/queries/cart';
 import { formatMoney, getCartLines } from '@/lib/shopify/normalize';
 
 import { useCart } from '@/hooks/useCart';
@@ -20,8 +21,8 @@ const PAGE_SIZE = 10;
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
-  const [removeErrors, setRemoveErrors] = useState<Record<string, string>>({});
   const [page, setPage] = useState(1);
+  const [lineErrors, setLineErrors] = useState<Record<string, string | null>>({});
   const t = useTranslations('cart');
   const { confirm } = useModal();
   const { cart, cartId, isLoading, isRemoving, removeFromCart } = useCart();
@@ -35,53 +36,32 @@ export default function CartPage() {
     if (page > totalPages) setPage(totalPages);
   }, [lines.length, totalPages, page]);
 
-  async function handleRemove(lineId: string) {
-    const ok = await confirm({
+  function handleRemove(lineId: string) {
+    confirm({
       title: t('removeConfirmTitle'),
       message: t('removeConfirmMessage'),
       confirmLabel: t('removeConfirmLabel'),
       variant: 'danger',
-    });
-    if (!ok) return;
-    try {
-      const { userErrors } = await removeFromCart(lineId);
-      if (userErrors.length > 0) {
-        const err = userErrors[0];
-        let msg: string;
-        switch (err.code) {
-          case 'INVALID_MERCHANDISE_LINE':
-            msg = 'Ürün zaten sepette bulunamadı.';
-            break;
-          case 'SERVICE_UNAVAILABLE':
-            msg = 'Servis geçici olarak kullanılamıyor. Lütfen tekrar deneyin.';
-            break;
-          case 'VALIDATION_CUSTOM':
-          default:
-            msg = err.message;
+      action: async () => {
+        const { userErrors } = await removeFromCart(lineId);
+        if (userErrors.length > 0) {
+          const err = userErrors[0];
+          let msg: string;
+          switch (err.code) {
+            case CartErrorCode.INVALID_MERCHANDISE_LINE:
+              msg = t('errors.lineNotFound');
+              break;
+            case CartErrorCode.SERVICE_UNAVAILABLE:
+              msg = t('errors.serviceUnavailable');
+              break;
+            case CartErrorCode.VALIDATION_CUSTOM:
+            default:
+              msg = err.message;
+          }
+          throw new Error(msg);
         }
-        setRemoveErrors((prev) => ({ ...prev, [lineId]: msg }));
-        setTimeout(
-          () =>
-            setRemoveErrors((prev) => {
-              const next = { ...prev };
-              delete next[lineId];
-              return next;
-            }),
-          3000,
-        );
-      }
-    } catch {
-      setRemoveErrors((prev) => ({ ...prev, [lineId]: 'Ürün silinemedi. Lütfen tekrar deneyin.' }));
-      setTimeout(
-        () =>
-          setRemoveErrors((prev) => {
-            const next = { ...prev };
-            delete next[lineId];
-            return next;
-          }),
-        3000,
-      );
-    }
+      },
+    });
   }
 
   useEffect(() => {
@@ -140,7 +120,9 @@ export default function CartPage() {
   return (
     <section key="content" className="animate-fade-in py-8 sm:py-12">
       <Container>
-        <h1 className="mb-8 text-2xl font-bold text-black-dark sm:text-3xl">Sepetim</h1>
+        <h1 className="sticky top-16 z-10 -mt-4 rounded-xl border-none bg-background py-4 text-2xl font-bold text-black-dark sm:text-3xl px-4 -mx-4">
+          Sepetim
+        </h1>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           {/* ─── Ürün listesi ─────────────────────────────────────────────── */}
@@ -207,22 +189,20 @@ export default function CartPage() {
                             const effective = Math.min(stock, rule);
                             return effective === Infinity ? null : effective;
                           })()}
+                          onError={(msg) => setLineErrors((prev) => ({ ...prev, [line.id]: msg }))}
                         />
 
-                        <div className="relative">
-                          <button
-                            onClick={() => handleRemove(line.id)}
-                            disabled={isRemoving}
-                            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-text-muted transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-500 dark:hover:border-red-900 dark:hover:bg-red-950/40 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                          {removeErrors[line.id] && (
-                            <p className="absolute top-full left-0 mt-1.5 whitespace-nowrap text-xs text-red-500">
-                              {removeErrors[line.id]}
-                            </p>
-                          )}
-                        </div>
+                        <button
+                          onClick={() => handleRemove(line.id)}
+                          disabled={isRemoving}
+                          className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent text-red-light transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-500 dark:text-text-muted dark:hover:border-red-900 dark:hover:bg-red-950/40 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+
+                        {lineErrors[line.id] && (
+                          <p className="text-xs text-error whitespace-nowrap">{lineErrors[line.id]}</p>
+                        )}
 
                         <p className="ml-auto text-sm font-semibold text-text-base">
                           {formatMoney(line.cost.totalAmount)}
@@ -280,39 +260,41 @@ export default function CartPage() {
           </div>
 
           {/* ─── Sipariş özeti ────────────────────────────────────────────── */}
-          <div className="h-fit rounded-2xl border border-card-border bg-card p-6">
-            <h2 className="mb-4 text-base font-semibold text-text-base">Sipariş Özeti</h2>
+          <div className="relative h-full ">
+            <div className="sticky top-33 max-h-[calc(100vh-10rem)] overflow-y-auto scrollbar-thin rounded-2xl border border-card-border bg-card p-6">
+              <h2 className="mb-4 text-base font-semibold text-text-base">{t('summary.title')}</h2>
 
-            <div className="flex flex-col gap-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-text-muted">Ara toplam</span>
-                <span className="font-medium text-text-base">{formatMoney(subtotal)}</span>
-              </div>
-              {tax && (
+              <div className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-text-muted">KDV</span>
-                  <span className="font-medium text-text-base">{formatMoney(tax)}</span>
+                  <span className="text-text-muted">{t('summary.subtotal')}</span>
+                  <span className="font-medium text-text-base">{formatMoney(subtotal)}</span>
                 </div>
-              )}
-              <div className="mt-2 flex justify-between border-t border-border pt-3 text-base">
-                <span className="font-semibold text-text-base">Toplam</span>
-                <span className="font-bold text-primary">{formatMoney(total)}</span>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">{t('summary.tax')}</span>
+                  <span className="font-medium text-text-base">
+                    {tax ? formatMoney(tax) : t('summary.taxPending')}
+                  </span>
+                </div>
+                <div className="mt-2 flex justify-between border-t border-border pt-3 text-base">
+                  <span className="font-semibold text-text-base">{t('summary.total')}</span>
+                  <span className="font-bold text-primary">{formatMoney(total)}</span>
+                </div>
               </div>
+
+              <a
+                href={cart.checkoutUrl}
+                className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-base font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Ödemeye geç
+              </a>
+
+              <Link
+                href="/collections"
+                className="mt-3 flex h-10 w-full items-center justify-center rounded-xl text-sm text-text-muted transition-colors hover:text-primary"
+              >
+                Alışverişe devam et
+              </Link>
             </div>
-
-            <a
-              href={cart.checkoutUrl}
-              className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-base font-semibold text-white transition-colors hover:bg-primary-dark"
-            >
-              Ödemeye geç
-            </a>
-
-            <Link
-              href="/collections"
-              className="mt-3 flex h-10 w-full items-center justify-center rounded-xl text-sm text-text-muted transition-colors hover:text-primary"
-            >
-              Alışverişe devam et
-            </Link>
           </div>
         </div>
       </Container>
