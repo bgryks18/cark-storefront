@@ -83,7 +83,24 @@
     "itemCount": "{count} ürün",
     "removeConfirmTitle": "Ürünü kaldır",
     "removeConfirmMessage": "Bu ürünü sepetten kaldırmak istiyor musunuz?",
-    "removeConfirmLabel": "Kaldır"
+    "removeConfirmLabel": "Kaldır",
+    "summary": {
+      "title": "Sipariş Özeti",
+      "subtotal": "Ara toplam",
+      "tax": "KDV",
+      "taxPending": "Hesaplanacak",
+      "total": "Toplam"
+    },
+    "errors": {
+      "lineNotFound": "Ürün zaten sepette bulunamadı.",
+      "productUnavailable": "Bu ürün artık mevcut değil.",
+      "maxQuantity": "En fazla {max} adet eklenebilir.",
+      "minimumNotMet": "Bu ürün için minimum adet şartı sağlanamadı.",
+      "invalidIncrement": "Miktar geçerli bir artış adımında değil.",
+      "cartTooLarge": "Sepetinizde çok fazla ürün var.",
+      "serviceUnavailable": "Servis geçici olarak kullanılamıyor. Lütfen tekrar deneyin.",
+      "updateFailed": "Güncelleme başarısız oldu. Lütfen tekrar deneyin."
+    }
   },
   "search": {
     "title": "Arama",

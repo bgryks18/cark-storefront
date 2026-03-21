@@ -83,7 +83,24 @@
     "itemCount": "{count} items",
     "removeConfirmTitle": "Remove item",
     "removeConfirmMessage": "Are you sure you want to remove this item from your cart?",
-    "removeConfirmLabel": "Remove"
+    "removeConfirmLabel": "Remove",
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "taxPending": "Calculated at checkout",
+      "total": "Total"
+    },
+    "errors": {
+      "lineNotFound": "This item is no longer in your cart.",
+      "productUnavailable": "This product is no longer available.",
+      "maxQuantity": "Only {max} units available.",
+      "minimumNotMet": "Minimum quantity requirement not met for this product.",
+      "invalidIncrement": "Quantity must be a valid increment.",
+      "cartTooLarge": "Your cart has too many items.",
+      "serviceUnavailable": "Service temporarily unavailable. Please try again.",
+      "updateFailed": "Update failed. Please try again."
+    }
   },
   "search": {
     "title": "Search",

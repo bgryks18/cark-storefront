@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { CartErrorCode } from '@/lib/shopify/queries/cart';
 import type { CartUserError } from '@/lib/shopify/queries/cart';
 import type { ShopifyCart } from '@/lib/shopify/types';
 
@@ -16,9 +17,10 @@ interface QuantityCounterProps {
   lineId: string;
   quantity: number;
   maxQuantity?: number | null;
+  onError?: (msg: string | null) => void;
 }
 
-export function QuantityCounter({ lineId, quantity, maxQuantity }: QuantityCounterProps) {
+export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: QuantityCounterProps) {
   const t = useTranslations('cart');
   const { confirm } = useModal();
   const { removeFromCart, updateQuantity, isFetching } = useCartItem(lineId);
@@ -41,10 +43,12 @@ export function QuantityCounter({ lineId, quantity, maxQuantity }: QuantityCount
 
   function showError(msg: string) {
     setErrorMsg(msg);
+    onError?.(msg);
   }
 
   function clearError() {
     setErrorMsg(null);
+    onError?.(null);
   }
 
   function startBar() {
@@ -105,33 +109,33 @@ export function QuantityCounter({ lineId, quantity, maxQuantity }: QuantityCount
     if (userErrors.length > 0) {
       const err = userErrors[0];
       switch (err.code) {
-        case 'MAXIMUM_EXCEEDED':
-        case 'LESS_THAN':
-        case 'MERCHANDISE_NOT_ENOUGH_STOCK':
-          showError(`En fazla ${actualQty ?? effectiveMax} adet eklenebilir.`);
+        case CartErrorCode.MAXIMUM_EXCEEDED:
+        case CartErrorCode.LESS_THAN:
+        case CartErrorCode.MERCHANDISE_NOT_ENOUGH_STOCK:
+          showError(t('errors.maxQuantity', { max: actualQty ?? effectiveMax ?? '' }));
           break;
-        case 'MINIMUM_NOT_MET':
-          showError('Bu ürün için minimum adet şartı sağlanamadı.');
+        case CartErrorCode.MINIMUM_NOT_MET:
+          showError(t('errors.minimumNotMet'));
           break;
-        case 'INVALID_INCREMENT':
-          showError('Miktar geçerli bir artış adımında değil.');
+        case CartErrorCode.INVALID_INCREMENT:
+          showError(t('errors.invalidIncrement'));
           break;
-        case 'MERCHANDISE_NOT_APPLICABLE':
-        case 'INVALID_MERCHANDISE_LINE':
-          showError('Bu ürün artık mevcut değil.');
+        case CartErrorCode.MERCHANDISE_NOT_APPLICABLE:
+        case CartErrorCode.INVALID_MERCHANDISE_LINE:
+          showError(t('errors.productUnavailable'));
           break;
-        case 'CART_TOO_LARGE':
-          showError('Sepetinizde çok fazla ürün var.');
+        case CartErrorCode.CART_TOO_LARGE:
+          showError(t('errors.cartTooLarge'));
           break;
-        case 'SERVICE_UNAVAILABLE':
-          showError('Servis geçici olarak kullanılamıyor. Lütfen tekrar deneyin.');
+        case CartErrorCode.SERVICE_UNAVAILABLE:
+          showError(t('errors.serviceUnavailable'));
           break;
-        case 'VALIDATION_CUSTOM':
+        case CartErrorCode.VALIDATION_CUSTOM:
         default:
           showError(err.message);
       }
     } else if (actualQty != null && actualQty < requestedQty) {
-      showError(`En fazla ${actualQty} adet eklenebilir.`);
+      showError(t('errors.maxQuantity', { max: actualQty }));
     }
   }
 
@@ -152,13 +156,13 @@ export function QuantityCounter({ lineId, quantity, maxQuantity }: QuantityCount
   // Button path: bar başlar hemen, istek debounce sonrası gider
   async function handleButtonChange(newQty: number) {
     if (newQty < 1) {
-      const ok = await confirm({
+      confirm({
         title: t('removeConfirmTitle'),
         message: t('removeConfirmMessage'),
         confirmLabel: t('removeConfirmLabel'),
         variant: 'danger',
+        action: async () => { await removeFromCart(); },
       });
-      if (ok) removeFromCart();
       return;
     }
     if (effectiveMax != null && newQty > effectiveMax) return;
@@ -198,13 +202,13 @@ export function QuantityCounter({ lineId, quantity, maxQuantity }: QuantityCount
     }
     if (parsed === 0) {
       setInputValue(String(localQty));
-      const ok = await confirm({
+      confirm({
         title: t('removeConfirmTitle'),
         message: t('removeConfirmMessage'),
         confirmLabel: t('removeConfirmLabel'),
         variant: 'danger',
+        action: async () => { await removeFromCart(); },
       });
-      if (ok) removeFromCart();
       return;
     }
     if (effectiveMax != null && parsed > effectiveMax) {
@@ -265,11 +269,6 @@ export function QuantityCounter({ lineId, quantity, maxQuantity }: QuantityCount
         <div className="absolute left-0 -bottom-2 h-0.5 w-full overflow-hidden rounded-full">
           <div className="animate-load-bar h-full w-1/2 rounded-full bg-primary" />
         </div>
-      )}
-      {errorMsg && (
-        <p className="absolute top-full left-0 mt-1.5 whitespace-nowrap text-xs text-error">
-          {errorMsg}
-        </p>
       )}
     </div>
   );

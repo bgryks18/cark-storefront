@@ -5,7 +5,48 @@ import type { CartLineInput, ShopifyCart } from '../types';
 
 // ─── Shared error/warning types ───────────────────────────────────────────────
 
-export type CartUserError = { code: string | null; field: string[] | null; message: string };
+/**
+ * Shopify CartUserErrorCode — cartLinesAdd / cartLinesUpdate / cartLinesRemove
+ * mutasyonlarından dönebilecek hata kodları.
+ *
+ * Referans: https://shopify.dev/docs/api/storefront/latest/enums/CartErrorCode
+ */
+export enum CartErrorCode {
+  /** İstenen miktar mevcut stoğu aşıyor. */
+  MAXIMUM_EXCEEDED = 'MAXIMUM_EXCEEDED',
+
+  /** İstenen miktar minimum miktarın altında (quantityRule.minimum). */
+  LESS_THAN = 'LESS_THAN',
+
+  /** Ürün için tanımlı minimum adet şartı sağlanamadı. */
+  MINIMUM_NOT_MET = 'MINIMUM_NOT_MET',
+
+  /** Ürün yeterli stoğa sahip değil. */
+  MERCHANDISE_NOT_ENOUGH_STOCK = 'MERCHANDISE_NOT_ENOUGH_STOCK',
+
+  /** Ürün bu sepete eklenemiyor (bölge / kanal kısıtlaması vb.). */
+  MERCHANDISE_NOT_APPLICABLE = 'MERCHANDISE_NOT_APPLICABLE',
+
+  /** Miktar, ürünün tanımlı artış adımına (quantityRule.increment) uymuyor. */
+  INVALID_DELIVERABLE_QUANTITY = 'INVALID_DELIVERABLE_QUANTITY',
+
+  /** Miktar geçerli bir artış adımında değil (increment kuralı ihlali). */
+  INVALID_INCREMENT = 'INVALID_INCREMENT',
+
+  /** Sepet satırı bulunamadı; ürün zaten silinmiş ya da ID geçersiz. */
+  INVALID_MERCHANDISE_LINE = 'INVALID_MERCHANDISE_LINE',
+
+  /** Sepette izin verilen maksimum satır sayısı aşıldı. */
+  CART_TOO_LARGE = 'CART_TOO_LARGE',
+
+  /** Shopify tarafında geçici servis hatası; kısa süre sonra tekrar denenebilir. */
+  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
+
+  /** Shopify akış kuralları veya uygulama mantığından kaynaklanan özel doğrulama hatası. */
+  VALIDATION_CUSTOM = 'VALIDATION_CUSTOM',
+}
+
+export type CartUserError = { code: CartErrorCode | null; field: string[] | null; message: string };
 export type CartWarning = { code: string; message: string };
 
 // ─── Mutations & Queries ──────────────────────────────────────────────────────
