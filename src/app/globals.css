@@ -30,7 +30,7 @@
   --color-black-dark: #464545;
 
   /* Background */
-  --color-background: #eee;
+  --color-background: #ddd;
 
   /* Red */
   --color-red: #e74747;
@@ -51,14 +51,14 @@
   --color-green-dark: #339c38;
 
   /* Semantic surface tokens (light defaults) */
-  --color-surface: #ffffff;
+  --color-surface: #eee;
   --color-surface-hover: #f8fcff;
   --color-border: #ededed;
   --color-text-base: #444444;
   --color-text-muted: #777777;
 
   /* Card tokens — page background'dan farklı, hafif border ile */
-  --color-card: #ffffff;
+  --color-card: #eee;
   --color-card-hover: #f4f8ff;
   --color-card-border: #e8e8e8;
 
