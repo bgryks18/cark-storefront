@@ -23,10 +23,9 @@ interface QuantityCounterProps {
 export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: QuantityCounterProps) {
   const t = useTranslations('cart');
   const { confirm } = useModal();
-  const { removeFromCart, updateQuantity, isFetching } = useCartItem(lineId);
+  const { removeFromCart, updateQuantity, isFetching, isItemLoading: isAnimationLoading, setItemLoading } = useCartItem(lineId);
 
   const [localQty, setLocalQty] = useState(quantity);
-  const [isAnimationLoading, setIsAnimationLoading] = useState(false);
   const [inputValue, setInputValue] = useState(String(quantity));
   const [serverMax, setServerMax] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -61,7 +60,7 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
     if (animStartRef.current === -1) {
       animStartRef.current = performance.now();
     }
-    setIsAnimationLoading(true);
+    setItemLoading((prev: Record<string, boolean>) => ({ ...prev, [lineId]: true }));
   }
 
   function stopBar() {
@@ -69,7 +68,7 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
     const elapsed = (performance.now() - animStartRef.current) % ANIMATION_CYCLE_MS;
     const remaining = ANIMATION_CYCLE_MS - elapsed;
     hideTimerRef.current = setTimeout(() => {
-      setIsAnimationLoading(false);
+      setItemLoading((prev: Record<string, boolean>) => { const next = { ...prev }; delete next[lineId]; return next; });
       animStartRef.current = -1;
       hideTimerRef.current = null;
     }, remaining);
@@ -234,7 +233,7 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
   return (
     <div className="relative">
       <div
-        className={`flex items-center overflow-hidden rounded-lg border bg-card transition-colors ${errorMsg ? 'border-error' : 'border-border'}`}
+        className={`flex items-center overflow-hidden rounded-lg border bg-card transition-colors ${errorMsg ? 'border-error-border' : 'border-border'}`}
       >
         <button
           type="button"

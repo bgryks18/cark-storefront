@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, Loader, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { useCart } from '@/hooks/useCart';
+import { CartErrorCode } from '@/lib/shopify/queries/cart';
 import { cn } from '@/lib/utils/cn';
 import { formatMoney } from '@/lib/shopify/normalize';
 import type { MoneyV2, ProductOption, ProductVariant } from '@/lib/shopify/types';
@@ -15,7 +17,6 @@ interface ProductFormProps {
   availableForSale: boolean;
   addToCartLabel: string;
   outOfStockLabel: string;
-  selectVariantLabel: string;
   quantityLabel: string;
 }
 
@@ -26,10 +27,10 @@ export function ProductForm({
   availableForSale,
   addToCartLabel,
   outOfStockLabel,
-  selectVariantLabel,
   quantityLabel,
 }: ProductFormProps) {
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
+  const t = useTranslations('cart');
 
   const hasRealOptions = !(options.length === 1 && options[0].values.length === 1 && options[0].values[0] === 'Default Title');
 
@@ -38,6 +39,7 @@ export function ProductForm({
   );
   const [quantity, setQuantity] = useState(1);
   const [state, setState] = useState<'idle' | 'loading' | 'added'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const selectedVariant = variants.find((v) =>
     v.selectedOptions.every((so) => selectedOptions[so.name] === so.value),
@@ -47,6 +49,32 @@ export function ProductForm({
   const compareAtPrice = selectedVariant?.compareAtPrice ?? null;
   const isAvailable = availableForSale && (selectedVariant?.availableForSale ?? true);
   const isOnSale = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
+  const effectiveMax = (() => {
+    const stock = selectedVariant?.quantityAvailable ?? Infinity;
+    const rule = selectedVariant?.quantityRule?.maximum ?? Infinity;
+    const m = Math.min(stock, rule);
+    return m === Infinity ? null : m;
+  })();
+
+  const existingQty = selectedVariant
+    ? (cart?.lines.edges.find((e) => e.node.merchandise.id === selectedVariant.id)?.node.quantity ?? 0)
+    : 0;
+
+  const remainingMax = effectiveMax !== null ? Math.max(0, effectiveMax - existingQty) : null;
+  const atMax = remainingMax !== null && quantity >= remainingMax;
+
+  // Varyant değişince veya sepet değişince miktarı üst sınıra çek
+  useEffect(() => {
+    if (remainingMax !== null && quantity > remainingMax) {
+      setQuantity(Math.max(1, remainingMax));
+      setErrorMsg(remainingMax === 0
+        ? t('errors.maxInCart', { max: effectiveMax ?? existingQty })
+        : t('errors.maxQuantity', { max: remainingMax })
+      );
+    } else {
+      setErrorMsg(null);
+    }
+  }, [selectedVariant?.id, existingQty]);
 
   function selectOption(name: string, value: string) {
     setSelectedOptions((prev) => ({ ...prev, [name]: value }));
@@ -56,12 +84,60 @@ export function ProductForm({
     if (!selectedVariant || !isAvailable) return;
 
     setState('loading');
+    setErrorMsg(null);
     try {
-      await addToCart({ merchandiseId: selectedVariant.id, quantity });
+      const { cart, userErrors } = await addToCart({ merchandiseId: selectedVariant.id, quantity });
+
+      // Shopify userErrors döndürmeden sessizce kısıtlamış olabilir
+      const addedLine = cart.lines.edges.find(
+        (e) => e.node.merchandise.id === selectedVariant.id,
+      );
+      const actualQty = addedLine?.node.quantity ?? null;
+      if (actualQty !== null && actualQty < existingQty + quantity) {
+        const added = actualQty - existingQty;
+        setErrorMsg(added <= 0
+          ? t('errors.maxInCart', { max: actualQty })
+          : t('errors.maxQuantity', { max: added })
+        );
+        if (added > 0) {
+          // Bir kısmı eklendi — butonu yeşile çevir, sonra idle'a dön
+          setState('added');
+          setQuantity(1);
+          setTimeout(() => setState('idle'), 2000);
+        } else {
+          setState('idle');
+        }
+        return;
+      }
+
+      if (userErrors.length > 0) {
+        const err = userErrors[0];
+        switch (err.code) {
+          case CartErrorCode.MAXIMUM_EXCEEDED:
+          case CartErrorCode.MERCHANDISE_NOT_ENOUGH_STOCK:
+            setErrorMsg(t('errors.maxQuantity', { max: effectiveMax ?? '' }));
+            break;
+          case CartErrorCode.MERCHANDISE_NOT_APPLICABLE:
+          case CartErrorCode.INVALID_MERCHANDISE_LINE:
+            setErrorMsg(t('errors.productUnavailable'));
+            break;
+          case CartErrorCode.CART_TOO_LARGE:
+            setErrorMsg(t('errors.cartTooLarge'));
+            break;
+          case CartErrorCode.SERVICE_UNAVAILABLE:
+            setErrorMsg(t('errors.serviceUnavailable'));
+            break;
+          default:
+            setErrorMsg(err.message);
+        }
+        setState('idle');
+        return;
+      }
       setState('added');
       setQuantity(1);
       setTimeout(() => setState('idle'), 2000);
     } catch {
+      setErrorMsg(t('errors.updateFailed'));
       setState('idle');
     }
   }
@@ -126,8 +202,9 @@ export function ProductForm({
         <p className="mb-2 text-sm font-medium text-text-base">{quantityLabel}</p>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-card-border bg-card text-text-base transition-colors hover:border-primary hover:text-primary"
+            onClick={() => { setQuantity((q) => Math.max(1, q - 1)); setErrorMsg(null); }}
+            disabled={quantity <= 1}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-card-border bg-card text-text-base transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -135,12 +212,25 @@ export function ProductForm({
             {quantity}
           </span>
           <button
-            onClick={() => setQuantity((q) => q + 1)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-card-border bg-card text-text-base transition-colors hover:border-primary hover:text-primary"
+            onClick={() => {
+              if (atMax) {
+                setErrorMsg(remainingMax === 0
+                  ? t('errors.maxInCart', { max: effectiveMax ?? existingQty })
+                  : t('errors.maxQuantity', { max: remainingMax })
+                );
+                return;
+              }
+              setQuantity((q) => q + 1);
+            }}
+            disabled={atMax}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-card-border bg-card text-text-base transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Plus className="h-4 w-4" />
           </button>
         </div>
+        {errorMsg && (
+          <p className="mt-2 text-xs text-error">{errorMsg}</p>
+        )}
       </div>
 
       {/* Sepete ekle butonu */}

@@ -102,6 +102,16 @@ const CART_LINES_REMOVE_MUTATION = `#graphql
   ${CART_FRAGMENT}
 `;
 
+const CART_DISCOUNT_CODES_UPDATE_MUTATION = `#graphql
+  mutation CartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart { ...CartFields }
+      userErrors { code field message }
+    }
+  }
+  ${CART_FRAGMENT}
+`;
+
 const CART_BUYER_IDENTITY_UPDATE_MUTATION = `#graphql
   mutation CartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
     cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
@@ -114,10 +124,10 @@ const CART_BUYER_IDENTITY_UPDATE_MUTATION = `#graphql
 
 // ─── Fonksiyonlar ─────────────────────────────────────────────────────────────
 
-export async function createCart(lines: CartLineInput[] = []): Promise<ShopifyCart> {
+export async function createCart(lines: CartLineInput[] = [], locale?: string): Promise<ShopifyCart> {
   const data = await shopifyFetch<{
     cartCreate: { cart: ShopifyCart; userErrors: CartUserError[] };
-  }>(CART_CREATE_MUTATION, { lines }, { cache: 'no-store' });
+  }>(CART_CREATE_MUTATION, { lines }, { locale, cache: 'no-store' });
 
   // create'te hata varsa sepet oluşturulmamış demektir — throw et
   if (data.cartCreate.userErrors.length > 0) {
@@ -126,18 +136,19 @@ export async function createCart(lines: CartLineInput[] = []): Promise<ShopifyCa
   return data.cartCreate.cart;
 }
 
-export async function getCart(cartId: string): Promise<ShopifyCart | null> {
-  const data = await shopifyFetch<{ cart: ShopifyCart | null }>(CART_QUERY, { cartId }, { cache: 'no-store' });
+export async function getCart(cartId: string, locale?: string): Promise<ShopifyCart | null> {
+  const data = await shopifyFetch<{ cart: ShopifyCart | null }>(CART_QUERY, { cartId }, { locale, cache: 'no-store' });
   return data.cart;
 }
 
 export async function addCartLines(
   cartId: string,
   lines: CartLineInput[],
+  locale?: string,
 ): Promise<{ cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] }> {
   const data = await shopifyFetch<{
     cartLinesAdd: { cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] };
-  }>(CART_LINES_ADD_MUTATION, { cartId, lines }, { cache: 'no-store' });
+  }>(CART_LINES_ADD_MUTATION, { cartId, lines }, { locale, cache: 'no-store' });
 
   return {
     cart: data.cartLinesAdd.cart,
@@ -149,10 +160,11 @@ export async function addCartLines(
 export async function updateCartLines(
   cartId: string,
   lines: { id: string; quantity: number }[],
+  locale?: string,
 ): Promise<{ cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] }> {
   const data = await shopifyFetch<{
     cartLinesUpdate: { cart: ShopifyCart; userErrors: CartUserError[]; warnings: CartWarning[] };
-  }>(CART_LINES_UPDATE_MUTATION, { cartId, lines }, { cache: 'no-store' });
+  }>(CART_LINES_UPDATE_MUTATION, { cartId, lines }, { locale, cache: 'no-store' });
 
   return {
     cart: data.cartLinesUpdate.cart,
@@ -164,14 +176,30 @@ export async function updateCartLines(
 export async function removeCartLines(
   cartId: string,
   lineIds: string[],
+  locale?: string,
 ): Promise<{ cart: ShopifyCart; userErrors: CartUserError[] }> {
   const data = await shopifyFetch<{
     cartLinesRemove: { cart: ShopifyCart; userErrors: CartUserError[] };
-  }>(CART_LINES_REMOVE_MUTATION, { cartId, lineIds }, { cache: 'no-store' });
+  }>(CART_LINES_REMOVE_MUTATION, { cartId, lineIds }, { locale, cache: 'no-store' });
 
   return {
     cart: data.cartLinesRemove.cart,
     userErrors: data.cartLinesRemove.userErrors,
+  };
+}
+
+export async function updateCartDiscountCodes(
+  cartId: string,
+  discountCodes: string[],
+  locale?: string,
+): Promise<{ cart: ShopifyCart; userErrors: CartUserError[] }> {
+  const data = await shopifyFetch<{
+    cartDiscountCodesUpdate: { cart: ShopifyCart; userErrors: CartUserError[] };
+  }>(CART_DISCOUNT_CODES_UPDATE_MUTATION, { cartId, discountCodes }, { locale, cache: 'no-store' });
+
+  return {
+    cart: data.cartDiscountCodesUpdate.cart,
+    userErrors: data.cartDiscountCodesUpdate.userErrors,
   };
 }
 

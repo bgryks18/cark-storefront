@@ -8,6 +8,8 @@ import { Loader } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 
 import { Link, useRouter } from '@/i18n/navigation';
+
+import { ErrorBox } from '@/components/ui/ErrorBox';
 import { Container } from '@/components/ui/Container';
 
 export default function LoginPage() {
@@ -43,7 +45,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               {error && (
-                <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>
+                <ErrorBox>{error}</ErrorBox>
               )}
 
               <div className="flex flex-col gap-1.5">

@@ -157,7 +157,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 availableForSale={product.availableForSale}
                 addToCartLabel={t('addToCart')}
                 outOfStockLabel={t('outOfStock')}
-                selectVariantLabel={t('selectVariant')}
                 quantityLabel={t('quantity')}
               />
 

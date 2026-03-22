@@ -87,14 +87,19 @@
     "summary": {
       "title": "Sipariş Özeti",
       "subtotal": "Ara toplam",
-      "tax": "KDV",
-      "taxPending": "Hesaplanacak",
-      "total": "Toplam"
+      "discount": "İndirim",
+      "total": "Toplam",
+      "taxNote": "Vergiler dahil. Kargo ödeme sayfasında hesaplanır."
     },
+    "discount": "İndirim",
+    "discountCodePlaceholder": "İndirim kodu",
+    "applyDiscount": "Uygula",
+    "discountInvalid": "Geçersiz indirim kodu.",
     "errors": {
       "lineNotFound": "Ürün zaten sepette bulunamadı.",
       "productUnavailable": "Bu ürün artık mevcut değil.",
       "maxQuantity": "En fazla {max} adet eklenebilir.",
+      "maxInCart": "Bu üründen sepette zaten {max} adet var (maksimum).",
       "minimumNotMet": "Bu ürün için minimum adet şartı sağlanamadı.",
       "invalidIncrement": "Miktar geçerli bir artış adımında değil.",
       "cartTooLarge": "Sepetinizde çok fazla ürün var.",
@@ -147,6 +152,50 @@
     "orderDate": "Tarih",
     "orderStatus": "Durum",
     "orderTotal": "Toplam"
+  },
+  "checkout": {
+    "form": {
+      "title": "Ödeme",
+      "contact": "İletişim",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "deliveryAddress": "Teslimat Adresi",
+      "address": "Adres (mahalle, sokak, no, daire)",
+      "city": "Şehir",
+      "zip": "Posta kodu",
+      "shippingMethod": "Kargo Yöntemi",
+      "shipping": "Kargo",
+      "submit": "Ödemeye Geç →",
+      "submitting": "Yönlendiriliyor...",
+      "securePayment": "Güvenli ödeme PayTR tarafından sağlanmaktadır",
+      "errors": {
+        "paymentFailed": "Ödeme başlatılamadı. Lütfen tekrar deneyin.",
+        "connectionError": "Bağlantı hatası. Lütfen tekrar deneyin."
+      },
+      "validation": {
+        "required": "Bu alan zorunludur",
+        "emailInvalid": "Geçerli bir e-posta adresi giriniz",
+        "phoneInvalid": "Geçerli bir telefon numarası giriniz (05xx xxx xx xx)"
+      },
+      "shippingOptions": {
+        "standard": { "label": "Standart Kargo", "description": "3-5 iş günü" },
+        "fast": { "label": "Hızlı Kargo", "description": "1-2 iş günü" }
+      }
+    },
+    "success": {
+      "title": "Ödemeniz Alındı!",
+      "description": "Siparişiniz başarıyla oluşturuldu. Kargo bilgileriniz e-posta adresinize iletilecektir.",
+      "continueShopping": "Alışverişe devam et",
+      "backHome": "Ana sayfaya dön"
+    },
+    "failure": {
+      "title": "Ödeme Başarısız",
+      "description": "Ödeme işlemi tamamlanamadı. Kart bilgilerinizi kontrol ederek tekrar deneyebilirsiniz.",
+      "retry": "Tekrar dene",
+      "backToCart": "Sepete dön"
+    }
   },
   "footer": {
     "brandName": "Çark Zımpara",

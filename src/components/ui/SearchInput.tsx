@@ -35,7 +35,7 @@ export function SearchInput({ defaultValue = '', placeholder }: SearchInputProps
       <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
       <input
         ref={inputRef}
-        type="search"
+        type="text"
         defaultValue={defaultValue}
         placeholder={placeholder}
         className="h-12 w-full rounded-xl border border-card-border bg-card pl-11 pr-11 text-base text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
@@ -44,7 +44,7 @@ export function SearchInput({ defaultValue = '', placeholder }: SearchInputProps
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-base"
+          className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-text-muted hover:text-text-base"
         >
           <X className="h-4 w-4" />
         </button>

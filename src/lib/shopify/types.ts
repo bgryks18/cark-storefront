@@ -72,6 +72,7 @@ export interface ProductVariant {
   title: string;
   availableForSale: boolean;
   quantityAvailable: number | null;
+  quantityRule: { maximum: number | null; minimum: number; increment: number } | null;
   selectedOptions: SelectedOption[];
   price: MoneyV2;
   compareAtPrice: MoneyV2 | null;
@@ -132,6 +133,7 @@ export interface CartLineItem {
     amountPerQuantity: MoneyV2;
     compareAtAmountPerQuantity: MoneyV2 | null;
   };
+  discountAllocations: Array<{ discountedAmount: MoneyV2 }>;
 }
 
 export interface ShopifyCart {
@@ -144,6 +146,7 @@ export interface ShopifyCart {
     totalAmount: MoneyV2;
     totalTaxAmount: MoneyV2 | null;
   };
+  discountCodes: Array<{ applicable: boolean; code: string }>;
   buyerIdentity?: {
     email: string | null;
     customer: { id: string } | null;

@@ -1,11 +1,15 @@
 'use client';
 
 import { useMutationState } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 
 import { useCart } from '@/hooks/useCart';
+import { cartItemLoadingAtom } from '@/store/cartAtom';
 
 export function useCartItem(lineId: string) {
   const { removeFromCart, updateQuantity } = useCart();
+  const [cartItemLoading, setItemLoading] = useAtom(cartItemLoadingAtom);
+  const isItemLoading = cartItemLoading[lineId] ?? false;
 
   const isUpdatingThis =
     useMutationState({
@@ -31,6 +35,8 @@ export function useCartItem(lineId: string) {
 
   return {
     isFetching: isUpdatingThis || isRemovingThis,
+    isItemLoading,
+    setItemLoading,
     removeFromCart: () => removeFromCart(lineId),
     updateQuantity: (qty: number) => updateQuantity(lineId, qty),
   };

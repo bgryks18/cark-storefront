@@ -87,14 +87,19 @@
     "summary": {
       "title": "Order Summary",
       "subtotal": "Subtotal",
-      "tax": "Tax",
-      "taxPending": "Calculated at checkout",
-      "total": "Total"
+      "discount": "Discount",
+      "total": "Total",
+      "taxNote": "Taxes included. Shipping calculated at checkout."
     },
+    "discount": "Discount",
+    "discountCodePlaceholder": "Discount code",
+    "applyDiscount": "Apply",
+    "discountInvalid": "Invalid discount code.",
     "errors": {
       "lineNotFound": "This item is no longer in your cart.",
       "productUnavailable": "This product is no longer available.",
       "maxQuantity": "Only {max} units available.",
+      "maxInCart": "Your cart already has the maximum quantity ({max}) of this item.",
       "minimumNotMet": "Minimum quantity requirement not met for this product.",
       "invalidIncrement": "Quantity must be a valid increment.",
       "cartTooLarge": "Your cart has too many items.",
@@ -147,6 +152,50 @@
     "orderDate": "Date",
     "orderStatus": "Status",
     "orderTotal": "Total"
+  },
+  "checkout": {
+    "form": {
+      "title": "Checkout",
+      "contact": "Contact",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "deliveryAddress": "Delivery Address",
+      "address": "Address (street, building, apt)",
+      "city": "City",
+      "zip": "ZIP / Postal code",
+      "shippingMethod": "Shipping Method",
+      "shipping": "Shipping",
+      "submit": "Proceed to Payment →",
+      "submitting": "Redirecting...",
+      "securePayment": "Secure payment provided by PayTR",
+      "errors": {
+        "paymentFailed": "Could not initiate payment. Please try again.",
+        "connectionError": "Connection error. Please try again."
+      },
+      "validation": {
+        "required": "This field is required",
+        "emailInvalid": "Please enter a valid email address",
+        "phoneInvalid": "Please enter a valid phone number"
+      },
+      "shippingOptions": {
+        "standard": { "label": "Standard Shipping", "description": "3-5 business days" },
+        "fast": { "label": "Express Shipping", "description": "1-2 business days" }
+      }
+    },
+    "success": {
+      "title": "Payment Received!",
+      "description": "Your order has been successfully created. Shipping details will be sent to your email address.",
+      "continueShopping": "Continue shopping",
+      "backHome": "Back to home"
+    },
+    "failure": {
+      "title": "Payment Failed",
+      "description": "The payment could not be completed. Please check your card details and try again.",
+      "retry": "Try again",
+      "backToCart": "Back to cart"
+    }
   },
   "footer": {
     "brandName": "Çark Zımpara",

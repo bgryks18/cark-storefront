@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 
 import type { ConfirmOptions } from '@/contexts/ModalContext';
 
+import { ErrorBox } from '@/components/ui/ErrorBox';
+
 interface ConfirmModalProps {
   config: ConfirmOptions;
   onConfirm: () => void;
@@ -86,9 +88,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
         )}
 
         {error && (
-          <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400">
-            {error}
-          </p>
+          <ErrorBox className="mt-3">{error}</ErrorBox>
         )}
 
         <div className="mt-6 flex justify-end gap-2">
@@ -104,7 +104,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
             disabled={isConfirming}
             className={`relative h-9 min-w-20 cursor-pointer rounded-lg px-4 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-80 ${
               variant === 'danger'
-                ? 'bg-red-500 hover:bg-red-600'
+                ? 'bg-error hover:bg-red-dark'
                 : 'bg-primary hover:bg-primary-dark'
             }`}
           >

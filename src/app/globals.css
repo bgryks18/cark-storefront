@@ -8,9 +8,9 @@
   --font-sans: 'Ubuntu', sans-serif;
 
   /* Font sizes */
-  --text-micro: 0.625rem;   /* 10px */
+  --text-micro: 0.625rem; /* 10px */
   --text-micro--line-height: 1rem;
-  --text-tiny: 0.6875rem;   /* 11px */
+  --text-tiny: 0.6875rem; /* 11px */
   --text-tiny--line-height: 1rem;
 
   /* Primary */
@@ -37,8 +37,14 @@
   --color-red-light: #e06868;
   --color-red-dark: #971c1c;
 
-  /* Error (semantic alias) */
-  --color-error: #e74747;
+  /* Error tokens */
+  --color-error: #dc2626;
+  --color-error-bg: #fee2e2;
+  --color-error-border: #fca5a5;
+  --color-error-text: #991b1b;
+
+  /* Success tokens */
+  --color-success: #16a34a;
 
   /* Green */
   --color-green: #3a9a3f;
@@ -107,7 +113,14 @@
   /* Background */
   --color-background: #0f1117;
 
-  /* Red / Green → aynı kalır */
+  /* Error tokens — dark */
+  --color-error: #f87171;
+  --color-error-bg: #4d1a1a;
+  --color-error-border: #dc2626;
+  --color-error-text: #f87171;
+
+  /* Success tokens — dark */
+  --color-success: #4ade80;
 
   /* Semantic */
   --color-surface: #1a1d2e;

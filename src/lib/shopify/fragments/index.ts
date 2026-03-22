@@ -30,6 +30,7 @@ export const PRODUCT_VARIANT_FRAGMENT = `#graphql
     title
     availableForSale
     quantityAvailable
+    quantityRule { maximum minimum increment }
     sku
     selectedOptions {
       name
@@ -105,6 +106,9 @@ export const CART_LINE_FRAGMENT = `#graphql
       amountPerQuantity { ...MoneyFields }
       compareAtAmountPerQuantity { ...MoneyFields }
     }
+    discountAllocations {
+      discountedAmount { ...MoneyFields }
+    }
   }
 `;
 
@@ -129,6 +133,10 @@ export const CART_FRAGMENT = `#graphql
       subtotalAmount { ...MoneyFields }
       totalAmount { ...MoneyFields }
       totalTaxAmount { ...MoneyFields }
+    }
+    discountCodes {
+      applicable
+      code
     }
     buyerIdentity {
       email
