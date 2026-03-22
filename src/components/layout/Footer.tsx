@@ -53,6 +53,7 @@ export function Footer() {
                 { href: '/login', label: t('login') },
                 { href: '/register', label: t('register') },
                 { href: '/account', label: t('account') },
+                { href: '/order-tracking', label: ft('orderTracking') },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="text-sm text-black-dark transition-colors hover:text-primary">

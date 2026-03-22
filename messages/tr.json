@@ -197,12 +197,48 @@
       "backToCart": "Sepete dön"
     }
   },
+  "orderTracking": {
+    "title": "Sipariş Takibi",
+    "description": "Siparişinizin durumunu takip etmek için e-posta adresinizi ve sipariş ID'nizi girin.",
+    "email": "E-posta adresi",
+    "orderId": "Sipariş ID",
+    "orderIdPlaceholder": "Örn: 5483920384",
+    "submit": "Siparişi Sorgula",
+    "submitting": "Sorgulanıyor...",
+    "notFound": "Bu bilgilerle eşleşen bir sipariş bulunamadı. E-posta adresinizi ve sipariş ID'nizi kontrol edin.",
+    "errorGeneric": "Sipariş sorgulanırken bir hata oluştu. Lütfen tekrar deneyin.",
+    "orderSummary": "Sipariş Özeti",
+    "orderDate": "Sipariş tarihi",
+    "paymentStatus": "Ödeme durumu",
+    "shippingStatus": "Kargo durumu",
+    "products": "Ürünler",
+    "subtotal": "Ara toplam",
+    "shipping": "Kargo",
+    "total": "Toplam",
+    "financialStatus": {
+      "pending": "Beklemede",
+      "authorized": "Onaylandı",
+      "partially_paid": "Kısmen Ödendi",
+      "paid": "Ödendi",
+      "partially_refunded": "Kısmen İade",
+      "refunded": "İade Edildi",
+      "voided": "İptal Edildi"
+    },
+    "trackShipment": "Kargonu Takip Et",
+    "fulfillmentStatus": {
+      "unfulfilled": "Hazırlanıyor",
+      "partial": "Kısmen Kargoya Verildi",
+      "fulfilled": "Kargoya Verildi",
+      "restocked": "İade Edildi"
+    }
+  },
   "footer": {
     "brandName": "Çark Zımpara",
     "tagline": "Profesyonel zımpara çözümleri. Kalite ve güven ile hizmetinizdeyiz.",
     "store": "Mağaza",
     "account": "Hesap",
     "contact": "İletişim",
-    "rights": "Tüm hakları saklıdır."
+    "rights": "Tüm hakları saklıdır.",
+    "orderTracking": "Sipariş Takibi"
   }
 }

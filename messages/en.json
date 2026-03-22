@@ -197,12 +197,48 @@
       "backToCart": "Back to cart"
     }
   },
+  "orderTracking": {
+    "title": "Order Tracking",
+    "description": "Enter your email address and order ID to track your order status.",
+    "email": "Email address",
+    "orderId": "Order ID",
+    "orderIdPlaceholder": "e.g. 5483920384",
+    "submit": "Track Order",
+    "submitting": "Searching...",
+    "notFound": "No order found with this information. Please check your email address and order ID.",
+    "errorGeneric": "An error occurred while searching for your order. Please try again.",
+    "orderSummary": "Order Summary",
+    "orderDate": "Order date",
+    "paymentStatus": "Payment status",
+    "shippingStatus": "Shipping status",
+    "products": "Products",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "financialStatus": {
+      "pending": "Pending",
+      "authorized": "Authorized",
+      "partially_paid": "Partially Paid",
+      "paid": "Paid",
+      "partially_refunded": "Partially Refunded",
+      "refunded": "Refunded",
+      "voided": "Voided"
+    },
+    "trackShipment": "Track Shipment",
+    "fulfillmentStatus": {
+      "unfulfilled": "Processing",
+      "partial": "Partially Shipped",
+      "fulfilled": "Shipped",
+      "restocked": "Returned"
+    }
+  },
   "footer": {
     "brandName": "Çark Zımpara",
     "tagline": "Professional abrasive solutions. Quality and trust at your service.",
     "store": "Store",
     "account": "Account",
     "contact": "Contact",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "orderTracking": "Order Tracking"
   }
 }

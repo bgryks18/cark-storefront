@@ -174,6 +174,59 @@ export async function deleteDraftOrder(draftOrderId: number): Promise<void> {
   });
 }
 
+export interface AdminOrderLineItem {
+  title: string;
+  quantity: number;
+  price: string;
+  variant_title: string | null;
+}
+
+export interface AdminFulfillment {
+  tracking_number: string | null;
+  tracking_url: string | null;
+  tracking_company: string | null;
+}
+
+export interface AdminOrder {
+  id: number;
+  name: string;
+  email: string;
+  created_at: string;
+  financial_status: string;
+  fulfillment_status: string | null;
+  total_price: string;
+  subtotal_price: string;
+  total_shipping_price_set: {
+    shop_money: { amount: string; currency_code: string };
+  };
+  line_items: AdminOrderLineItem[];
+  fulfillments: AdminFulfillment[];
+}
+
+export async function getOrderByIdAndEmail(
+  orderId: string,
+  email: string,
+): Promise<AdminOrder | null> {
+  const response = await fetch(
+    getAdminUrl(`/orders/${orderId}.json?fields=id,name,email,created_at,financial_status,fulfillment_status,total_price,subtotal_price,total_shipping_price_set,line_items,fulfillments`),
+    {
+      headers: await getAdminHeaders(),
+      cache: 'no-store',
+    },
+  );
+
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Sipariş sorgulanamadı');
+
+  const data = (await response.json()) as { order: AdminOrder };
+  const order = data.order;
+
+  // Email eşleşmiyorsa bulunamadı gibi davran
+  if (order.email.toLowerCase() !== email.toLowerCase()) return null;
+
+  return order;
+}
+
 export interface ShippingRate {
   title: string;
   price: number;
