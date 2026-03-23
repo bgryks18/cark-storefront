@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 
 import type { ConfirmOptions } from '@/contexts/ModalContext';
 
-import { ErrorBox } from '@/components/ui/ErrorBox';
+import { AlertBox } from '@/components/ui/AlertBox';
 
 interface ConfirmModalProps {
   config: ConfirmOptions;
@@ -88,7 +88,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
         )}
 
         {error && (
-          <ErrorBox className="mt-3">{error}</ErrorBox>
+          <AlertBox className="mt-3">{error}</AlertBox>
         )}
 
         <div className="mt-6 flex justify-end gap-2">

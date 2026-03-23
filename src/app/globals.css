@@ -43,6 +43,12 @@
   --color-error-border: #fca5a5;
   --color-error-text: #991b1b;
 
+  /* Warning tokens */
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fcd34d;
+  --color-warning-text: #78350f;
+
   /* Success tokens */
   --color-success: #16a34a;
 
@@ -118,6 +124,12 @@
   --color-error-bg: #4d1a1a;
   --color-error-border: #dc2626;
   --color-error-text: #f87171;
+
+  /* Warning tokens — dark */
+  --color-warning: #fbbf24;
+  --color-warning-bg: #3a2a0a;
+  --color-warning-border: #b45309;
+  --color-warning-text: #fde68a;
 
   /* Success tokens — dark */
   --color-success: #4ade80;
