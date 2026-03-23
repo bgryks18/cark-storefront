@@ -8,9 +8,10 @@ import { useMutation } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 
 import { registerCustomer } from '@/lib/actions/customer';
+import { isRegisterAuthErrorKey } from '@/lib/shopify/customerAuthErrors';
 
 import { Container } from '@/components/ui/Container';
-import { ErrorBox } from '@/components/ui/ErrorBox';
+import { AlertBox } from '@/components/ui/AlertBox';
 
 interface FormValues {
   firstName: string;
@@ -26,12 +27,15 @@ export default function RegisterPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      await registerCustomer({
+      const reg = await registerCustomer({
         email: values.email,
         password: values.password,
         firstName: values.firstName || undefined,
         lastName: values.lastName || undefined,
       });
+      if (!reg.ok) {
+        throw new Error(reg.code);
+      }
       const result = await signIn('credentials', {
         email: values.email,
         password: values.password,
@@ -55,21 +59,28 @@ export default function RegisterPage() {
 
   function getErrorMessage() {
     const message = mutation.error instanceof Error ? mutation.error.message : '';
-    if (message === 'signin_failed') return tErrors('generic');
-    if (message.toLowerCase().includes('already') || message.includes('CUSTOMER_DISABLED'))
-      return tErrors('emailInUse');
+    if (message === 'signin_failed') return tErrors('invalidCredentials');
+    if (isRegisterAuthErrorKey(message)) return tErrors(message);
     return tErrors('generic');
+  }
+
+  function registerAlertVariant(): 'danger' | 'warning' {
+    const message = mutation.error instanceof Error ? mutation.error.message : '';
+    if (message === 'verifyEmail' || message === 'alreadyEnabled') return 'warning';
+    return 'danger';
   }
 
   return (
     <section className="py-16 sm:py-24">
       <Container>
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl border border-card-border bg-card p-8">
             <h1 className="mb-6 text-2xl font-bold text-black-dark">{t('title')}</h1>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {mutation.isError && <ErrorBox>{getErrorMessage()}</ErrorBox>}
+              {mutation.isError && (
+                <AlertBox variant={registerAlertVariant()}>{getErrorMessage()}</AlertBox>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">

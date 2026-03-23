@@ -157,23 +157,46 @@ export async function getCustomer(customerAccessToken: string): Promise<ShopifyC
   return data.customer;
 }
 
-export async function createCustomer(
-  input: CustomerCreateInput,
-): Promise<{ id: string; email: string }> {
-  const data = await shopifyFetch<{
-    customerCreate: {
-      customer: { id: string; email: string; firstName: string | null; lastName: string | null } | null;
-      customerUserErrors: CustomerUserError[];
+export type CreateCustomerResult =
+  | { ok: true; customer: { id: string; email: string } }
+  | { ok: false; errors: CustomerUserError[] };
+
+export async function createCustomer(input: CustomerCreateInput): Promise<CreateCustomerResult> {
+  try {
+    const data = await shopifyFetch<{
+      customerCreate: {
+        customer: { id: string; email: string; firstName: string | null; lastName: string | null } | null;
+        customerUserErrors: CustomerUserError[];
+      } | null;
+    }>(CUSTOMER_CREATE_MUTATION, { input }, { cache: 'no-store' });
+
+    const payload = data?.customerCreate;
+    if (!payload) {
+      return {
+        ok: false,
+        errors: [{ field: null, message: 'Geçersiz API yanıtı', code: 'INVALID_RESPONSE' }],
+      };
+    }
+
+    if (payload.customerUserErrors.length > 0) {
+      return { ok: false, errors: payload.customerUserErrors };
+    }
+
+    if (!payload.customer) {
+      return {
+        ok: false,
+        errors: [{ field: null, message: 'Müşteri oluşturulamadı', code: 'NO_CUSTOMER' }],
+      };
+    }
+
+    return { ok: true, customer: payload.customer };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Bilinmeyen hata';
+    return {
+      ok: false,
+      errors: [{ field: null, message: msg, code: 'REQUEST_FAILED' }],
     };
-  }>(CUSTOMER_CREATE_MUTATION, { input }, { cache: 'no-store' });
-
-  throwIfCustomerErrors(data.customerCreate.customerUserErrors, 'create');
-
-  if (!data.customerCreate.customer) {
-    throw new Error('[Customer create] Müşteri oluşturulamadı');
   }
-
-  return data.customerCreate.customer;
 }
 
 export async function createCustomerAccessToken(

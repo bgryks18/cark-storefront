@@ -2,15 +2,14 @@
 
 import { useState } from 'react';
 
-import { useTranslations } from 'next-intl';
-import { Loader } from 'lucide-react';
-
 import { signIn } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { Link, useRouter } from '@/i18n/navigation';
+import { Loader } from 'lucide-react';
 
-import { ErrorBox } from '@/components/ui/ErrorBox';
 import { Container } from '@/components/ui/Container';
+import { AlertBox } from '@/components/ui/AlertBox';
 
 export default function LoginPage() {
   const t = useTranslations('auth.login');
@@ -39,14 +38,12 @@ export default function LoginPage() {
   return (
     <section className="py-16 sm:py-24">
       <Container>
-        <div className="mx-auto max-w-sm">
+        <div className="mx-auto max-w-2xl">
           <div className="rounded-2xl border border-card-border bg-card p-8">
             <h1 className="mb-6 text-2xl font-bold text-black-dark">{t('title')}</h1>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {error && (
-                <ErrorBox>{error}</ErrorBox>
-              )}
+              {error && <AlertBox>{error}</AlertBox>}
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-text-base">{t('email')}</label>
