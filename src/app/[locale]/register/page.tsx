@@ -1,72 +1,75 @@
 'use client';
 
-import { useState } from 'react';
-
-import { useTranslations } from 'next-intl';
-import { Loader } from 'lucide-react';
-
 import { signIn } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { Link, useRouter } from '@/i18n/navigation';
+import { useMutation } from '@tanstack/react-query';
+import { Loader } from 'lucide-react';
 
-import { ErrorBox } from '@/components/ui/ErrorBox';
-import { Container } from '@/components/ui/Container';
 import { registerCustomer } from '@/lib/actions/customer';
+
+import { Container } from '@/components/ui/Container';
+import { ErrorBox } from '@/components/ui/ErrorBox';
+
+interface FormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
 
 export default function RegisterPage() {
   const t = useTranslations('auth.register');
   const tErrors = useTranslations('auth.errors');
   const router = useRouter();
 
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const mutation = useMutation({
+    mutationFn: async (values: FormValues) => {
+      await registerCustomer({
+        email: values.email,
+        password: values.password,
+        firstName: values.firstName || undefined,
+        lastName: values.lastName || undefined,
+      });
+      const result = await signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+      if (result?.error) throw new Error('signin_failed');
+    },
+    onSuccess: () => router.push('/account'),
+  });
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    mutation.mutate({
+      firstName: (form.elements.namedItem('firstName') as HTMLInputElement).value,
+      lastName: (form.elements.namedItem('lastName') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      password: (form.elements.namedItem('password') as HTMLInputElement).value,
+    });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      await registerCustomer({
-        email: form.email,
-        password: form.password,
-        firstName: form.firstName || undefined,
-        lastName: form.lastName || undefined,
-      });
-      const result = await signIn('credentials', { email: form.email, password: form.password, redirect: false });
-      if (result?.error) {
-        setError(tErrors('generic'));
-        setLoading(false);
-      } else {
-        router.push('/account');
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : '';
-      if (message.toLowerCase().includes('already') || message.includes('CUSTOMER_DISABLED')) {
-        setError(tErrors('emailInUse'));
-      } else {
-        setError(tErrors('generic'));
-      }
-      setLoading(false);
-    }
+  function getErrorMessage() {
+    const message = mutation.error instanceof Error ? mutation.error.message : '';
+    if (message === 'signin_failed') return tErrors('generic');
+    if (message.toLowerCase().includes('already') || message.includes('CUSTOMER_DISABLED'))
+      return tErrors('emailInUse');
+    return tErrors('generic');
   }
 
   return (
     <section className="py-16 sm:py-24">
       <Container>
-        <div className="mx-auto max-w-sm">
+        <div className="mx-auto max-w-2xl">
           <div className="rounded-2xl border border-card-border bg-card p-8">
             <h1 className="mb-6 text-2xl font-bold text-black-dark">{t('title')}</h1>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {error && (
-                <ErrorBox>{error}</ErrorBox>
-              )}
+              {mutation.isError && <ErrorBox>{getErrorMessage()}</ErrorBox>}
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
@@ -74,8 +77,6 @@ export default function RegisterPage() {
                   <input
                     type="text"
                     name="firstName"
-                    value={form.firstName}
-                    onChange={handleChange}
                     autoComplete="given-name"
                     className="h-10 rounded-lg border border-card-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
@@ -85,8 +86,6 @@ export default function RegisterPage() {
                   <input
                     type="text"
                     name="lastName"
-                    value={form.lastName}
-                    onChange={handleChange}
                     autoComplete="family-name"
                     className="h-10 rounded-lg border border-card-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
@@ -98,8 +97,6 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   name="email"
-                  value={form.email}
-                  onChange={handleChange}
                   required
                   autoComplete="email"
                   className="h-10 rounded-lg border border-card-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
@@ -111,8 +108,6 @@ export default function RegisterPage() {
                 <input
                   type="password"
                   name="password"
-                  value={form.password}
-                  onChange={handleChange}
                   required
                   autoComplete="new-password"
                   minLength={5}
@@ -122,10 +117,10 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="mt-2 flex h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-60"
+                disabled={mutation.isPending}
+                className="mt-2 flex h-11 w-full cursor-pointer items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? <Loader className="h-4 w-4 animate-spin" /> : t('submit')}
+                {mutation.isPending ? <Loader className="h-4 w-4 animate-spin" /> : t('submit')}
               </button>
             </form>
 
