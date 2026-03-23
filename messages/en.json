@@ -207,6 +207,7 @@
     "submitting": "Searching...",
     "notFound": "No order found with this information. Please check your email address and order ID.",
     "errorGeneric": "An error occurred while searching for your order. Please try again.",
+    "missingParams": "A valid link is required to track your order.",
     "orderSummary": "Order Summary",
     "orderDate": "Order date",
     "paymentStatus": "Payment status",
@@ -230,7 +231,24 @@
       "partial": "Partially Shipped",
       "fulfilled": "Shipped",
       "restocked": "Returned"
-    }
+    },
+    "shipmentTimeline": "Shipment Tracking",
+    "timeline": {
+      "confirmed": "Order Placed",
+      "shipped": "Shipped",
+      "inTransit": "In Transit",
+      "outForDelivery": "Out for Delivery",
+      "delivered": "Delivered"
+    },
+    "unitPrice": "Unit price",
+    "discounts": "Discount",
+    "refundedAmount": "Refunded amount",
+    "orderInfo": "Order Details",
+    "contactInfo": "Contact",
+    "shippingAddress": "Shipping Address",
+    "billingAddress": "Billing Address",
+    "paymentMethod": "Payment",
+    "shippingMethod": "Shipping Method"
   },
   "footer": {
     "brandName": "Çark Zımpara",

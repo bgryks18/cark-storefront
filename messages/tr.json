@@ -207,6 +207,7 @@
     "submitting": "Sorgulanıyor...",
     "notFound": "Bu bilgilerle eşleşen bir sipariş bulunamadı. E-posta adresinizi ve sipariş ID'nizi kontrol edin.",
     "errorGeneric": "Sipariş sorgulanırken bir hata oluştu. Lütfen tekrar deneyin.",
+    "missingParams": "Sipariş takibi için geçerli bir bağlantı gereklidir.",
     "orderSummary": "Sipariş Özeti",
     "orderDate": "Sipariş tarihi",
     "paymentStatus": "Ödeme durumu",
@@ -230,7 +231,24 @@
       "partial": "Kısmen Kargoya Verildi",
       "fulfilled": "Kargoya Verildi",
       "restocked": "İade Edildi"
-    }
+    },
+    "shipmentTimeline": "Kargo Takibi",
+    "timeline": {
+      "confirmed": "Sipariş Alındı",
+      "shipped": "Kargoya Verildi",
+      "inTransit": "Yolda",
+      "outForDelivery": "Dağıtımda",
+      "delivered": "Teslim Edildi"
+    },
+    "unitPrice": "Birim fiyat",
+    "discounts": "İndirim",
+    "refundedAmount": "Para iadesi yapılan tutar",
+    "orderInfo": "Sipariş Bilgileri",
+    "contactInfo": "İletişim",
+    "shippingAddress": "Kargo Adresi",
+    "billingAddress": "Fatura Adresi",
+    "paymentMethod": "Ödeme",
+    "shippingMethod": "Kargo Yöntemi"
   },
   "footer": {
     "brandName": "Çark Zımpara",

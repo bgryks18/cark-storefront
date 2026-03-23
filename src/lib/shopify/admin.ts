@@ -174,14 +174,53 @@ export async function deleteDraftOrder(draftOrderId: number): Promise<void> {
   });
 }
 
+export interface AdminAddress {
+  first_name: string | null;
+  last_name: string | null;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  province: string | null;
+  country: string | null;
+  zip: string | null;
+  phone: string | null;
+}
+
+export interface AdminRefundTransaction {
+  id: number;
+  amount: string;
+  kind: string;
+  status: string;
+}
+
+export interface AdminRefund {
+  id: number;
+  created_at: string;
+  transactions: AdminRefundTransaction[];
+}
+
+export interface AdminShippingLine {
+  title: string;
+  price: string;
+}
+
 export interface AdminOrderLineItem {
+  id: number;
+  product_id: number | null;
   title: string;
   quantity: number;
   price: string;
   variant_title: string | null;
+  sku: string | null;
+  image: { src: string; alt: string | null } | null;
 }
 
 export interface AdminFulfillment {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  shipment_status: string | null;
   tracking_number: string | null;
   tracking_url: string | null;
   tracking_company: string | null;
@@ -196,11 +235,17 @@ export interface AdminOrder {
   fulfillment_status: string | null;
   total_price: string;
   subtotal_price: string;
+  total_discounts: string;
+  payment_gateway: string | null;
   total_shipping_price_set: {
     shop_money: { amount: string; currency_code: string };
   };
+  shipping_address: AdminAddress | null;
+  billing_address: AdminAddress | null;
+  shipping_lines: AdminShippingLine[];
   line_items: AdminOrderLineItem[];
   fulfillments: AdminFulfillment[];
+  refunds: AdminRefund[];
 }
 
 export async function getOrderByIdAndEmail(
@@ -208,7 +253,7 @@ export async function getOrderByIdAndEmail(
   email: string,
 ): Promise<AdminOrder | null> {
   const response = await fetch(
-    getAdminUrl(`/orders/${orderId}.json?fields=id,name,email,created_at,financial_status,fulfillment_status,total_price,subtotal_price,total_shipping_price_set,line_items,fulfillments`),
+    getAdminUrl(`/orders/${orderId}.json?fields=id,name,email,created_at,financial_status,fulfillment_status,total_price,subtotal_price,total_discounts,payment_gateway,total_shipping_price_set,shipping_address,billing_address,shipping_lines,line_items,fulfillments,refunds`),
     {
       headers: await getAdminHeaders(),
       cache: 'no-store',
@@ -223,6 +268,41 @@ export async function getOrderByIdAndEmail(
 
   // Email eşleşmiyorsa bulunamadı gibi davran
   if (order.email.toLowerCase() !== email.toLowerCase()) return null;
+
+  // REST API line item image'ı dönmüyor — Admin GraphQL ile çek
+  const gid = `gid://shopify/Order/${orderId}`;
+  const imgRes = await fetch(getAdminUrl('/graphql.json'), {
+    method: 'POST',
+    headers: { ...(await getAdminHeaders()), 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `{ order(id: "${gid}") { lineItems(first: 50) { nodes { id image { url altText } } } } }`,
+    }),
+    cache: 'no-store',
+  });
+
+  if (imgRes.ok) {
+    const imgData = (await imgRes.json()) as {
+      data?: {
+        order?: {
+          lineItems?: {
+            nodes: { id: string; image: { url: string; altText: string | null } | null }[];
+          };
+        };
+      };
+    };
+    const nodes = imgData.data?.order?.lineItems?.nodes ?? [];
+    const imageMap = new Map(
+      nodes.map((n) => [parseInt(n.id.split('/').pop()!), n.image]),
+    );
+    order.line_items = order.line_items.map((item) => ({
+      ...item,
+      image: item.image?.src
+        ? item.image
+        : imageMap.get(item.id)
+          ? { src: imageMap.get(item.id)!.url, alt: imageMap.get(item.id)!.altText }
+          : null,
+    }));
+  }
 
   return order;
 }
