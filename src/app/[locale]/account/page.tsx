@@ -6,6 +6,7 @@ import { Package, User } from 'lucide-react';
 import { authOptions } from '@/lib/auth';
 import { getCustomer } from '@/lib/shopify/queries/customer';
 import { flattenConnection, formatMoney } from '@/lib/shopify/normalize';
+import { formatDate, formatMonthYear } from '@/lib/utils/date';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/ui/Container';
 import { AccountSignOut } from '@/components/account/AccountSignOut';
@@ -68,10 +69,7 @@ export default async function AccountPage() {
                     <div>
                       <p className="font-medium text-text-base">{order.name}</p>
                       <p className="text-xs text-text-muted">
-                        {new Date(order.processedAt).toLocaleDateString(
-                          locale === 'tr' ? 'tr-TR' : 'en-US',
-                          { year: 'numeric', month: 'long', day: 'numeric' },
-                        )}
+                        {formatDate(order.processedAt, locale)}
                       </p>
                     </div>
                     <div className="text-right">
@@ -111,10 +109,7 @@ export default async function AccountPage() {
               <div className="flex justify-between border-t border-border pt-3">
                 <span className="text-text-muted">Üyelik tarihi</span>
                 <span className="text-text-base">
-                  {new Date(customer.createdAt).toLocaleDateString(
-                    locale === 'tr' ? 'tr-TR' : 'en-US',
-                    { year: 'numeric', month: 'long' },
-                  )}
+                  {formatMonthYear(customer.createdAt, locale)}
                 </span>
               </div>
             </div>

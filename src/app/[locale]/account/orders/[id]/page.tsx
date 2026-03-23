@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { authOptions } from '@/lib/auth';
 import { getCustomer } from '@/lib/shopify/queries/customer';
 import { flattenConnection, formatMoney } from '@/lib/shopify/normalize';
+import { formatDate } from '@/lib/utils/date';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/ui/Container';
 
@@ -97,10 +98,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               <div className="flex justify-between">
                 <span className="text-text-muted">{t('orderDate')}</span>
                 <span className="text-text-base">
-                  {new Date(order.processedAt).toLocaleDateString(
-                    locale === 'tr' ? 'tr-TR' : 'en-US',
-                    { year: 'numeric', month: 'long', day: 'numeric' },
-                  )}
+                  {formatDate(order.processedAt, locale)}
                 </span>
               </div>
               <div className="flex justify-between">

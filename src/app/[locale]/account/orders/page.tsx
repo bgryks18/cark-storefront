@@ -6,6 +6,7 @@ import { Package } from 'lucide-react';
 import { authOptions } from '@/lib/auth';
 import { getCustomer } from '@/lib/shopify/queries/customer';
 import { flattenConnection, formatMoney } from '@/lib/shopify/normalize';
+import { formatDateShort } from '@/lib/utils/date';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/components/ui/Container';
 
@@ -64,10 +65,7 @@ export default async function OrdersPage() {
                 >
                   <span className="font-medium text-primary">{order.name}</span>
                   <span className="text-text-muted">
-                    {new Date(order.processedAt).toLocaleDateString(
-                      locale === 'tr' ? 'tr-TR' : 'en-US',
-                      { year: 'numeric', month: 'short', day: 'numeric' },
-                    )}
+                    {formatDateShort(order.processedAt, locale)}
                   </span>
                   <span className="capitalize text-text-base">
                     {order.financialStatus.toLowerCase()}
