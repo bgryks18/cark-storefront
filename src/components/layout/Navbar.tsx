@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 
+import { useSearchParams } from 'next/navigation';
+
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { PackagePlus, User } from 'lucide-react';
 
@@ -73,13 +75,15 @@ function MenuIcon({ open }: { open: boolean }) {
 function LanguageSwitcher() {
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   return (
     <button
       onClick={() => {
         window.dispatchEvent(new CustomEvent('navigation-start'));
-        router.replace(pathname, { locale: locale === 'tr' ? 'en' : 'tr' });
+        const qs = searchParams.toString();
+        router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { locale: locale === 'tr' ? 'en' : 'tr' });
       }}
       className="flex h-9 items-center gap-1 rounded px-2 text-sm font-medium transition-colors hover:bg-gray-light"
       title={locale === 'tr' ? 'Switch to English' : "Türkçe'ye geç"}
