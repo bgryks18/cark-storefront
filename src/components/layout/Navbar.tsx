@@ -2,40 +2,70 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { signOut, useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { User } from 'lucide-react';
-
-import { useSession, signOut } from 'next-auth/react';
 
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
+import { PackagePlus, User } from 'lucide-react';
+
 import { useCart } from '@/hooks/useCart';
+
 import { Container } from '@/components/ui/Container';
 
 import { Badge } from '../ui/Badge';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { SearchBar } from './SearchBar';
 
-const NAV_LINKS = [
-  { key: 'collections', href: '/collections' },
-] as const;
+const NAV_LINKS = [{ key: 'collections', href: '/collections' }] as const;
 
 function CartIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="h-5 w-5" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.75}
+      stroke="currentColor"
+      className="h-5 w-5"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+      />
     </svg>
   );
 }
 
-
 function MenuIcon({ open }: { open: boolean }) {
   return open ? (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="h-6 w-6" aria-hidden="true">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.75}
+      stroke="currentColor"
+      className="h-6 w-6"
+      aria-hidden="true"
+    >
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
     </svg>
   ) : (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" className="h-6 w-6" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.75}
+      stroke="currentColor"
+      className="h-6 w-6"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+      />
     </svg>
   );
 }
@@ -54,9 +84,13 @@ function LanguageSwitcher() {
       className="flex h-9 items-center gap-1 rounded px-2 text-sm font-medium transition-colors hover:bg-gray-light"
       title={locale === 'tr' ? 'Switch to English' : "Türkçe'ye geç"}
     >
-      <span className={locale === 'tr' ? 'font-bold text-primary' : 'text-black opacity-40'}>TR</span>
+      <span className={locale === 'tr' ? 'font-bold text-primary' : 'text-black opacity-40'}>
+        TR
+      </span>
       <span className="text-gray">/</span>
-      <span className={locale === 'en' ? 'font-bold text-primary' : 'text-black opacity-40'}>EN</span>
+      <span className={locale === 'en' ? 'font-bold text-primary' : 'text-black opacity-40'}>
+        EN
+      </span>
     </button>
   );
 }
@@ -65,7 +99,30 @@ export function Navbar() {
   const t = useTranslations('nav');
   const { data: session } = useSession();
   const isAuthenticated = !!session;
-  const { itemCount: cartCount } = useCart();
+  const { itemCount: cartCount, cart, isAnyItemLoading, isAdding } = useCart();
+  const isCartLoading = isAdding || isAnyItemLoading;
+  const totalQty = cart?.totalQuantity ?? 0;
+  const prevTotalQtyRef = useRef(totalQty);
+  const pendingPlusRef = useRef(false);
+  const [showCartPlus, setShowCartPlus] = useState(false);
+  const cartPlusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (totalQty > prevTotalQtyRef.current) {
+      pendingPlusRef.current = true;
+    }
+    prevTotalQtyRef.current = totalQty;
+  }, [totalQty]);
+
+  useEffect(() => {
+    if (!isCartLoading && pendingPlusRef.current) {
+      pendingPlusRef.current = false;
+      if (cartPlusTimer.current) clearTimeout(cartPlusTimer.current);
+      setShowCartPlus(true);
+      cartPlusTimer.current = setTimeout(() => setShowCartPlus(false), 900);
+    }
+  }, [isCartLoading]);
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -89,17 +146,20 @@ export function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [mobileOpen]);
 
   return (
-    <header className={[
-      'sticky top-0 z-50 w-full bg-surface transition-shadow duration-200',
-      scrolled ? 'shadow-md' : 'border-b border-border',
-    ].join(' ')}>
+    <header
+      className={[
+        'sticky top-0 z-50 w-full bg-surface transition-shadow duration-200',
+        scrolled ? 'shadow-md' : 'border-b border-border',
+      ].join(' ')}
+    >
       <Container as="nav" aria-label="Ana navigasyon">
         <div className="flex h-16 items-center justify-between gap-6">
-
           {/* Logo */}
           <Link
             href="/"
@@ -139,6 +199,11 @@ export function Navbar() {
             >
               <CartIcon />
               <Badge count={cartCount} />
+              {showCartPlus && (
+                <span className="animate-cart-plus pointer-events-none absolute bottom-4 -left-2">
+                  <PackagePlus className="h-4 w-4 text-success" strokeWidth={2} />
+                </span>
+              )}
             </Link>
 
             {/* Tema toggle */}
@@ -178,7 +243,7 @@ export function Navbar() {
             {/* Hamburger — mobil */}
             <button
               className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-gray-light md:hidden"
-              onClick={() => setMobileOpen(v => !v)}
+              onClick={() => setMobileOpen((v) => !v)}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
               aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
@@ -223,7 +288,10 @@ export function Navbar() {
                   </li>
                   <li>
                     <button
-                      onClick={() => { setMobileOpen(false); signOut({ callbackUrl: '/' }); }}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
                       className="flex h-12 w-full items-center rounded px-3 text-base font-medium text-text-muted transition-colors hover:bg-gray-light hover:text-text-base"
                     >
                       {t('logout')}

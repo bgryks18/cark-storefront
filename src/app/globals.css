@@ -52,18 +52,18 @@
 
   /* Semantic surface tokens (light defaults) */
   --color-surface: #eee;
-  --color-surface-hover: #f8fcff;
-  --color-border: #ededed;
+  --color-surface-hover: #f0f4ff;
+  --color-border: #c8c8c8;
   --color-text-base: #444444;
   --color-text-muted: #777777;
 
   /* Card tokens — page background'dan farklı, hafif border ile */
   --color-card: #eee;
-  --color-card-hover: #f4f8ff;
-  --color-card-border: #e8e8e8;
+  --color-card-hover: #e8eeff;
+  --color-card-border: #d0d0d0;
 
   /* Skeleton — card üzerinde belirgin olmalı */
-  --color-skeleton: #e4e4e4;
+  --color-skeleton: #e0e0e0;
 
   /* ─── Spacing sistemi ────────────────────────────────────────────────────
    *
@@ -295,4 +295,14 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+@keyframes cart-plus {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  30%  { opacity: 1; transform: translateY(-5px) scale(1.15); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.9); }
+}
+
+@utility animate-cart-plus {
+  animation: cart-plus 0.85s ease-out forwards;
 }
