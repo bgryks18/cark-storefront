@@ -1,18 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+
 import { useLocale, useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+
+import { useMutation } from '@tanstack/react-query';
 import { Package, Truck } from 'lucide-react';
 
-import type { AdminOrder, AdminOrderLineItem, AdminFulfillment, AdminAddress } from '@/lib/shopify/admin';
 import { trackOrder } from '@/lib/actions/order';
+import type {
+  AdminAddress,
+  AdminFulfillment,
+  AdminOrder,
+  AdminOrderLineItem,
+} from '@/lib/shopify/admin';
 import { formatPrice } from '@/lib/shopify/normalize';
 import { formatDate, formatDateTime } from '@/lib/utils/date';
+
 import { Container } from '@/components/ui/Container';
-import { ErrorBox } from '@/components/ui/ErrorBox';
+import { AlertBox } from '@/components/ui/AlertBox';
 
 function StatusBadge({ status, label }: { status: string; label: string }) {
   const colorMap: Record<string, string> = {
@@ -31,7 +39,9 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
   };
   const colorClass = colorMap[status] ?? 'bg-gray-light text-gray-dark border-gray-light';
   return (
-    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${colorClass}`}>
+    <span
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${colorClass}`}
+    >
       {label}
     </span>
   );
@@ -39,9 +49,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-      {children}
-    </p>
+    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">{children}</p>
   );
 }
 
@@ -192,11 +200,19 @@ export function OrderTrackingClient() {
   const fp = (amount: string | number) => formatPrice(amount, currency, fmtLocale);
 
   const fulfillmentKey = (order?.fulfillment_status ?? 'unfulfilled') as
-    | 'unfulfilled' | 'partial' | 'fulfilled' | 'restocked';
+    | 'unfulfilled'
+    | 'partial'
+    | 'fulfilled'
+    | 'restocked';
 
   const financialKey = (order?.financial_status ?? 'pending') as
-    | 'pending' | 'authorized' | 'partially_paid' | 'paid'
-    | 'partially_refunded' | 'refunded' | 'voided';
+    | 'pending'
+    | 'authorized'
+    | 'partially_paid'
+    | 'paid'
+    | 'partially_refunded'
+    | 'refunded'
+    | 'voided';
 
   const timelineSteps: TimelineStep[] = [];
   if (order) {
@@ -253,7 +269,7 @@ export function OrderTrackingClient() {
         {/* Error */}
         {mutation.isError && (
           <div className="mx-auto max-w-xl">
-            <ErrorBox>{t('errorGeneric')}</ErrorBox>
+            <AlertBox>{t('errorGeneric')}</AlertBox>
           </div>
         )}
 
@@ -267,25 +283,31 @@ export function OrderTrackingClient() {
 
         {/* Order result */}
         {order && (
-          <div className="mx-auto max-w-4xl space-y-4">
-
+          <div className="mx-auto w-full space-y-4">
             {/* Header */}
             <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-black-dark">{order.name}</h2>
-                  <p className="mt-0.5 text-sm text-text-muted">{formatDateTime(order.created_at, locale)}</p>
+                  <p className="mt-0.5 text-sm text-text-muted">
+                    {formatDateTime(order.created_at, locale)}
+                  </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <StatusBadge status={order.financial_status} label={t(`financialStatus.${financialKey}`)} />
-                  <StatusBadge status={order.fulfillment_status ?? 'unfulfilled'} label={t(`fulfillmentStatus.${fulfillmentKey}`)} />
+                  <StatusBadge
+                    status={order.financial_status}
+                    label={t(`financialStatus.${financialKey}`)}
+                  />
+                  <StatusBadge
+                    status={order.fulfillment_status ?? 'unfulfilled'}
+                    label={t(`fulfillmentStatus.${fulfillmentKey}`)}
+                  />
                 </div>
               </div>
             </div>
 
             {/* 2x2 grid */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
               {/* Timeline */}
               <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-text-muted">
@@ -293,11 +315,16 @@ export function OrderTrackingClient() {
                 </h3>
                 {order.fulfillments.map((f: AdminFulfillment) =>
                   f.tracking_url ? (
-                    <div key={f.id} className="mb-4 flex items-center justify-between rounded-xl border border-card-border bg-surface px-4 py-3">
+                    <div
+                      key={f.id}
+                      className="mb-4 flex items-center justify-between rounded-xl border border-card-border bg-surface px-4 py-3"
+                    >
                       <span className="text-sm text-text-muted">
                         {f.tracking_company ?? t('shippingStatus')}
                         {f.tracking_number && (
-                          <span className="ml-2 font-mono text-xs text-text-base">{f.tracking_number}</span>
+                          <span className="ml-2 font-mono text-xs text-text-base">
+                            {f.tracking_number}
+                          </span>
                         )}
                       </span>
                       <a
@@ -316,11 +343,17 @@ export function OrderTrackingClient() {
                   {timelineSteps.map((step, i) => (
                     <div key={i} className="flex gap-3">
                       <div className="flex flex-col items-center">
-                        <div className={`mt-0.5 h-3 w-3 shrink-0 rounded-full border-2 ${step.active ? 'border-primary bg-primary' : 'border-border bg-surface'}`} />
-                        {i < timelineSteps.length - 1 && <div className="my-1 w-px flex-1 bg-border" />}
+                        <div
+                          className={`mt-0.5 h-3 w-3 shrink-0 rounded-full border-2 ${step.active ? 'border-primary bg-primary' : 'border-border bg-surface'}`}
+                        />
+                        {i < timelineSteps.length - 1 && (
+                          <div className="my-1 w-px flex-1 bg-border" />
+                        )}
                       </div>
                       <div className={`pb-4 ${i === timelineSteps.length - 1 ? 'pb-0' : ''}`}>
-                        <p className={`text-sm font-medium ${step.active ? 'text-black-dark' : 'text-text-muted'}`}>
+                        <p
+                          className={`text-sm font-medium ${step.active ? 'text-black-dark' : 'text-text-muted'}`}
+                        >
                           {step.label}
                         </p>
                         {step.date && (
@@ -360,8 +393,12 @@ export function OrderTrackingClient() {
                       </div>
                       <div className="flex flex-1 flex-col justify-center gap-0.5">
                         <p className="text-sm font-medium text-text-base">{item.title}</p>
-                        {item.variant_title && <p className="text-xs text-text-muted">{item.variant_title}</p>}
-                        <p className="text-xs text-text-muted">{t('unitPrice')}: {fp(item.price)}</p>
+                        {item.variant_title && (
+                          <p className="text-xs text-text-muted">{item.variant_title}</p>
+                        )}
+                        <p className="text-xs text-text-muted">
+                          {t('unitPrice')}: {fp(item.price)}
+                        </p>
                       </div>
                       <div className="shrink-0 text-right">
                         <span className="text-sm font-semibold text-text-base">
@@ -374,7 +411,9 @@ export function OrderTrackingClient() {
 
                 <div className="mt-5 space-y-2 border-t border-border pt-4">
                   <div className="flex justify-between text-sm text-text-muted">
-                    <span>{t('subtotal')} · {totalQty} {t('products').toLowerCase()}</span>
+                    <span>
+                      {t('subtotal')} · {totalQty} {t('products').toLowerCase()}
+                    </span>
                     <span>{fp(order.subtotal_price)}</span>
                   </div>
                   {parseFloat(order.total_discounts) > 0 && (
@@ -414,7 +453,9 @@ export function OrderTrackingClient() {
                     <div>
                       <SectionLabel>{t('shippingAddress')}</SectionLabel>
                       {formatAddressLines(order.shipping_address).map((line, i) => (
-                        <p key={i} className="text-sm text-text-base">{line}</p>
+                        <p key={i} className="text-sm text-text-base">
+                          {line}
+                        </p>
                       ))}
                     </div>
                   )}
@@ -429,15 +470,23 @@ export function OrderTrackingClient() {
                 <div className="space-y-5">
                   <div>
                     <SectionLabel>{t('paymentMethod')}</SectionLabel>
-                    <p className="text-sm font-medium text-text-base">{formatGateway(order.payment_gateway)}</p>
-                    <p className="text-sm text-text-muted">{fp(order.total_price)} {currency}</p>
-                    <p className="text-sm text-text-muted">{formatDate(order.created_at, locale)}</p>
+                    <p className="text-sm font-medium text-text-base">
+                      {formatGateway(order.payment_gateway)}
+                    </p>
+                    <p className="text-sm text-text-muted">
+                      {fp(order.total_price)} {currency}
+                    </p>
+                    <p className="text-sm text-text-muted">
+                      {formatDate(order.created_at, locale)}
+                    </p>
                   </div>
                   {order.billing_address && (
                     <div>
                       <SectionLabel>{t('billingAddress')}</SectionLabel>
                       {formatAddressLines(order.billing_address).map((line, i) => (
-                        <p key={i} className="text-sm text-text-base">{line}</p>
+                        <p key={i} className="text-sm text-text-base">
+                          {line}
+                        </p>
                       ))}
                     </div>
                   )}
@@ -449,7 +498,6 @@ export function OrderTrackingClient() {
                   )}
                 </div>
               </div>
-
             </div>
           </div>
         )}

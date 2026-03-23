@@ -18,7 +18,7 @@ import { formatMoney, formatPrice, getCartLines } from '@/lib/shopify/normalize'
 import { useCart } from '@/hooks/useCart';
 
 import { Container } from '@/components/ui/Container';
-import { ErrorBox } from '@/components/ui/ErrorBox';
+import { AlertBox } from '@/components/ui/AlertBox';
 
 interface ShippingRateWithDescription extends ShippingRate {
   description: string;
@@ -449,7 +449,7 @@ export default function CheckoutPage() {
               </div>
 
               {paytrMutation.error && (
-                <ErrorBox className="mt-4">{paytrMutation.error.message}</ErrorBox>
+                <AlertBox className="mt-4">{paytrMutation.error.message}</AlertBox>
               )}
 
               <button
