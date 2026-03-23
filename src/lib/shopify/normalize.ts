@@ -20,6 +20,15 @@ export function formatMoney(money: MoneyV2, locale = 'tr-TR'): string {
   }).format(amount);
 }
 
+export function formatPrice(amount: string | number, currency = 'TRY', locale = 'tr-TR'): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(typeof amount === 'string' ? parseFloat(amount) : amount);
+}
+
 // ─── Ürün yardımcıları ────────────────────────────────────────────────────────
 
 export function getProductUrl(handle: string, locale?: string): string {

@@ -13,7 +13,7 @@ import * as yup from 'yup';
 
 import { COUNTRY_CODES } from '@/lib/countryCodes';
 import type { ShippingRate } from '@/lib/shopify/admin';
-import { formatMoney, getCartLines } from '@/lib/shopify/normalize';
+import { formatMoney, formatPrice, getCartLines } from '@/lib/shopify/normalize';
 
 import { useCart } from '@/hooks/useCart';
 
@@ -277,11 +277,7 @@ export default function CheckoutPage() {
   const totalTL = subtotalTL + (selectedRate?.price ?? 0);
 
   function formatTL(amount: number) {
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency: currencyCode,
-      minimumFractionDigits: 2,
-    }).format(amount);
+    return formatPrice(amount, currencyCode, 'tr-TR');
   }
 
   function onSubmit(values: FormValues) {

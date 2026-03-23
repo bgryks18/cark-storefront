@@ -2,6 +2,7 @@ import Image from 'next/image';
 
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils/cn';
+import { formatPrice } from '@/lib/shopify/normalize';
 import { AddToCartButton } from '@/components/ui/AddToCartButton';
 import type { ShopifyProduct } from '@/lib/shopify/types';
 
@@ -13,12 +14,6 @@ interface ProductCardProps {
   className?: string;
 }
 
-function formatPrice(amount: string, currencyCode: string) {
-  return new Intl.NumberFormat('tr-TR', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(Number(amount));
-}
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const price = product.priceRange.minVariantPrice;
