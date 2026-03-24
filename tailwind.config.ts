@@ -24,6 +24,7 @@ const config: Config = {
           dark: '#464545',
         },
         background: '#eee',
+        skeleton: 'var(--color-skeleton)',
         red: {
           DEFAULT: '#e74747',
           light: '#e06868',

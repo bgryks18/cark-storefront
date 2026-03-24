@@ -4,10 +4,11 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 
 import { authOptions } from '@/lib/auth';
-import { getCustomer } from '@/lib/shopify/queries/customer';
+import { getCustomerAccount } from '@/lib/shopify/customerAccount';
 import { flattenConnection, formatMoney } from '@/lib/shopify/normalize';
 import { formatDate } from '@/lib/utils/date';
 import { Link } from '@/i18n/navigation';
+import { AccountFetchError } from '@/components/account/AccountFetchError';
 import { Container } from '@/components/ui/Container';
 
 interface OrderDetailPageProps {
@@ -19,14 +20,19 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const session = await getServerSession(authOptions);
   const locale = await getLocale();
 
+  const t = await getTranslations('account');
+  const tNav = await getTranslations('nav');
+
   if (!session?.shopifyAccessToken) {
     redirect(locale === 'en' ? '/en/login' : '/login');
   }
 
-  const t = await getTranslations('account');
-
-  const customer = await getCustomer(session.shopifyAccessToken);
-  if (!customer) redirect(locale === 'en' ? '/en/login' : '/login');
+  const customer = await getCustomerAccount(session.shopifyAccessToken);
+  if (!customer) {
+    return (
+      <AccountFetchError message={t('errors.loadFailed')} signOutLabel={tNav('logout')} />
+    );
+  }
 
   let decodedId: string;
   try {

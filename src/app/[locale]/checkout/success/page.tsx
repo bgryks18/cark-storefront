@@ -35,8 +35,14 @@ export default function CheckoutSuccessPage() {
 
           <div className="flex w-full flex-col gap-3">
             <Link
-              href="/collections"
+              href="/account/orders"
               className="flex h-11 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+            >
+              {t('trackOrder')}
+            </Link>
+            <Link
+              href="/collections"
+              className="flex h-11 items-center justify-center rounded-xl border border-card-border text-sm font-medium text-text-muted transition-colors hover:bg-surface-hover"
             >
               {t('continueShopping')}
             </Link>

@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
+
 import { useTranslations } from 'next-intl';
 
 import type { ConfirmOptions } from '@/contexts/ModalContext';
+import { useModalAnimation } from '@/hooks/useModalAnimation';
 
 import { AlertBox } from '@/components/ui/AlertBox';
 
@@ -14,44 +16,32 @@ interface ConfirmModalProps {
   onCancel: () => void;
 }
 
-const ANIMATION_MS = 200;
-
 export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps) {
   const t = useTranslations('common');
   const { title, message, confirmLabel = t('confirm'), cancelLabel = t('cancel'), variant = 'default', action } = config;
 
-  const [isVisible, setIsVisible] = useState(false);
+  const { isVisible, handleClose: animateClose } = useModalAnimation(onCancel);
   const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 10);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape' && !isConfirming) handleClose(onCancel);
+      if (e.key === 'Escape' && !isConfirming) animateClose();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [onCancel, isConfirming]);
-
-  function handleClose(callback: () => void) {
-    setIsVisible(false);
-    setTimeout(callback, ANIMATION_MS);
-  }
+  }, [animateClose, isConfirming]);
 
   async function handleConfirmClick() {
     if (!action) {
-      handleClose(onConfirm);
+      animateClose(onConfirm);
       return;
     }
     setIsConfirming(true);
     setError(null);
     try {
       await action();
-      handleClose(onConfirm);
+      animateClose(onConfirm);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
       setIsConfirming(false);
@@ -70,7 +60,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
         className={`absolute inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity duration-200 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}
-        onClick={() => !isConfirming && handleClose(onCancel)}
+        onClick={() => !isConfirming && animateClose(onCancel)}
       />
 
       {/* Panel */}
@@ -93,7 +83,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
 
         <div className="mt-6 flex justify-end gap-2">
           <button
-            onClick={() => handleClose(onCancel)}
+            onClick={() => animateClose(onCancel)}
             disabled={isConfirming}
             className="h-9 cursor-pointer rounded-lg px-4 text-sm font-medium text-text-muted transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
           >

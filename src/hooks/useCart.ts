@@ -1,8 +1,9 @@
 'use client';
 
+import { useLocale } from 'next-intl';
+
 import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtom, useAtomValue } from 'jotai';
-import { useLocale } from 'next-intl';
 
 import {
   addCartLines,
@@ -35,6 +36,7 @@ export function useCart() {
     },
     enabled: !!cartId,
     staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const addMutation = useMutation({
@@ -89,9 +91,14 @@ export function useCart() {
   });
 
   const cart = cartQuery.data ?? null;
-  const isAdding = useMutationState({ filters: { mutationKey: ['cart', 'add'], status: 'pending' } }).length > 0;
-  const isRemoving = useMutationState({ filters: { mutationKey: ['cart', 'remove'], status: 'pending' } }).length > 0;
-  const isUpdating = useMutationState({ filters: { mutationKey: ['cart', 'update'], status: 'pending' } }).length > 0;
+  const isAdding =
+    useMutationState({ filters: { mutationKey: ['cart', 'add'], status: 'pending' } }).length > 0;
+  const isRemoving =
+    useMutationState({ filters: { mutationKey: ['cart', 'remove'], status: 'pending' } }).length >
+    0;
+  const isUpdating =
+    useMutationState({ filters: { mutationKey: ['cart', 'update'], status: 'pending' } }).length >
+    0;
   const isLoading = cartQuery.isLoading || isAdding || isRemoving || isUpdating;
 
   const cartItemLoading = useAtomValue(cartItemLoadingAtom);
@@ -115,7 +122,9 @@ export function useCart() {
       return discountMutation.mutateAsync([code]);
     },
     removeDiscountCode: (code: string) => {
-      const remaining = (cart?.discountCodes ?? []).filter((d) => d.code !== code).map((d) => d.code);
+      const remaining = (cart?.discountCodes ?? [])
+        .filter((d) => d.code !== code)
+        .map((d) => d.code);
       return discountMutation.mutateAsync(remaining);
     },
     isApplyingDiscount: discountMutation.isPending,

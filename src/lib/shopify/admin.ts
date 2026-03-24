@@ -34,11 +34,35 @@ async function getAdminToken(): Promise<string> {
   return cachedToken;
 }
 
+/** Mağazada API izinleri güncellendikten sonra yeni token almak için (ör. write_files eklendiğinde). */
+export function invalidateShopifyAdminTokenCache(): void {
+  cachedToken = null;
+  tokenExpiresAt = 0;
+}
+
 async function getAdminHeaders(): Promise<HeadersInit> {
   return {
     'Content-Type': 'application/json',
     'X-Shopify-Access-Token': await getAdminToken(),
   };
+}
+
+/** Admin GraphQL — draft order vb. dışında ortak kullanım */
+export async function adminGraphql<T>(
+  query: string,
+  variables?: Record<string, unknown>,
+): Promise<{ data?: T; errors?: { message: string }[] }> {
+  const response = await fetch(getAdminUrl('/graphql.json'), {
+    method: 'POST',
+    headers: await getAdminHeaders(),
+    body: JSON.stringify({ query, variables }),
+    cache: 'no-store',
+  });
+  const json = (await response.json()) as { data?: T; errors?: { message: string }[] };
+  if (!response.ok) {
+    return { data: undefined, errors: [{ message: `HTTP ${response.status}` }] };
+  }
+  return { data: json.data, errors: json.errors };
 }
 
 // Shopify GID → numeric ID: "gid://shopify/ProductVariant/12345" → 12345

@@ -115,11 +115,22 @@
     "noResults": "\"{query}\" için sonuç bulunamadı"
   },
   "auth": {
+    "signingOut": {
+      "title": "Çıkış yapılıyor",
+      "description": "Hesabınızdan güvenli şekilde çıkılıyor; birkaç saniye içinde yönlendirileceksiniz.",
+      "inProgress": "İşleniyor…",
+      "failed": "Oturum kapatılamadı. Aşağıdaki bağlantıyla devam edebilirsiniz.",
+      "continueLink": "Devam et"
+    },
     "login": {
       "title": "Giriş Yap",
+      "description": "Siparişlerinizi görmek ve profilinizi yönetmek için giriş yapın.",
       "email": "E-posta",
       "password": "Şifre",
-      "submit": "Giriş Yap",
+      "submit": "Shopify ile Giriş Yap",
+      "signingIn": "Yönlendiriliyor…",
+      "signInFailed": "Giriş başlatılamadı. Lütfen tekrar deneyin.",
+      "secureNote": "Oturum açma ve şifre yönetimi Shopify tarafından güvenli şekilde sağlanmaktadır. Bilgileriniz yalnızca Shopify sunucularında işlenir.",
       "forgotPassword": "Şifremi unuttum",
       "noAccount": "Hesabınız yok mu?",
       "registerLink": "Kayıt olun",
@@ -128,6 +139,7 @@
     },
     "register": {
       "title": "Kayıt Ol",
+      "description": "Siparişlerinizi takip etmek ve daha hızlı alışveriş yapmak için hesap oluşturun.",
       "firstName": "Ad",
       "lastName": "Soyad",
       "email": "E-posta",
@@ -164,12 +176,96 @@
     "title": "Hesabım",
     "profile": "Profil",
     "orders": "Siparişlerim",
-    "addresses": "Adreslerim",
+    "addresses": {
+      "title": "Adreslerim",
+      "manageHint": "Adres ekle, düzenle veya sil",
+      "add": "Yeni Adres Ekle",
+      "addTitle": "Yeni Adres",
+      "editTitle": "Adresi Düzenle",
+      "empty": "Henüz adres eklemediniz.",
+      "count": "{count} adres",
+      "default": "Varsayılan",
+      "makeDefault": "Varsayılan yap",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "deleteConfirm": "Bu adresi silmek istediğinizden emin misiniz?",
+      "deleteConfirmYes": "Evet, sil",
+      "cancel": "\u0130ptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor\u2026",
+      "saved": "Adres eklendi.",
+      "updated": "Adres g\u00fcncellendi.",
+      "close": "Kapat",
+      "fields": {
+        "firstName": "Ad",
+        "lastName": "Soyad",
+        "address1": "Adres (mahalle, sokak, bina no, daire)",
+        "address2": "Ek adres bilgisi (opsiyonel)",
+        "city": "\u015eehir",
+        "zip": "Posta kodu (opsiyonel)",
+        "phone": "Telefon (opsiyonel)",
+        "makeDefault": "Varsay\u0131lan adres olarak kaydet"
+      },
+      "errors": {
+        "required": "Ad, soyad, adres ve \u015fehir zorunludur.",
+        "unauthorized": "Oturum bulunamad\u0131. L\u00fctfen tekrar giri\u015f yap\u0131n.",
+        "saveFailed": "Adres kaydedilemedi. L\u00fctfen tekrar deneyin.",
+        "loadFailed": "Adresler y\u00fcklenemedi. L\u00fctfen tekrar deneyin."
+      }
+    },
     "noOrders": "Henüz sipariş vermediniz",
+    "loginRequired": "Siparişlerinizi görmek için giriş yapmanız gerekiyor.",
+    "viewAll": "Tümünü gör",
+    "startShopping": "Alışverişe başla",
+    "phone": "Telefon",
+    "memberSince": "Üyelik tarihi",
     "orderNumber": "Sipariş No",
     "orderDate": "Tarih",
     "orderStatus": "Durum",
-    "orderTotal": "Toplam"
+    "orderTotal": "Toplam",
+    "errors": {
+      "loadFailed": "Hesap bilgileriniz mağazadan alınamadı. Lütfen çıkış yapıp tekrar deneyin."
+    },
+    "editProfile": "Profili düzenle",
+    "profileEditPageTitle": "Profili güncelle",
+    "avatar": {
+      "title": "Profil fotoğrafı",
+      "hint": "JPEG, PNG veya WebP, en fazla 4 MB.",
+      "chooseFile": "Dosya seç",
+      "upload": "Yükle",
+      "uploading": "Yükleniyor",
+      "saved": "Profil fotoğrafı güncellendi.",
+      "errors": {
+        "unauthorized": "Oturum bulunamadı. Lütfen tekrar giriş yapın.",
+        "noFile": "Lütfen bir görsel seçin.",
+        "fileTooLarge": "Dosya çok büyük (en fazla 4 MB).",
+        "invalidType": "Yalnızca JPEG, PNG veya WebP yükleyebilirsiniz.",
+        "readFailed": "Dosya okunamadı.",
+        "customerNotFound": "Bu e-posta ile mağazada müşteri bulunamadı.",
+        "adminConfig": "Sunucu yapılandırması eksik (Admin API).",
+        "missingWriteFilesScope": "Profil fotoğrafı yüklemek için Shopify’da bu uygulamaya Admin API üzerinden «write_files» (Dosyalar — yazma) iznini verin, kaydedin; ardından geliştirme sunucusunu yeniden başlatıp tekrar deneyin.",
+        "fileCreateTimeout": "Görsel mağazada işlenirken zaman aşımı oluştu. Daha küçük bir dosya deneyin veya bir süre sonra tekrar deneyin.",
+        "fileProcessingFailed": "Mağaza görseli işleyemedi. Başka bir dosya veya format (JPEG/PNG/WebP) deneyin.",
+        "fileCreateNoMedia": "Mağaza dosya kaydını oluşturamadı. Tekrar deneyin.",
+        "shopifyDetail": "Mağaza hatası: {detail}",
+        "shopifyGeneric": "Yükleme başarısız. Lütfen tekrar deneyin.",
+        "unexpected": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
+      }
+    },
+    "profileEdit": {
+      "formTitle": "Profili güncelle",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor…",
+      "saved": "Bilgileriniz güncellendi.",
+      "errors": {
+        "required": "Ad ve soyad zorunludur.",
+        "nameTooLong": "Ad veya soyad çok uzun (en fazla 50 karakter).",
+        "unauthorized": "Oturum bulunamadı. Lütfen tekrar giriş yapın.",
+        "shopify": "Mağaza bilgileriniz güncellenemedi. Lütfen tekrar deneyin."
+      }
+    }
   },
   "checkout": {
     "form": {
@@ -180,6 +276,8 @@
       "email": "E-posta",
       "phone": "Telefon",
       "deliveryAddress": "Teslimat Adresi",
+      "selectSavedAddress": "Kayıtlı adreslerimden seç",
+      "addNewAddress": "Yeni adres ekle",
       "address": "Adres (mahalle, sokak, no, daire)",
       "city": "Şehir",
       "zip": "Posta kodu",
@@ -205,6 +303,7 @@
     "success": {
       "title": "Ödemeniz Alındı!",
       "description": "Siparişiniz başarıyla oluşturuldu. Kargo bilgileriniz e-posta adresinize iletilecektir.",
+      "trackOrder": "Siparişlerimi görüntüle",
       "continueShopping": "Alışverişe devam et",
       "backHome": "Ana sayfaya dön"
     },

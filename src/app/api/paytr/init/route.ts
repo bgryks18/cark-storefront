@@ -1,9 +1,12 @@
+import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getCart } from '@/lib/shopify/queries/cart';
-import { getCartLines } from '@/lib/shopify/normalize';
-import { getPayTRToken, buildPayTRUrl } from '@/lib/paytr';
+import { authOptions } from '@/lib/auth';
+import { buildPayTRUrl, getPayTRToken } from '@/lib/paytr';
 import { createDraftOrder, deleteDraftOrder, getShippingRates } from '@/lib/shopify/admin';
+import { getCustomerAccount } from '@/lib/shopify/customerAccount';
+import { getCartLines } from '@/lib/shopify/normalize';
+import { getCart } from '@/lib/shopify/queries/cart';
 
 interface InitBody {
   cartId: string;
@@ -18,10 +21,32 @@ interface InitBody {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json() as InitBody;
-  const { cartId, firstName, lastName, email, phone, address, city, zip, shippingTitle } = body;
+  const body = (await req.json()) as InitBody;
+  const { cartId, phone, address, city, zip, shippingTitle } = body;
 
-  if (!cartId || !firstName || !lastName || !email || !phone || !address || !city || !shippingTitle) {
+  // Authenticated ise isim, soyisim ve email session/Shopify'dan al, manipülasyonu önle
+  const session = await getServerSession(authOptions);
+  const email = session?.user?.email ?? body.email;
+  let firstName = body.firstName;
+  let lastName = body.lastName;
+  if (session?.shopifyAccessToken) {
+    const customer = await getCustomerAccount(session.shopifyAccessToken);
+    if (customer) {
+      firstName = customer.firstName ?? firstName;
+      lastName = customer.lastName ?? lastName;
+    }
+  }
+
+  if (
+    !cartId ||
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone ||
+    !address ||
+    !city ||
+    !shippingTitle
+  ) {
     return NextResponse.json({ error: 'Eksik bilgi' }, { status: 400 });
   }
 
@@ -91,8 +116,7 @@ export async function POST(req: NextRequest) {
   // Draft order ID'yi merchantOid'e göm: CARK..._{draftOrderId}
   const merchantOid = `${baseOid}_${draftOrderId}`;
 
-  const userIp =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
+  const userIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://carkzimpara.com';
 

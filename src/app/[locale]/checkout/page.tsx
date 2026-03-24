@@ -2,23 +2,27 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { AlertCircle, ShieldCheck } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlertCircle, Plus, ShieldCheck } from 'lucide-react';
 import { Controller, type Resolver, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
+import { getAddressesAction } from '@/lib/actions/addressActions';
+import { getCustomerProfileAction } from '@/lib/actions/getCustomerProfile';
 import { COUNTRY_CODES } from '@/lib/countryCodes';
 import type { ShippingRate } from '@/lib/shopify/admin';
 import { formatMoney, formatPrice, getCartLines } from '@/lib/shopify/normalize';
 
 import { useCart } from '@/hooks/useCart';
 
-import { Container } from '@/components/ui/Container';
+import { AddressFormModal } from '@/components/account/AddressFormModal';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { Container } from '@/components/ui/Container';
 
 interface ShippingRateWithDescription extends ShippingRate {
   description: string;
@@ -142,10 +146,10 @@ function FloatingInput({
           {...props}
           placeholder=" "
           className={[
-            'peer h-14 w-full rounded-lg border bg-transparent px-3 pb-2 pt-5 text-sm text-text-base transition-colors focus:outline-none',
+            'peer h-14 w-full rounded-lg border bg-transparent px-3 pb-2 pt-5 text-sm text-text-base transition-colors focus:outline-none disabled:cursor-not-allowed disabled:bg-skeleton/40 disabled:text-text-muted',
             hasError
               ? 'border-error focus:border-error'
-              : 'border-card-border focus:border-primary',
+              : 'border-card-border focus:border-primary disabled:border-card-border',
           ].join(' ')}
         />
         <label className="pointer-events-none absolute left-3 top-2 text-[11px] text-text-muted transition-all duration-150 peer-placeholder-shown:top-[18px] peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[11px] peer-focus:text-primary">
@@ -166,7 +170,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const t = useTranslations('checkout.form');
   const tCart = useTranslations('cart');
-  const { cart, cartId, isLoading } = useCart();
+  const { cart, cartId, isLoading: isCartLoading } = useCart();
   const lines = getCartLines(cart);
 
   const schema = useMemo(
@@ -186,15 +190,66 @@ export default function CheckoutPage() {
     [t],
   );
 
+  const { status } = useSession();
+  const isAuthenticated = status === 'authenticated';
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: yupResolver(schema) as unknown as Resolver<FormValues>,
     mode: 'onTouched',
   });
+
+  const { data: customerProfile, isPending: customerProfilePending } = useQuery({
+    queryKey: ['customer-profile'],
+    queryFn: getCustomerProfileAction,
+    enabled: isAuthenticated,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: addressData, isLoading: addressesLoading } = useQuery({
+    queryKey: ['customer-addresses'],
+    queryFn: getAddressesAction,
+    enabled: isAuthenticated,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+
+  const savedAddresses = addressData?.addresses ?? [];
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const queryClient = useQueryClient();
+
+  const sortedAddresses = useMemo(() => {
+    if (!selectedAddressId) return savedAddresses;
+    return [
+      ...savedAddresses.filter((a) => a.id === selectedAddressId),
+      ...savedAddresses.filter((a) => a.id !== selectedAddressId),
+    ];
+  }, [savedAddresses, selectedAddressId]);
+
+  useEffect(() => {
+    if (!addressData) return;
+    const preselect = addressData.defaultAddressId ?? addressData.addresses[0]?.id ?? null;
+    if (!preselect) return;
+    setSelectedAddressId(preselect);
+    const addr = addressData.addresses.find((a) => a.id === preselect);
+    if (addr) {
+      setValue('address', addr.address1 ?? '', { shouldValidate: true });
+      setValue('city', addr.city ?? '', { shouldValidate: true });
+      setValue('zip', addr.zip ?? '');
+    }
+  }, [addressData, setValue]);
+
+  useEffect(() => {
+    if (!customerProfile) return;
+    if (customerProfile.firstName) setValue('firstName', customerProfile.firstName);
+    if (customerProfile.lastName) setValue('lastName', customerProfile.lastName);
+    if (customerProfile.email) setValue('email', customerProfile.email);
+  }, [customerProfile, setValue]);
 
   const {
     data: ratesData,
@@ -249,12 +304,18 @@ export default function CheckoutPage() {
   }, [shippingRates, selectedRate]);
 
   useEffect(() => {
-    if (mounted && !isLoading && lines.length === 0) {
+    if (mounted && !isCartLoading && lines.length === 0) {
       router.replace('/cart');
     }
-  }, [mounted, isLoading, lines.length, router]);
+  }, [mounted, isCartLoading, lines.length, router]);
 
-  if (!mounted || isLoading || (!cart && !!cartId) || lines.length === 0) {
+  if (
+    !mounted ||
+    isCartLoading ||
+    (!cart && !!cartId) ||
+    lines.length === 0 ||
+    (isAuthenticated && customerProfilePending)
+  ) {
     return (
       <section className="py-8 sm:py-12">
         <Container>
@@ -302,11 +363,13 @@ export default function CheckoutPage() {
                     {...register('firstName')}
                     label={`${t('firstName')} *`}
                     error={errors.firstName?.message}
+                    disabled={isAuthenticated}
                   />
                   <FloatingInput
                     {...register('lastName')}
                     label={`${t('lastName')} *`}
                     error={errors.lastName?.message}
+                    disabled={isAuthenticated}
                   />
                 </div>
                 <FloatingInput
@@ -314,6 +377,7 @@ export default function CheckoutPage() {
                   type="email"
                   label={`${t('email')} *`}
                   error={errors.email?.message}
+                  disabled={isAuthenticated}
                 />
                 <Controller
                   name="phone"
@@ -333,27 +397,88 @@ export default function CheckoutPage() {
 
             {/* Teslimat adresi */}
             <div className={CARD_CLASS}>
-              <h2 className="mb-4 text-base font-semibold text-text-base">
-                {t('deliveryAddress')}
-              </h2>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-base font-semibold text-text-base">{t('deliveryAddress')}</h2>
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(true)}
+                    className="flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary-hover"
+                  >
+                    <Plus className="h-3.5 w-3.5" aria-hidden />
+                    {t('addNewAddress')}
+                  </button>
+                )}
+              </div>
               <div className="grid gap-3">
-                <FloatingInput
-                  {...register('address')}
-                  label={`${t('address')} *`}
-                  error={errors.address?.message}
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <FloatingInput
-                    {...register('city')}
-                    label={`${t('city')} *`}
-                    error={errors.city?.message}
-                  />
-                  <FloatingInput
-                    {...register('zip')}
-                    label={t('zip')}
-                    error={errors.zip?.message}
-                  />
-                </div>
+                {isAuthenticated && addressesLoading && (
+                  <div className="flex flex-col gap-2">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-16 animate-pulse rounded-xl bg-skeleton" />
+                    ))}
+                  </div>
+                )}
+                {isAuthenticated ? (
+                  sortedAddresses.length > 0 && (
+                    <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
+                      {sortedAddresses.map((addr) => (
+                        <label
+                          key={addr.id}
+                          className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${
+                            selectedAddressId === addr.id
+                              ? 'border-primary bg-primary-hover'
+                              : 'border-card-border hover:border-primary'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="savedAddress"
+                            value={addr.id}
+                            checked={selectedAddressId === addr.id}
+                            onChange={() => {
+                              setSelectedAddressId(addr.id);
+                              setValue('address', addr.address1 ?? '', { shouldValidate: true });
+                              setValue('city', addr.city ?? '', { shouldValidate: true });
+                              setValue('zip', addr.zip ?? '');
+                            }}
+                            className="mt-0.5 accent-primary"
+                          />
+                          <div className="text-sm">
+                            <p className="font-medium text-text-base">
+                              {[addr.firstName, addr.lastName].filter(Boolean).join(' ')}
+                            </p>
+                            <p className="text-text-muted">{addr.address1}</p>
+                            {addr.address2 && <p className="text-text-muted">{addr.address2}</p>}
+                            <p className="text-text-muted">
+                              {[addr.zip, addr.city].filter(Boolean).join(' ')}
+                            </p>
+                            {addr.phone && <p className="text-text-muted">{addr.phone}</p>}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <>
+                    <FloatingInput
+                      {...register('address')}
+                      label={`${t('address')} *`}
+                      error={errors.address?.message}
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <FloatingInput
+                        {...register('city')}
+                        label={`${t('city')} *`}
+                        error={errors.city?.message}
+                      />
+                      <FloatingInput
+                        {...register('zip')}
+                        label={t('zip')}
+                        error={errors.zip?.message}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -454,7 +579,11 @@ export default function CheckoutPage() {
 
               <button
                 type="submit"
-                disabled={paytrMutation.isPending || !selectedRate}
+                disabled={
+                  paytrMutation.isPending ||
+                  !selectedRate ||
+                  (isAuthenticated && (addressesLoading || customerProfilePending))
+                }
                 className="mt-6 flex h-12 w-full cursor-pointer items-center justify-center rounded-xl bg-primary text-base font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-80"
               >
                 {paytrMutation.isPending ? t('submitting') : t('submit')}
@@ -468,6 +597,16 @@ export default function CheckoutPage() {
           </div>
         </form>
       </Container>
+
+      {showAddModal && (
+        <AddressFormModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={async () => {
+            await queryClient.invalidateQueries({ queryKey: ['customer-addresses'] });
+            setShowAddModal(false);
+          }}
+        />
+      )}
     </section>
   );
 }

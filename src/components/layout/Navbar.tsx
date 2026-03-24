@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { signOut, useSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
-
 import { useSearchParams } from 'next/navigation';
 
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
@@ -19,6 +18,29 @@ import { ThemeToggle } from '../ui/ThemeToggle';
 import { SearchBar } from './SearchBar';
 
 const NAV_LINKS = [{ key: 'collections', href: '/collections' }] as const;
+
+const ACCOUNT_AVATAR_CHANGED = 'account-avatar-changed';
+
+/** Hesabım linki yanında: foto varsa görsel, yoksa User ikonu */
+function AccountNavAvatarRing({ avatarUrl }: { avatarUrl: string | null | undefined }) {
+  const showPhoto = Boolean(avatarUrl);
+  return (
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary-hover text-primary">
+      {showPhoto ? (
+        // eslint-disable-next-line @next/next/no-img-element -- /api + Admin URL
+        <img
+          src={avatarUrl!}
+          alt=""
+          width={28}
+          height={28}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <User className="h-4 w-4" strokeWidth={2} aria-hidden />
+      )}
+    </span>
+  );
+}
 
 function CartIcon() {
   return (
@@ -83,7 +105,9 @@ function LanguageSwitcher() {
       onClick={() => {
         window.dispatchEvent(new CustomEvent('navigation-start'));
         const qs = searchParams.toString();
-        router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { locale: locale === 'tr' ? 'en' : 'tr' });
+        router.replace(`${pathname}${qs ? `?${qs}` : ''}`, {
+          locale: locale === 'tr' ? 'en' : 'tr',
+        });
       }}
       className="flex h-9 items-center gap-1 rounded px-2 text-sm font-medium transition-colors hover:bg-gray-light"
       title={locale === 'tr' ? 'Switch to English' : "Türkçe'ye geç"}
@@ -101,8 +125,40 @@ function LanguageSwitcher() {
 
 export function Navbar() {
   const t = useTranslations('nav');
-  const { data: session } = useSession();
-  const isAuthenticated = !!session;
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session?.shopifyAccessToken;
+  const isSessionLoading = status === 'loading';
+  const [navAvatarUrl, setNavAvatarUrl] = useState<string | null | undefined>(undefined);
+
+  const fetchNavAvatar = useCallback(() => {
+    if (!isAuthenticated || !session?.user?.email) {
+      setNavAvatarUrl(undefined);
+      return;
+    }
+    void fetch('/api/account/avatar', { cache: 'no-store' })
+      .then((r) => r.json() as Promise<{ avatarUrl: string | null }>)
+      .then((j) => setNavAvatarUrl(j.avatarUrl ?? null))
+      .catch(() => setNavAvatarUrl(null));
+  }, [isAuthenticated, session?.user?.email]);
+
+  useEffect(() => {
+    void getSession();
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setNavAvatarUrl(undefined);
+      return;
+    }
+    fetchNavAvatar();
+  }, [isAuthenticated, session?.user?.email, pathname, fetchNavAvatar]);
+
+  useEffect(() => {
+    const onAvatarChanged = () => fetchNavAvatar();
+    window.addEventListener(ACCOUNT_AVATAR_CHANGED, onAvatarChanged);
+    return () => window.removeEventListener(ACCOUNT_AVATAR_CHANGED, onAvatarChanged);
+  }, [fetchNavAvatar]);
   const { itemCount: cartCount, cart, isAnyItemLoading, isAdding } = useCart();
   const isCartLoading = isAdding || isAnyItemLoading;
   const totalQty = cart?.totalQuantity ?? 0;
@@ -218,23 +274,20 @@ export function Navbar() {
               <LanguageSwitcher />
             </div>
 
-            {/* Giriş / Hesap — masaüstü */}
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/account"
-                  className="hidden h-9 items-center gap-1.5 rounded px-3 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:inline-flex"
-                >
-                  <User className="h-4 w-4" />
-                  {t('account')}
-                </Link>
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  className="hidden h-9 items-center rounded px-3 text-sm font-medium text-text-muted transition-colors hover:bg-gray-light hover:text-text-base md:inline-flex"
-                >
-                  {t('logout')}
-                </button>
-              </>
+            {/* Giriş / Hesap — masaüstü (session client’ta yüklendiği için kısa süre loading) */}
+            {isSessionLoading ? (
+              <span
+                className="hidden h-9 min-w-22 self-center rounded-md bg-gray-light/80 animate-pulse md:inline-block"
+                aria-hidden="true"
+              />
+            ) : isAuthenticated ? (
+              <Link
+                href="/account"
+                className="hidden h-9 items-center gap-2 rounded px-3 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:inline-flex"
+              >
+                <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
+                {t('account')}
+              </Link>
             ) : (
               <Link
                 href="/login"
@@ -243,7 +296,6 @@ export function Navbar() {
                 {t('login')}
               </Link>
             )}
-
             {/* Hamburger — mobil */}
             <button
               className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-gray-light md:hidden"
@@ -278,30 +330,21 @@ export function Navbar() {
                   </Link>
                 </li>
               ))}
-              {isAuthenticated ? (
-                <>
-                  <li>
-                    <Link
-                      href="/account"
-                      className="flex h-12 items-center gap-2 rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <User className="h-5 w-5" />
-                      {t('account')}
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        setMobileOpen(false);
-                        signOut({ callbackUrl: '/' });
-                      }}
-                      className="flex h-12 w-full items-center rounded px-3 text-base font-medium text-text-muted transition-colors hover:bg-gray-light hover:text-text-base"
-                    >
-                      {t('logout')}
-                    </button>
-                  </li>
-                </>
+              {isSessionLoading ? (
+                <li className="px-3 py-2" aria-hidden="true">
+                  <div className="h-10 w-32 animate-pulse rounded-md bg-gray-light/80" />
+                </li>
+              ) : isAuthenticated ? (
+                <li>
+                  <Link
+                    href="/account"
+                    className="flex h-12 items-center gap-3 rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
+                    {t('account')}
+                  </Link>
+                </li>
               ) : (
                 <li>
                   <Link

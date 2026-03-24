@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
+import { getServerSession } from 'next-auth/next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { routing } from '@/i18n/routing';
+
+import { authOptions } from '@/lib/auth';
 
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
@@ -12,6 +15,9 @@ import { PageTransition } from '@/components/layout/PageTransition';
 import { Providers } from '@/components/layout/Providers';
 
 import '../globals.css';
+
+/** Oturum çerezine göre Navbar vb. her istekte güncel session alınsın (çıkış sonrası “Hesabım” kalmasın). */
+export const dynamic = 'force-dynamic';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -58,6 +64,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   const messages = await getMessages();
 
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
@@ -69,7 +77,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           {locale === 'tr' ? 'İçeriğe geç' : 'Skip to content'}
         </a>
         <NextIntlClientProvider messages={messages}>
-          <Providers>
+          <Providers session={session}>
             <Navbar />
             <NavigationSpinner />
             <main id="main-content" className="flex-1">
