@@ -26,11 +26,17 @@ export default async function AccountPage() {
     return <AccountLoginRequired />;
   }
 
-  const [customer, addressResult, avatarUrl] = await Promise.all([
+  const [customerResult, addressSettled, avatarSettled] = await Promise.allSettled([
     getCustomerAccount(session.shopifyAccessToken),
     getCustomerAddresses(session.shopifyAccessToken),
-    session.user?.email != null ? getCustomerAvatarUrlFromAdmin(session.user.email) : Promise.resolve(null),
+    session.user?.email != null
+      ? getCustomerAvatarUrlFromAdmin(session.user.email)
+      : Promise.resolve(null),
   ]);
+
+  const customer = customerResult.status === 'fulfilled' ? customerResult.value : null;
+  const addressResult = addressSettled.status === 'fulfilled' ? addressSettled.value : null;
+  const avatarUrl = avatarSettled.status === 'fulfilled' ? avatarSettled.value : null;
 
   if (!customer) {
     return <AccountFetchError message={t('errors.loadFailed')} signOutLabel={tNav('logout')} />;
@@ -38,19 +44,20 @@ export default async function AccountPage() {
 
   const orders = flattenConnection(customer.orders).slice(0, 5);
   const addressCount = addressResult?.addresses.length ?? 0;
-  const defaultAddress = addressResult?.addresses.find(
-    (a) => a.id === addressResult.defaultAddressId,
-  ) ?? addressResult?.addresses[0] ?? null;
+  const defaultAddress =
+    addressResult?.addresses.find((a) => a.id === addressResult.defaultAddressId) ??
+    addressResult?.addresses[0] ??
+    null;
 
   return (
     <section className="py-8 sm:py-12">
       <Container>
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">{t('title')}</h1>
-          <AccountSignOut label={tNav('logout')} />
+          <span className="hidden md:block"><AccountSignOut label={tNav('logout')} /></span>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="grid gap-6 md:grid-cols-[1fr_320px]">
           {/* Siparişler */}
           <div className="rounded-2xl border border-card-border bg-card py-4 px-2">
             <div className="mb-4 flex items-center justify-between gap-2 px-3 sm:px-4 mx-1 sm:mx-1.5">
@@ -79,7 +86,7 @@ export default async function AccountPage() {
                   <Link
                     key={order.id}
                     href={`/account/orders/${encodeURIComponent(btoa(order.id))}`}
-                    className="mx-1 flex items-center justify-between gap-3 rounded-lg border-b border-border px-3 py-3 text-sm transition-colors last:border-b-0 hover:bg-primary-hover sm:mx-1.5 sm:px-4"
+                    className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 text-sm transition-colors last:border-b-0 hover:bg-primary-hover sm:px-6"
                   >
                     <div>
                       <p className="font-medium text-text-base">{order.name}</p>
@@ -89,8 +96,8 @@ export default async function AccountPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-primary">{formatMoney(order.totalPrice)}</p>
-                      <p className="text-xs capitalize text-text-muted">
-                        {order.financialStatus.toLowerCase()}
+                      <p className="text-xs text-text-muted">
+                        {t(`financialStatus.${order.financialStatus.toLowerCase() as 'pending' | 'authorized' | 'partially_paid' | 'paid' | 'partially_refunded' | 'refunded' | 'voided'}`)}
                       </p>
                     </div>
                   </Link>
@@ -100,7 +107,7 @@ export default async function AccountPage() {
           </div>
 
           {/* Profil */}
-          <div className="h-fit rounded-2xl border border-card-border bg-card p-6">
+          <div className="order-first h-fit rounded-2xl border border-card-border bg-card p-6 md:order-0">
             <div className="mb-4 flex items-center justify-between gap-2">
               <h2 className="text-base font-semibold text-text-base">{t('profile')}</h2>
               <Link

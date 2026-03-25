@@ -62,7 +62,11 @@ export function AddressCard({ address, isDefault, onEdit, onMutated }: Props) {
         {address.address1 && <p>{address.address1}</p>}
         {address.address2 && <p>{address.address2}</p>}
         {cityZipLine && <p>{cityZipLine}</p>}
-        {address.phone && <p className="text-text-muted">{address.phone}</p>}
+        {address.phone && (
+          <p className="text-text-muted">
+            {address.phone.replace(/(\+\d{2})(\d{3})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5')}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

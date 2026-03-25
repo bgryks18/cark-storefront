@@ -11,12 +11,13 @@ interface CollectionsPageProps {
 }
 
 async function CollectionGrid() {
+  const t = await getTranslations('collection');
   const connection = await getCollections(50);
   const collections = flattenConnection(connection);
 
   if (collections.length === 0) {
     return (
-      <p className="py-16 text-center text-text-muted">Koleksiyon bulunamadı.</p>
+      <p className="py-16 text-center text-text-muted">{t('noCollections')}</p>
     );
   }
 

@@ -23,24 +23,27 @@
   },
   "nav": {
     "home": "Ana Sayfa",
-    "collections": "Koleksiyonlar",
+    "storeName": "carkstore",
+    "collections": "Kategoriler",
+    "products": "Ürünler",
     "search": "Arama",
     "cart": "Sepet",
     "account": "Hesabım",
     "login": "Giriş yap",
     "register": "Kayıt ol",
-    "logout": "Çıkış yap"
+    "logout": "Çıkış yap",
+    "contact": "İletişim"
   },
   "home": {
     "hero": {
       "title": "Çark Zımpara",
       "subtitle": "Profesyonel zımpara çözümleri"
     },
-    "featuredCollections": "Öne Çıkan Koleksiyonlar",
+    "featuredCollections": "Öne Çıkan Kategoriler",
     "featuredProducts": "Öne Çıkan Ürünler"
   },
   "collection": {
-    "allCollections": "Tüm Koleksiyonlar",
+    "allCollections": "Tüm Kategoriler",
     "products": "ürün",
     "filter": "Filtrele",
     "sort": "Sırala",
@@ -54,7 +57,8 @@
       "createdDesc": "En yeniler"
     },
     "loadMore": "Daha fazla yükle",
-    "noProducts": "Bu koleksiyonda ürün bulunamadı",
+    "noProducts": "Bu kategoride ürün bulunamadı",
+    "noCollections": "Kategori bulunamadı.",
     "filters": "Filtreler",
     "clearFilters": "Temizle",
     "activeFiltersCount": "{count} filtre aktif",
@@ -95,6 +99,7 @@
     "discountCodePlaceholder": "İndirim kodu",
     "applyDiscount": "Uygula",
     "discountInvalid": "Geçersiz indirim kodu.",
+    "addedToCart": "Sepete eklendi",
     "errors": {
       "lineNotFound": "Ürün zaten sepette bulunamadı.",
       "productUnavailable": "Bu ürün artık mevcut değil.",
@@ -109,7 +114,7 @@
   },
   "search": {
     "title": "Arama",
-    "placeholder": "Ürün, koleksiyon ara...",
+    "placeholder": "Ürün, kategori ara...",
     "results": "Arama Sonuçları",
     "resultsFor": "\"{query}\" için sonuçlar",
     "noResults": "\"{query}\" için sonuç bulunamadı"
@@ -223,6 +228,36 @@
     "orderDate": "Tarih",
     "orderStatus": "Durum",
     "orderTotal": "Toplam",
+    "orderItems": "Ürünler",
+    "subtotal": "Ara toplam",
+    "shippingCost": "Kargo",
+    "trackOrder": "Siparişi Takip Et",
+    "searchOrders": "#1002",
+    "filterStatus": "Durum",
+    "allStatuses": "Tümü",
+    "dateFrom": "Başlangıç",
+    "dateTo": "Bitiş",
+    "clearDates": "Temizle",
+    "noOrdersFound": "Arama kriterlerinize uygun sipariş bulunamadı.",
+    "page": "Sayfa {current} / {total}",
+    "prevPage": "Önceki",
+    "nextPage": "Sonraki",
+    "financialStatus": {
+      "pending": "Beklemede",
+      "authorized": "Onaylandı",
+      "partially_paid": "Kısmen Ödendi",
+      "paid": "Ödendi",
+      "partially_refunded": "Kısmen İade",
+      "refunded": "İade Edildi",
+      "voided": "İptal Edildi"
+    },
+    "fulfillmentStatus": {
+      "unfulfilled": "Hazırlanıyor",
+      "partial": "Kısmen Kargoya Verildi",
+      "fulfilled": "Kargoya Verildi",
+      "restocked": "İade Stoklandı"
+    },
+    "itemCount": "{count} ürün",
     "errors": {
       "loadFailed": "Hesap bilgileriniz mağazadan alınamadı. Lütfen çıkış yapıp tekrar deneyin."
     },
@@ -367,6 +402,36 @@
     "paymentMethod": "Ödeme",
     "shippingMethod": "Kargo Yöntemi"
   },
+  "contactPage": {
+    "title": "İletişim",
+    "subtitle": "Sorularınız için bizimle iletişime geçin.",
+    "findOnMap": "Google Maps'te bizi bulun",
+    "phone": "Telefon",
+    "email": "E-posta",
+    "address": "Adres",
+    "addressValue": "Osman Yılmaz Mahallesi\nBarbaros Caddesi, No: 23/A\nGebze/Kocaeli, Türkiye",
+    "form": {
+      "name": "Ad",
+      "namePlaceholder": "Adınız",
+      "lastName": "Soyad",
+      "lastNamePlaceholder": "Soyadınız",
+      "phoneNumber": "Telefon",
+      "phoneNumberPlaceholder": "+90 5XX XXX XX XX",
+      "email": "E-posta",
+      "emailPlaceholder": "ornek@sirket.com",
+      "companyName": "Firma Adı",
+      "companyNamePlaceholder": "Firma adınız (isteğe bağlı)",
+      "contactAddress": "İletişim Adresi",
+      "contactAddressPlaceholder": "Şehir / İlçe (isteğe bağlı)",
+      "message": "Mesaj",
+      "messagePlaceholder": "Mesajınızı buraya yazın...",
+      "required": "* zorunlu alan",
+      "send": "Gönder",
+      "sending": "Gönderiliyor...",
+      "success": "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.",
+      "error": "Bir hata oluştu. Lütfen tekrar deneyin."
+    }
+  },
   "footer": {
     "brandName": "Çark Zımpara",
     "tagline": "Profesyonel zımpara çözümleri. Kalite ve güven ile hizmetinizdeyiz.",
@@ -374,6 +439,7 @@
     "account": "Hesap",
     "contact": "İletişim",
     "rights": "Tüm hakları saklıdır.",
-    "orderTracking": "Sipariş Takibi"
+    "orderTracking": "Sipariş Takibi",
+    "softwareCredit": "Yazılım hizmetleri: bugrayuksel018.com"
   }
 }

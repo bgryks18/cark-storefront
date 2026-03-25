@@ -76,7 +76,7 @@ export default function CartPage() {
       <section key="skeleton" className="py-8 sm:py-12">
         <Container>
           <div className="mb-8 h-8 w-36 animate-pulse rounded-lg bg-skeleton" />
-          <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+          <div className="grid gap-8 md:grid-cols-[1fr_360px]">
             <div className="flex flex-col divide-y divide-border">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-4 py-5 sm:gap-6">
@@ -89,7 +89,7 @@ export default function CartPage() {
                 </div>
               ))}
             </div>
-            <div className="h-52 animate-pulse rounded-2xl bg-skeleton" />
+            <div className="order-first md:order-0 h-52 animate-pulse rounded-2xl bg-skeleton" />
           </div>
         </Container>
       </section>
@@ -150,9 +150,9 @@ export default function CartPage() {
           Sepetim
         </h1>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-8 md:grid-cols-[1fr_360px]">
           {/* ─── Ürün listesi ─────────────────────────────────────────────── */}
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <div className="flex flex-col divide-y divide-border">
               {pagedLines.map((line) => {
                 const product = line.merchandise.product;
@@ -288,7 +288,7 @@ export default function CartPage() {
           </div>
 
           {/* ─── Sipariş özeti ────────────────────────────────────────────── */}
-          <div className="relative h-full ">
+          <div className="relative h-full order-first md:order-0">
             <div className="sticky top-33 max-h-[calc(100vh-10rem)] overflow-y-auto scrollbar-thin rounded-2xl border border-card-border bg-card p-6">
               <h2 className="mb-4 text-base font-semibold text-text-base">{t('summary.title')}</h2>
 

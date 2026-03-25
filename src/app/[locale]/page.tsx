@@ -64,7 +64,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </Container>
       </section>
 
-      {/* ─── Öne Çıkan Koleksiyonlar ──────────────────────────────────────── */}
+      {/* ─── Öne çıkan kategoriler ─────────────────────────────────────────── */}
       <section className="py-16 sm:py-20">
         <Container>
           <h2 className="mb-8 text-2xl font-bold text-black-dark sm:mb-10 sm:text-3xl">

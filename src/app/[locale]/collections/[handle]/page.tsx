@@ -93,9 +93,10 @@ async function ProductGrid({
   const products = flattenConnection(collection.products);
 
   if (products.length === 0) {
+    const tGrid = await getTranslations({ locale, namespace: 'collection' });
     return (
       <p className="py-16 text-center text-text-muted">
-        Bu koleksiyonda ürün bulunamadı.
+        {tGrid('noProducts')}
       </p>
     );
   }
@@ -139,7 +140,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: locale === 'tr' ? 'Ana Sayfa' : 'Home', item: `${siteUrl}${localePfx}/` },
-      { '@type': 'ListItem', position: 2, name: locale === 'tr' ? 'Koleksiyonlar' : 'Collections', item: `${siteUrl}${localePfx}/collections` },
+      { '@type': 'ListItem', position: 2, name: locale === 'tr' ? 'Kategoriler' : 'Categories', item: `${siteUrl}${localePfx}/collections` },
       { '@type': 'ListItem', position: 3, name: collection.title, item: `${siteUrl}${localePfx}/collections/${handle}` },
     ],
   };
@@ -160,7 +161,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* ─── Koleksiyon başlığı ────────────────────────────────────────────── */}
+      {/* ─── Kategori başlığı ────────────────────────────────────────────── */}
       <section className="border-b border-border bg-surface">
         <Container className="py-8 sm:py-10">
           {/* Breadcrumb */}

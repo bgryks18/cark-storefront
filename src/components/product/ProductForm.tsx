@@ -1,14 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, Loader, Minus, Plus, ShoppingCart } from 'lucide-react';
+
 import { useTranslations } from 'next-intl';
 
-import { useCart } from '@/hooks/useCart';
-import { CartErrorCode } from '@/lib/shopify/queries/cart';
-import { cn } from '@/lib/utils/cn';
+import { Check, Minus, Plus, ShoppingCart } from 'lucide-react';
+
 import { formatMoney } from '@/lib/shopify/normalize';
+import { CartErrorCode } from '@/lib/shopify/queries/cart';
 import type { MoneyV2, ProductOption, ProductVariant } from '@/lib/shopify/types';
+import { cn } from '@/lib/utils/cn';
+
+import { useCart } from '@/hooks/useCart';
+
+import { Button } from '@/components/ui/Button';
 
 interface ProductFormProps {
   options: ProductOption[];
@@ -32,7 +37,11 @@ export function ProductForm({
   const { addToCart, cart } = useCart();
   const t = useTranslations('cart');
 
-  const hasRealOptions = !(options.length === 1 && options[0].values.length === 1 && options[0].values[0] === 'Default Title');
+  const hasRealOptions = !(
+    options.length === 1 &&
+    options[0].values.length === 1 &&
+    options[0].values[0] === 'Default Title'
+  );
 
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() =>
     Object.fromEntries(options.map((o) => [o.name, o.values[0]])),
@@ -57,7 +66,8 @@ export function ProductForm({
   })();
 
   const existingQty = selectedVariant
-    ? (cart?.lines.edges.find((e) => e.node.merchandise.id === selectedVariant.id)?.node.quantity ?? 0)
+    ? (cart?.lines.edges.find((e) => e.node.merchandise.id === selectedVariant.id)?.node.quantity ??
+      0)
     : 0;
 
   const remainingMax = effectiveMax !== null ? Math.max(0, effectiveMax - existingQty) : null;
@@ -67,9 +77,10 @@ export function ProductForm({
   useEffect(() => {
     if (remainingMax !== null && quantity > remainingMax) {
       setQuantity(Math.max(1, remainingMax));
-      setErrorMsg(remainingMax === 0
-        ? t('errors.maxInCart', { max: effectiveMax ?? existingQty })
-        : t('errors.maxQuantity', { max: remainingMax })
+      setErrorMsg(
+        remainingMax === 0
+          ? t('errors.maxInCart', { max: effectiveMax ?? existingQty })
+          : t('errors.maxQuantity', { max: remainingMax }),
       );
     } else {
       setErrorMsg(null);
@@ -89,15 +100,14 @@ export function ProductForm({
       const { cart, userErrors } = await addToCart({ merchandiseId: selectedVariant.id, quantity });
 
       // Shopify userErrors döndürmeden sessizce kısıtlamış olabilir
-      const addedLine = cart.lines.edges.find(
-        (e) => e.node.merchandise.id === selectedVariant.id,
-      );
+      const addedLine = cart.lines.edges.find((e) => e.node.merchandise.id === selectedVariant.id);
       const actualQty = addedLine?.node.quantity ?? null;
       if (actualQty !== null && actualQty < existingQty + quantity) {
         const added = actualQty - existingQty;
-        setErrorMsg(added <= 0
-          ? t('errors.maxInCart', { max: actualQty })
-          : t('errors.maxQuantity', { max: added })
+        setErrorMsg(
+          added <= 0
+            ? t('errors.maxInCart', { max: actualQty })
+            : t('errors.maxQuantity', { max: added }),
         );
         if (added > 0) {
           // Bir kısmı eklendi — butonu yeşile çevir, sonra idle'a dön
@@ -146,9 +156,7 @@ export function ProductForm({
     <div className="flex flex-col gap-6">
       {/* Fiyat */}
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-bold text-primary">
-          {formatMoney(price)}
-        </span>
+        <span className="text-3xl font-bold text-primary">{formatMoney(price)}</span>
         {isOnSale && (
           <span className="text-lg text-text-muted line-through">
             {formatMoney(compareAtPrice!)}
@@ -157,66 +165,72 @@ export function ProductForm({
       </div>
 
       {/* Varyant seçenekleri */}
-      {hasRealOptions && options.map((option) => (
-        <div key={option.id}>
-          <p className="mb-2 text-sm font-medium text-text-base">
-            {option.name}
-            <span className="ml-1.5 font-normal text-text-muted">
-              — {selectedOptions[option.name]}
-            </span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {option.values.map((value) => {
-              const isSelected = selectedOptions[option.name] === value;
-              const matchingVariant = variants.find((v) =>
-                v.selectedOptions.some((so) => so.name === option.name && so.value === value) &&
-                v.selectedOptions.every((so) =>
-                  so.name === option.name ? so.value === value : selectedOptions[so.name] === so.value,
-                ),
-              );
-              const isUnavailable = matchingVariant && !matchingVariant.availableForSale;
+      {hasRealOptions &&
+        options.map((option) => (
+          <div key={option.id}>
+            <p className="mb-2 text-sm font-medium text-text-base">
+              {option.name}
+              <span className="ml-1.5 font-normal text-text-muted">
+                — {selectedOptions[option.name]}
+              </span>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {option.values.map((value) => {
+                const isSelected = selectedOptions[option.name] === value;
+                const matchingVariant = variants.find(
+                  (v) =>
+                    v.selectedOptions.some((so) => so.name === option.name && so.value === value) &&
+                    v.selectedOptions.every((so) =>
+                      so.name === option.name
+                        ? so.value === value
+                        : selectedOptions[so.name] === so.value,
+                    ),
+                );
+                const isUnavailable = matchingVariant && !matchingVariant.availableForSale;
 
-              return (
-                <button
-                  key={value}
-                  onClick={() => selectOption(option.name, value)}
-                  disabled={!!isUnavailable}
-                  className={cn(
-                    'rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
-                    'disabled:cursor-not-allowed disabled:opacity-40',
-                    isSelected
-                      ? 'border-primary bg-primary text-white'
-                      : 'border-card-border bg-card text-text-base hover:border-primary hover:text-primary',
-                  )}
-                >
-                  {value}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={value}
+                    onClick={() => selectOption(option.name, value)}
+                    disabled={!!isUnavailable}
+                    className={cn(
+                      'rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
+                      'disabled:cursor-not-allowed disabled:opacity-40',
+                      isSelected
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-card-border bg-card text-text-base hover:border-primary hover:text-primary',
+                    )}
+                  >
+                    {value}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
       {/* Miktar */}
       <div>
         <p className="mb-2 text-sm font-medium text-text-base">{quantityLabel}</p>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => { setQuantity((q) => Math.max(1, q - 1)); setErrorMsg(null); }}
+            onClick={() => {
+              setQuantity((q) => Math.max(1, q - 1));
+              setErrorMsg(null);
+            }}
             disabled={quantity <= 1}
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-card-border bg-card text-text-base transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Minus className="h-4 w-4" />
           </button>
-          <span className="w-8 text-center text-base font-semibold text-text-base">
-            {quantity}
-          </span>
+          <span className="w-8 text-center text-base font-semibold text-text-base">{quantity}</span>
           <button
             onClick={() => {
               if (atMax) {
-                setErrorMsg(remainingMax === 0
-                  ? t('errors.maxInCart', { max: effectiveMax ?? existingQty })
-                  : t('errors.maxQuantity', { max: remainingMax })
+                setErrorMsg(
+                  remainingMax === 0
+                    ? t('errors.maxInCart', { max: effectiveMax ?? existingQty })
+                    : t('errors.maxQuantity', { max: remainingMax }),
                 );
                 return;
               }
@@ -228,29 +242,34 @@ export function ProductForm({
             <Plus className="h-4 w-4" />
           </button>
         </div>
-        {errorMsg && (
-          <p className="mt-2 text-xs text-error">{errorMsg}</p>
-        )}
+        {errorMsg && <p className="mt-2 text-xs text-error">{errorMsg}</p>}
       </div>
 
       {/* Sepete ekle butonu */}
-      <button
+      <Button
         onClick={handleAddToCart}
-        disabled={!isAvailable || state === 'loading'}
+        disabled={!isAvailable || state === 'added'}
+        loading={state === 'loading'}
+        size="lg"
         className={cn(
-          'flex h-12 items-center justify-center gap-2 rounded-xl px-8 text-base font-semibold transition-colors',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          state === 'added'
-            ? 'bg-green text-white'
-            : 'bg-primary text-white hover:bg-primary-dark',
-          !isAvailable && 'bg-gray-dark text-white hover:bg-gray-dark',
+          state === 'added' && 'bg-green hover:bg-green disabled:opacity-100',
+          !isAvailable && 'bg-gray-dark hover:bg-gray-dark',
         )}
       >
-        {state === 'loading' && <Loader className="h-5 w-5 animate-spin" />}
-        {state === 'added' && <Check className="h-5 w-5" />}
-        {state === 'idle' && <ShoppingCart className="h-5 w-5" />}
-        {!isAvailable ? outOfStockLabel : state === 'added' ? '✓' : addToCartLabel}
-      </button>
+        {!isAvailable ? (
+          outOfStockLabel
+        ) : state === 'added' ? (
+          <>
+            <Check className="h-5 w-5" />
+            {t('addedToCart')}
+          </>
+        ) : (
+          <>
+            <ShoppingCart className="h-5 w-5" />
+            {addToCartLabel}
+          </>
+        )}
+      </Button>
     </div>
   );
 }

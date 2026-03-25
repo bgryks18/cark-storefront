@@ -1,11 +1,14 @@
 import { useTranslations } from 'next-intl';
 
 import { Link } from '@/i18n/navigation';
+import { Mail, MapPin, Phone } from 'lucide-react';
+
 import { Container } from '@/components/ui/Container';
 
 export function Footer() {
   const t = useTranslations('nav');
   const ft = useTranslations('footer');
+  const ct = useTranslations('contactPage');
   const year = new Date().getFullYear();
 
   return (
@@ -33,9 +36,10 @@ export function Footer() {
                 { href: '/collections', label: t('collections') },
                 { href: '/search', label: t('search') },
                 { href: '/cart', label: t('cart') },
+                { href: '/contact', label: t('contact') },
               ].map(({ href, label }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-black-dark transition-colors hover:text-primary">
+                  <Link href={href} className="text-sm text-text-muted transition-colors hover:text-primary">
                     {label}
                   </Link>
                 </li>
@@ -51,12 +55,10 @@ export function Footer() {
             <ul className="space-y-3" role="list">
               {[
                 { href: '/login', label: t('login') },
-                { href: '/register', label: t('register') },
                 { href: '/account', label: t('account') },
-                { href: '/order-tracking', label: ft('orderTracking') },
               ].map(({ href, label }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-black-dark transition-colors hover:text-primary">
+                  <Link href={href} className="text-sm text-text-muted transition-colors hover:text-primary">
                     {label}
                   </Link>
                 </li>
@@ -71,20 +73,43 @@ export function Footer() {
             </h3>
             <ul className="space-y-3" role="list">
               <li>
-                <a href="mailto:info@carkzimpara.com" className="text-sm text-black-dark transition-colors hover:text-primary">
+                <a href="tel:+905375407666" className="flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-primary">
+                  <Phone className="h-4 w-4 shrink-0" />
+                  +90 537 540 76 66
+                </a>
+              </li>
+              <li>
+                <a href="mailto:info@carkzimpara.com" className="flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-primary">
+                  <Mail className="h-4 w-4 shrink-0" />
                   info@carkzimpara.com
                 </a>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-text-muted">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                <span className="whitespace-pre-line">{ct('addressValue')}</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Alt çizgi */}
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 sm:flex-row">
-          <p className="text-xs text-text-muted">
-            © {year} {ft('brandName')}. {ft('rights')}
+        <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-text-muted">
+              © {year} {ft('brandName')}. {ft('rights')}
+            </p>
+            <a
+              href="https://bugrayuksel018.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-fit text-xs text-text-muted transition-colors hover:text-primary"
+            >
+              {ft('softwareCredit')}
+            </a>
+          </div>
+          <p className="self-end text-xs text-text-muted sm:self-auto sm:text-right">
+            shop.carkzimpara.com
           </p>
-          <p className="text-xs text-text-muted">shop.carkzimpara.com</p>
         </div>
       </Container>
     </footer>

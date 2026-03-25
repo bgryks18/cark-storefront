@@ -11,6 +11,8 @@ import {
   submitAccountProfile,
 } from '@/lib/actions/updateAccountProfile';
 
+import { Spinner } from '@/components/ui/Spinner';
+
 const inputClass =
   'mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-base outline-none transition-shadow focus:border-primary focus:ring-2 focus:ring-primary/25';
 
@@ -53,15 +55,7 @@ export function AccountProfileForm({ initialFirstName, initialLastName }: Accoun
           className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
         >
           {pending ? (
-            <span className="flex items-center justify-center gap-1.5" aria-hidden>
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="h-1.5 w-1.5 rounded-full bg-white"
-                  style={{ animation: `navDot 1s ease-in-out ${i * 0.15}s infinite` }}
-                />
-              ))}
-            </span>
+            <Spinner type="dots" size="md" color="white" aria-hidden />
           ) : (
             t('save')
           )}

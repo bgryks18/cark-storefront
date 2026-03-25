@@ -1,6 +1,5 @@
 import { getServerSession } from 'next-auth/next';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { redirect } from 'next/navigation';
 
 import { Link } from '@/i18n/navigation';
 
@@ -12,8 +11,10 @@ import { MapPin } from 'lucide-react';
 
 import { AccountAvatarUpload } from '@/components/account/AccountAvatarUpload';
 import { AccountFetchError } from '@/components/account/AccountFetchError';
+import { AccountLoginRequired } from '@/components/account/AccountLoginRequired';
 import { AccountProfileForm } from '@/components/account/AccountProfileForm';
 import { Container } from '@/components/ui/Container';
+import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 
 export async function generateMetadata() {
   const locale = await getLocale();
@@ -23,13 +24,12 @@ export async function generateMetadata() {
 
 export default async function AccountProfileEditPage() {
   const session = await getServerSession(authOptions);
-  const locale = await getLocale();
 
   const t = await getTranslations('account');
   const tNav = await getTranslations('nav');
 
   if (!session?.shopifyAccessToken) {
-    redirect(locale === 'en' ? '/en/login' : '/login');
+    return <AccountLoginRequired />;
   }
 
   const [customer, addressResult, avatarUrl] = await Promise.all([
@@ -49,15 +49,10 @@ export default async function AccountProfileEditPage() {
   return (
     <section className="py-8 sm:py-12">
       <Container>
-        <div className="mb-8 flex flex-wrap items-center gap-2 text-sm">
-          <Link href="/account" className="text-text-muted hover:text-primary">
-            {t('title')}
-          </Link>
-          <span className="text-text-muted" aria-hidden>
-            /
-          </span>
-          <h1 className="text-2xl font-bold text-black-dark">{t('profileEditPageTitle')}</h1>
-        </div>
+        <PageBreadcrumb
+          crumbs={[{ label: t('title'), href: '/account' }]}
+          title={t('profileEditPageTitle')}
+        />
 
         <div className="mx-auto max-w-3xl space-y-4">
           <div className="rounded-2xl border border-card-border bg-card p-6">
@@ -79,9 +74,7 @@ export default async function AccountProfileEditPage() {
                 <p className="text-sm font-semibold text-text-base">{t('addresses.title')}</p>
                 {defaultAddress ? (
                   <p className="text-xs text-text-muted">
-                    {[defaultAddress.address1, defaultAddress.city]
-                      .filter(Boolean)
-                      .join(', ')}
+                    {[defaultAddress.address1, defaultAddress.city].filter(Boolean).join(', ')}
                   </p>
                 ) : (
                   <p className="text-xs text-text-muted">{t('addresses.manageHint')}</p>

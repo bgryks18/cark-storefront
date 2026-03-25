@@ -7,17 +7,22 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
-import { PackagePlus, User } from 'lucide-react';
+import { ChevronDown, PackagePlus, User } from 'lucide-react';
 
 import { useCart } from '@/hooks/useCart';
 
 import { Container } from '@/components/ui/Container';
 
+import { AccountSignOut } from '../account/AccountSignOut';
 import { Badge } from '../ui/Badge';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { LogoMark } from './LogoMark';
 import { SearchBar } from './SearchBar';
 
-const NAV_LINKS = [{ key: 'collections', href: '/collections' }] as const;
+const NAV_LINKS = [
+  { key: 'collections', href: '/collections' },
+  { key: 'contact', href: '/contact' },
+] as const;
 
 const ACCOUNT_AVATAR_CHANGED = 'account-avatar-changed';
 
@@ -94,32 +99,73 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
+const LOCALES = [
+  { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+] as const;
+
 function LanguageSwitcher() {
   const locale = useLocale();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  function switchTo(target: 'tr' | 'en') {
+    setOpen(false);
+    if (target === locale) return;
+    window.dispatchEvent(new CustomEvent('navigation-start'));
+    const qs = searchParams.toString();
+    router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { locale: target });
+  }
+
+  const current = LOCALES.find((l) => l.code === locale)!;
 
   return (
-    <button
-      onClick={() => {
-        window.dispatchEvent(new CustomEvent('navigation-start'));
-        const qs = searchParams.toString();
-        router.replace(`${pathname}${qs ? `?${qs}` : ''}`, {
-          locale: locale === 'tr' ? 'en' : 'tr',
-        });
-      }}
-      className="flex h-9 items-center gap-1 rounded px-2 text-sm font-medium transition-colors hover:bg-gray-light"
-      title={locale === 'tr' ? 'Switch to English' : "Türkçe'ye geç"}
-    >
-      <span className={locale === 'tr' ? 'font-bold text-primary' : 'text-black opacity-40'}>
-        TR
-      </span>
-      <span className="text-gray">/</span>
-      <span className={locale === 'en' ? 'font-bold text-primary' : 'text-black opacity-40'}>
-        EN
-      </span>
-    </button>
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="cursor-pointer flex h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors hover:bg-primary-hover"
+      >
+        <span>{current.flag}</span>
+        <span className="text-text-base">{current.code.toUpperCase()}</span>
+        <ChevronDown
+          className={[
+            'h-3.5 w-3.5 text-text-muted transition-transform',
+            open ? 'rotate-180' : '',
+          ].join(' ')}
+          aria-hidden
+        />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+          {LOCALES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => switchTo(l.code)}
+              className={[
+                'cursor-pointer flex w-full items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-primary-hover',
+                l.code === locale ? 'font-semibold text-primary' : 'text-text-base',
+              ].join(' ')}
+            >
+              <span>{l.flag}</span>
+              <span>{l.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -185,24 +231,12 @@ export function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node)) {
-        setMobileOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [mobileOpen]);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
@@ -223,11 +257,11 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-1"
+            className="flex shrink-0 items-center gap-2 sm:gap-2.5 text-text-base"
             onClick={() => setMobileOpen(false)}
           >
-            <span className="text-xl font-bold tracking-tight text-primary">Çark</span>
-            <span className="text-xl font-bold tracking-tight text-black-dark">Zımpara</span>
+            <LogoMark className="h-8 w-auto shrink-0 sm:h-9" />
+            <span className="text-lg font-bold tracking-tight sm:text-xl">{t('storeName')}</span>
           </Link>
 
           {/* Masaüstü menü — ortada */}
@@ -254,7 +288,7 @@ export function Navbar() {
             {/* Sepet */}
             <Link
               href="/cart"
-              className="relative flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-gray-light"
+              className="relative flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover"
               aria-label={`${t('cart')}${cartCount > 0 ? `, ${cartCount} ürün` : ''}`}
             >
               <CartIcon />
@@ -269,36 +303,36 @@ export function Navbar() {
             {/* Tema toggle */}
             <ThemeToggle />
 
-            {/* Dil switcher — masaüstü */}
-            <div className="hidden md:block">
-              <LanguageSwitcher />
-            </div>
+            {/* Dil switcher */}
+            <LanguageSwitcher />
 
-            {/* Giriş / Hesap — masaüstü (session client’ta yüklendiği için kısa süre loading) */}
+            {/* Giriş / Hesap */}
             {isSessionLoading ? (
               <span
-                className="hidden h-9 min-w-22 self-center rounded-md bg-gray-light/80 animate-pulse md:inline-block"
+                className="h-9 w-9 self-center rounded-md bg-gray-light/80 animate-pulse inline-block md:w-24"
                 aria-hidden="true"
               />
             ) : isAuthenticated ? (
               <Link
                 href="/account"
-                className="hidden h-9 items-center gap-2 rounded px-3 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:inline-flex"
+                className="flex h-9 items-center gap-2 rounded px-2 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:px-3"
               >
                 <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
-                {t('account')}
+                <span className="hidden md:inline">{t('account')}</span>
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="hidden h-9 items-center rounded px-4 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:inline-flex"
+                className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:w-auto md:px-4"
+                aria-label={t('login')}
               >
-                {t('login')}
+                <User className="h-5 w-5 md:hidden" strokeWidth={1.75} aria-hidden />
+                <span className="hidden md:inline text-sm font-medium">{t('login')}</span>
               </Link>
             )}
             {/* Hamburger — mobil */}
             <button
-              className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-gray-light md:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover md:hidden"
               onClick={() => setMobileOpen((v) => !v)}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
@@ -311,58 +345,38 @@ export function Navbar() {
       </Container>
 
       {/* Mobil menü */}
-      {mobileOpen && (
-        <div
-          id="mobile-menu"
-          ref={mobileMenuRef}
-          className="border-t border-border bg-surface pb-4 md:hidden"
-        >
-          <Container>
-            <ul className="flex flex-col pt-2" role="list">
-              {NAV_LINKS.map(({ key, href }) => (
-                <li key={key}>
-                  <Link
-                    href={href}
-                    className="flex h-12 items-center rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {t(key)}
-                  </Link>
-                </li>
-              ))}
-              {isSessionLoading ? (
-                <li className="px-3 py-2" aria-hidden="true">
-                  <div className="h-10 w-32 animate-pulse rounded-md bg-gray-light/80" />
-                </li>
-              ) : isAuthenticated ? (
-                <li>
-                  <Link
-                    href="/account"
-                    className="flex h-12 items-center gap-3 rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
-                    {t('account')}
-                  </Link>
-                </li>
-              ) : (
-                <li>
-                  <Link
-                    href="/login"
-                    className="flex h-12 items-center rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {t('login')}
-                  </Link>
-                </li>
-              )}
-              <li className="pt-2">
-                <LanguageSwitcher />
-              </li>
-            </ul>
-          </Container>
+      <div
+        id="mobile-menu"
+        className={[
+          'grid transition-[grid-template-rows] duration-300 ease-in-out md:hidden',
+          mobileOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        ].join(' ')}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-border bg-surface pb-4">
+            <Container>
+              <ul className="flex flex-col pt-2" role="list">
+                {NAV_LINKS.map(({ key, href }) => (
+                  <li key={key}>
+                    <Link
+                      href={href}
+                      className="flex h-12 items-center rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(key)}
+                    </Link>
+                  </li>
+                ))}
+                {isAuthenticated && (
+                  <li className="border-t border-border pt-1 mt-1">
+                    <AccountSignOut label={t('logout')} />
+                  </li>
+                )}
+              </ul>
+            </Container>
+          </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

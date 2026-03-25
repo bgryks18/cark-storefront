@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
+import { Ubuntu } from 'next/font/google';
 import { notFound } from 'next/navigation';
 
 import { routing } from '@/i18n/routing';
@@ -15,6 +16,14 @@ import { PageTransition } from '@/components/layout/PageTransition';
 import { Providers } from '@/components/layout/Providers';
 
 import '../globals.css';
+
+const ubuntu = Ubuntu({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['300', '400', '500', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-ubuntu',
+  display: 'swap',
+});
 
 /** Oturum çerezine göre Navbar vb. her istekte güncel session alınsın (çıkış sonrası “Hesabım” kalmasın). */
 export const dynamic = 'force-dynamic';
@@ -67,11 +76,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
+    <html lang={locale} suppressHydrationWarning className={ubuntu.variable}>
+      <head />
       <body className="flex min-h-screen flex-col bg-background">
         <a href="#main-content" className="skip-link">
           {locale === 'tr' ? 'İçeriğe geç' : 'Skip to content'}

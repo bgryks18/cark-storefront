@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import debounce from 'lodash/debounce';
 import { Loader, Search, X } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { Link, useRouter } from '@/i18n/navigation';
 import { getPredictiveSearch } from '@/lib/shopify/queries/search';
@@ -13,6 +13,7 @@ import type { PredictiveSearchResult } from '@/lib/shopify/types';
 
 export function SearchBar() {
   const locale = useLocale();
+  const tNav = useTranslations('nav');
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -112,7 +113,7 @@ export function SearchBar() {
       {!isOpen && (
         <button
           onClick={open}
-          className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-gray-light"
+          className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover"
           aria-label="Arama"
         >
           <Search className="h-5 w-5" />
@@ -128,7 +129,7 @@ export function SearchBar() {
           <button
             type="button"
             onClick={close}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-text-muted transition-colors hover:bg-gray-light hover:text-text-base"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-text-muted transition-colors hover:bg-primary-hover hover:text-text-base"
           >
             <X className="h-4 w-4" />
           </button>
@@ -176,11 +177,10 @@ export function SearchBar() {
             </div>
           )}
 
-          {/* Koleksiyonlar */}
           {hasCollections && (
             <div className="border-b border-border p-2">
               <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                Koleksiyonlar
+                {tNav('collections')}
               </p>
               {results!.collections.map((col) => (
                 <Link
@@ -200,11 +200,10 @@ export function SearchBar() {
             </div>
           )}
 
-          {/* Ürünler */}
           {hasProducts && (
             <div className="p-2">
               <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                Ürünler
+                {tNav('products')}
               </p>
               {results!.products.map((product) => (
                 <Link

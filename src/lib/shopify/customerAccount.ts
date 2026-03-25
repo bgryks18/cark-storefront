@@ -1,3 +1,5 @@
+import { getLocale } from 'next-intl/server';
+
 import type { ShopifyAddress, ShopifyCustomer } from './types';
 
 const SHOP_ID = process.env.SHOPIFY_SHOP_ID!;
@@ -8,8 +10,6 @@ const STOREFRONT_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const TOKEN_URL = `https://shopify.com/authentication/${SHOP_ID}/oauth/token`;
 
 const UA = 'CarkStorefront/1.0 (+https://shopify.dev/docs/api/customer)';
-
-let cachedGraphqlUrl: string | null = null;
 
 function storefrontOrigin(): string | undefined {
   const raw = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL;
@@ -24,12 +24,8 @@ function storefrontOrigin(): string | undefined {
 async function resolveCustomerAccountGraphqlUrl(): Promise<string> {
   const override = process.env.SHOPIFY_CUSTOMER_ACCOUNT_GRAPHQL_URL;
   if (override) return override;
-  if (cachedGraphqlUrl) return cachedGraphqlUrl;
   const fallback = `https://shopify.com/${SHOP_ID}/account/customer/api/${API_VERSION}/graphql`;
-  if (!STOREFRONT_DOMAIN) {
-    cachedGraphqlUrl = fallback;
-    return cachedGraphqlUrl;
-  }
+  if (!STOREFRONT_DOMAIN) return fallback;
   try {
     const res = await fetch(`https://${STOREFRONT_DOMAIN}/.well-known/customer-account-api`, {
       next: { revalidate: 3600 },
@@ -37,15 +33,11 @@ async function resolveCustomerAccountGraphqlUrl(): Promise<string> {
     });
     if (!res.ok) throw new Error(String(res.status));
     const cfg = (await res.json()) as { graphql_api?: string };
-    if (cfg.graphql_api) {
-      cachedGraphqlUrl = cfg.graphql_api;
-      return cachedGraphqlUrl;
-    }
+    if (cfg.graphql_api) return cfg.graphql_api;
   } catch {
     /* use fallback */
   }
-  cachedGraphqlUrl = fallback;
-  return cachedGraphqlUrl;
+  return fallback;
 }
 
 // ─── Raw API Types ────────────────────────────────────────────────────────────
@@ -96,6 +88,77 @@ const CUSTOMER_UPDATE_MUTATION = `#graphql
   }
 `;
 
+// ─── Orders List Query ────────────────────────────────────────────────────────
+
+const ORDERS_LIST_QUERY = `#graphql
+  query CustomerOrders {
+    customer {
+      orders(first: 250, reverse: true) {
+        nodes {
+          id
+          name
+          processedAt
+          financialStatus
+          fulfillmentStatus
+          totalPrice { amount currencyCode }
+          lineItems(first: 50) {
+            nodes { quantity }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export interface ShopifyOrderSummary {
+  id: string;
+  name: string;
+  processedAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  itemCount: number;
+  totalPrice: { amount: string; currencyCode: string };
+}
+
+export async function getCustomerOrders(
+  accessToken: string,
+): Promise<ShopifyOrderSummary[] | null> {
+  try {
+    const payload = await postCustomerAccountGraphql(accessToken, { query: ORDERS_LIST_QUERY });
+    if (!payload) return null;
+    const data = payload.data as
+      | {
+          customer: {
+            orders: {
+              nodes: Array<{
+                id: string;
+                name: string;
+                processedAt: string;
+                financialStatus: string | null;
+                fulfillmentStatus: string | null;
+                totalPrice: { amount: string; currencyCode: string };
+                lineItems: { nodes: Array<{ quantity: number }> };
+              }>;
+            };
+          } | null;
+        }
+      | undefined;
+    const nodes = data?.customer?.orders.nodes;
+    if (!nodes) return null;
+    return nodes.map((o) => ({
+      id: o.id,
+      name: o.name,
+      processedAt: o.processedAt,
+      financialStatus: o.financialStatus ?? 'UNKNOWN',
+      fulfillmentStatus: o.fulfillmentStatus ?? 'UNFULFILLED',
+      itemCount: o.lineItems.nodes.reduce((sum, item) => sum + item.quantity, 0),
+      totalPrice: o.totalPrice,
+    }));
+  } catch {
+    return null;
+  }
+}
+
 // ─── GraphQL Query ────────────────────────────────────────────────────────────
 
 const CUSTOMER_QUERY = `#graphql
@@ -139,9 +202,7 @@ function mapToShopifyCustomer(raw: RawCustomer): ShopifyCustomer {
   const lastName = raw.lastName ?? '';
   const email = raw.emailAddress?.emailAddress ?? '';
   const displayName =
-    raw.displayName?.trim() ||
-    [firstName, lastName].filter(Boolean).join(' ') ||
-    email;
+    raw.displayName?.trim() || [firstName, lastName].filter(Boolean).join(' ') || email;
 
   return {
     id: raw.id,
@@ -168,7 +229,10 @@ function mapToShopifyCustomer(raw: RawCustomer): ShopifyCustomer {
           fulfillmentStatus: order.fulfillmentStatus ?? 'UNFULFILLED',
           totalPrice: order.totalPrice,
           subtotalPrice: order.subtotal ?? null,
-          totalShippingPrice: order.totalShipping ?? { amount: '0', currencyCode: order.totalPrice.currencyCode },
+          totalShippingPrice: order.totalShipping ?? {
+            amount: '0',
+            currencyCode: order.totalPrice.currencyCode,
+          },
           lineItems: {
             edges: order.lineItems.nodes.map((item) => ({
               cursor: item.name,
@@ -180,12 +244,22 @@ function mapToShopifyCustomer(raw: RawCustomer): ShopifyCustomer {
                   title: item.variantTitle ?? item.name,
                   price: item.price ?? { amount: '0', currencyCode: order.totalPrice.currencyCode },
                   image: item.image
-                    ? { url: item.image.url, altText: item.image.altText, width: null, height: null }
+                    ? {
+                        url: item.image.url,
+                        altText: item.image.altText,
+                        width: null,
+                        height: null,
+                      }
                     : null,
                 },
               },
             })),
-            pageInfo: { hasNextPage: false, hasPreviousPage: false, startCursor: null, endCursor: null },
+            pageInfo: {
+              hasNextPage: false,
+              hasPreviousPage: false,
+              startCursor: null,
+              endCursor: null,
+            },
           },
         },
       })),
@@ -196,7 +270,10 @@ function mapToShopifyCustomer(raw: RawCustomer): ShopifyCustomer {
 
 // ─── Public Functions ─────────────────────────────────────────────────────────
 
-function buildGraphqlHeaders(accessToken: string, authScheme: 'bearer' | 'raw'): Record<string, string> {
+function buildGraphqlHeaders(
+  accessToken: string,
+  authScheme: 'bearer' | 'raw',
+): Record<string, string> {
   const origin = storefrontOrigin();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -219,11 +296,12 @@ async function postCustomerAccountGraphql(
   try {
     const graphqlUrl = await resolveCustomerAccountGraphqlUrl();
     const jsonBody = JSON.stringify(body);
+    const locale = await getLocale().catch(() => 'tr');
 
     for (const scheme of ['bearer', 'raw'] as const) {
       const res = await fetch(graphqlUrl, {
         method: 'POST',
-        headers: buildGraphqlHeaders(accessToken, scheme),
+        headers: { ...buildGraphqlHeaders(accessToken, scheme), 'Accept-Language': locale },
         body: jsonBody,
         cache: 'no-store',
       });
@@ -265,9 +343,7 @@ export async function getCustomerAccount(accessToken: string): Promise<ShopifyCu
   }
 }
 
-export type CustomerAccountProfileUpdateResult =
-  | { ok: true }
-  | { ok: false; message: string };
+export type CustomerAccountProfileUpdateResult = { ok: true } | { ok: false; message: string };
 
 /**
  * Customer Account API — yalnızca ad / soyad (CustomerUpdateInput).
@@ -474,14 +550,19 @@ export async function createCustomerAddress(
   });
 
   if (!payload) return { ok: false, message: 'request_failed' };
-  if (payload.errors?.length) return { ok: false, message: payload.errors.map((e) => e.message).join(', ') };
+  if (payload.errors?.length)
+    return { ok: false, message: payload.errors.map((e) => e.message).join(', ') };
 
   const data = payload.data as {
-    customerAddressCreate?: { customerAddress: { id: string } | null; userErrors: { message: string }[] } | null;
+    customerAddressCreate?: {
+      customerAddress: { id: string } | null;
+      userErrors: { message: string }[];
+    } | null;
   };
   const result = data?.customerAddressCreate;
   if (!result) return { ok: false, message: 'invalid_response' };
-  if (result.userErrors?.length) return { ok: false, message: result.userErrors.map((e) => e.message).join(', ') };
+  if (result.userErrors?.length)
+    return { ok: false, message: result.userErrors.map((e) => e.message).join(', ') };
   if (!result.customerAddress) return { ok: false, message: 'no_address' };
 
   return { ok: true, addressId: result.customerAddress.id };
@@ -495,18 +576,30 @@ export async function updateCustomerAddress(
 ): Promise<AddressResult> {
   const payload = await postCustomerAccountGraphql(accessToken, {
     query: ADDRESS_UPDATE_MUTATION,
-    variables: { addressId, address: input, defaultAddress: makeDefault || null },
+    variables: { addressId, address: input, defaultAddress: makeDefault },
   });
 
   if (!payload) return { ok: false, message: 'request_failed' };
-  if (payload.errors?.length) return { ok: false, message: payload.errors.map((e) => e.message).join(', ') };
+  if (payload.errors?.length)
+    return { ok: false, message: payload.errors.map((e) => e.message).join(', ') };
 
   const data = payload.data as {
-    customerAddressUpdate?: { customerAddress: { id: string } | null; userErrors: { message: string }[] } | null;
+    customerAddressUpdate?: {
+      customerAddress: { id: string } | null;
+      userErrors: { message: string }[];
+    } | null;
   };
   const result = data?.customerAddressUpdate;
   if (!result) return { ok: false, message: 'invalid_response' };
-  if (result.userErrors?.length) return { ok: false, message: result.userErrors.map((e) => e.message).join(', ') };
+  if (result.userErrors?.length) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(
+        '[customerAddressUpdate userErrors]',
+        JSON.stringify(result.userErrors, null, 2),
+      );
+    }
+    return { ok: false, message: result.userErrors.map((e) => e.message).join(', ') };
+  }
 
   return { ok: true };
 }
@@ -521,14 +614,19 @@ export async function deleteCustomerAddress(
   });
 
   if (!payload) return { ok: false, message: 'request_failed' };
-  if (payload.errors?.length) return { ok: false, message: payload.errors.map((e) => e.message).join(', ') };
+  if (payload.errors?.length)
+    return { ok: false, message: payload.errors.map((e) => e.message).join(', ') };
 
   const data = payload.data as {
-    customerAddressDelete?: { deletedAddressId: string | null; userErrors: { message: string }[] } | null;
+    customerAddressDelete?: {
+      deletedAddressId: string | null;
+      userErrors: { message: string }[];
+    } | null;
   };
   const result = data?.customerAddressDelete;
   if (!result) return { ok: false, message: 'invalid_response' };
-  if (result.userErrors?.length) return { ok: false, message: result.userErrors.map((e) => e.message).join(', ') };
+  if (result.userErrors?.length)
+    return { ok: false, message: result.userErrors.map((e) => e.message).join(', ') };
 
   return { ok: true };
 }
@@ -556,7 +654,11 @@ export async function refreshCustomerAccountToken(refreshToken: string): Promise
     });
 
     if (!res.ok) return null;
-    return res.json() as Promise<{ access_token: string; expires_in: number; refresh_token?: string }>;
+    return res.json() as Promise<{
+      access_token: string;
+      expires_in: number;
+      refresh_token?: string;
+    }>;
   } catch {
     return null;
   }

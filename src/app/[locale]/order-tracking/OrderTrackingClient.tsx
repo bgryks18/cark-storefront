@@ -19,8 +19,8 @@ import type {
 import { formatPrice } from '@/lib/shopify/normalize';
 import { formatDate, formatDateTime } from '@/lib/utils/date';
 
-import { Container } from '@/components/ui/Container';
 import { AlertBox } from '@/components/ui/AlertBox';
+import { Container } from '@/components/ui/Container';
 
 function StatusBadge({ status, label }: { status: string; label: string }) {
   const colorMap: Record<string, string> = {
@@ -97,9 +97,9 @@ function OrderSkeleton() {
       </div>
 
       {/* 2x2 grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Timeline */}
-        <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
+        <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6 lg:col-span-2">
           <SkeletonLine w="w-32 mb-5" />
           {[1, 2].map((i) => (
             <div key={i} className="flex gap-3 pb-4">
@@ -116,7 +116,7 @@ function OrderSkeleton() {
         </div>
 
         {/* Products */}
-        <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
+        <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6 lg:col-span-2">
           <SkeletonLine w="w-20 mb-5" />
           <div className="flex gap-3">
             <div className="h-16 w-16 shrink-0 animate-pulse rounded-xl bg-skeleton sm:h-20 sm:w-20" />
@@ -194,6 +194,10 @@ export function OrderTrackingClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const isLoading = mutation.isPending || mutation.isIdle;
+  const hasError = mutation.isError;
+  const isNotFound = mutation.isSuccess && displayOrder === null;
+
   const order = displayOrder;
   const currency = order?.total_shipping_price_set.shop_money.currency_code ?? 'TRY';
   const fmtLocale = locale === 'tr' ? 'tr-TR' : 'en-US';
@@ -264,17 +268,17 @@ export function OrderTrackingClient() {
         </div>
 
         {/* Loading */}
-        {mutation.isPending && <OrderSkeleton />}
+        {isLoading && <OrderSkeleton />}
 
         {/* Error */}
-        {mutation.isError && (
+        {hasError && (
           <div className="mx-auto max-w-xl">
             <AlertBox>{t('errorGeneric')}</AlertBox>
           </div>
         )}
 
         {/* Not found */}
-        {mutation.isSuccess && order === null && (
+        {isNotFound && (
           <div className="mx-auto flex max-w-xl flex-col items-center gap-3 rounded-2xl border border-card-border bg-card px-6 py-12 text-center">
             <Package className="h-12 w-12 text-text-muted" strokeWidth={1.25} />
             <p className="text-sm text-text-muted">{t('notFound')}</p>
@@ -283,7 +287,7 @@ export function OrderTrackingClient() {
 
         {/* Order result */}
         {order && (
-          <div className="mx-auto w-full space-y-4">
+          <div className="mx-auto mt-2 max-w-4xl space-y-4">
             {/* Header */}
             <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -307,9 +311,9 @@ export function OrderTrackingClient() {
             </div>
 
             {/* 2x2 grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {/* Timeline */}
-              <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
+              <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6 lg:col-span-2">
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-text-muted">
                   {t('shipmentTimeline')}
                 </h3>
@@ -366,7 +370,7 @@ export function OrderTrackingClient() {
               </div>
 
               {/* Products + price */}
-              <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6">
+              <div className="rounded-2xl border border-card-border bg-card p-5 sm:p-6 lg:col-span-2">
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-text-muted">
                   {t('products')}
                 </h3>

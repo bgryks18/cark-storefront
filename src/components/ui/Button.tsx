@@ -4,25 +4,32 @@ import { forwardRef } from 'react';
 
 import { cn } from '@/lib/utils/cn';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+import { Spinner } from './Spinner';
+
+export type ButtonVariant = 'contained' | 'outlined';
+export type ButtonColor = 'primary' | 'secondary' | 'danger' | 'warning';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  color?: ButtonColor;
   size?: ButtonSize;
   loading?: boolean;
   fullWidth?: boolean;
 }
 
-const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    'bg-primary text-white hover:bg-primary-dark active:bg-primary-dark focus-visible:ring-primary',
-  secondary:
-    'bg-gray-light text-black hover:bg-gray-light-hover active:bg-gray-light focus-visible:ring-gray',
-  outline:
-    'border border-primary text-primary bg-transparent hover:bg-primary-hover active:bg-primary-hover focus-visible:ring-primary',
-  ghost:
-    'text-black-dark bg-transparent hover:bg-gray-light active:bg-gray-light focus-visible:ring-gray',
+const containedClasses: Record<ButtonColor, string> = {
+  primary: 'bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary',
+  secondary: 'bg-gray-light text-black hover:bg-gray-light-hover focus-visible:ring-gray',
+  danger: 'bg-red text-white hover:bg-red-dark focus-visible:ring-red',
+  warning: 'bg-warning text-white hover:opacity-90 focus-visible:ring-warning',
+};
+
+const outlinedClasses: Record<ButtonColor, string> = {
+  primary: 'border border-primary text-primary bg-transparent hover:bg-primary-hover focus-visible:ring-primary',
+  secondary: 'border border-gray text-black bg-transparent hover:bg-gray-light focus-visible:ring-gray',
+  danger: 'border border-red text-red bg-transparent hover:bg-red/10 focus-visible:ring-red',
+  warning: 'border border-warning text-warning bg-transparent hover:bg-warning/10 focus-visible:ring-warning',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -34,7 +41,8 @@ const sizeClasses: Record<ButtonSize, string> = {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      variant = 'primary',
+      variant = 'contained',
+      color = 'primary',
       size = 'md',
       loading = false,
       fullWidth = false,
@@ -45,15 +53,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
+    const variantClass = variant === 'contained' ? containedClasses[color] : outlinedClasses[color];
+
     return (
       <button
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center gap-2 rounded font-medium transition-colors duration-150',
+          'inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl font-semibold transition-colors duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-          'disabled:pointer-events-none disabled:opacity-50',
-          variantClasses[variant],
+          'disabled:pointer-events-none disabled:opacity-60',
+          variantClass,
           sizeClasses[size],
           fullWidth && 'w-full',
           className,
@@ -61,9 +71,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && (
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          <Spinner
+            type="dots"
+            size="sm"
+            color={variant === 'contained' ? 'white' : color === 'primary' ? 'primary' : 'current'}
+          />
         )}
-        {children}
+        {!loading && children}
       </button>
     );
   },

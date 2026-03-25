@@ -85,7 +85,7 @@ export async function submitCustomerAvatar(
     return { ok: true, message: t('saved') };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (/body exceeded|1\s*mb/i.test(msg)) {
+    if (/body exceeded|body size|too large|payload too large|\d+\s*mb/i.test(msg)) {
       return { ok: false, message: t('errors.fileTooLarge') };
     }
     if (process.env.NODE_ENV === 'development') {

@@ -46,7 +46,10 @@ export async function saveAddressAction(
   const address2 = (formData.get('address2') as string | null)?.trim() || '';
   const city = (formData.get('city') as string | null)?.trim() || '';
   const zip = (formData.get('zip') as string | null)?.trim() || '';
-  const phone = (formData.get('phone') as string | null)?.trim() || '';
+  let phone = (formData.get('phone') as string | null)?.trim() || '';
+  if (phone && !phone.startsWith('+')) {
+    phone = phone.startsWith('0') ? '+9' + phone : '+90' + phone;
+  }
   const makeDefault = formData.get('makeDefault') === 'on';
 
   if (!firstName || !lastName || !address1 || !city) {
@@ -72,12 +75,20 @@ export async function saveAddressAction(
   } else {
     result = await createCustomerAddress(session.shopifyAccessToken, input);
     if (result.ok && makeDefault && result.addressId) {
-      await updateCustomerAddress(session.shopifyAccessToken, result.addressId, {}, true);
+      const defaultResult = await updateCustomerAddress(
+        session.shopifyAccessToken,
+        result.addressId,
+        {},
+        true,
+      );
+      if (!defaultResult.ok) {
+        result = defaultResult;
+      }
     }
   }
 
   if (!result.ok) {
-    return { ok: false, message: t('errors.saveFailed') };
+    return { ok: false, message: result.message || t('errors.saveFailed') };
   }
 
   revalidateAddressPaths(locale);

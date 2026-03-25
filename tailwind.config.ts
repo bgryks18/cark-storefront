@@ -38,6 +38,7 @@ const config: Config = {
       fontFamily: {
         sans: ['Ubuntu', 'sans-serif'],
       },
+
       borderRadius: {
         pill: '9999px',
       },

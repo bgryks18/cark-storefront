@@ -23,24 +23,27 @@
   },
   "nav": {
     "home": "Home",
-    "collections": "Collections",
+    "storeName": "carkstore",
+    "collections": "Categories",
+    "products": "Products",
     "search": "Search",
     "cart": "Cart",
     "account": "My Account",
     "login": "Sign in",
     "register": "Register",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "contact": "Contact"
   },
   "home": {
     "hero": {
       "title": "Çark Zımpara",
       "subtitle": "Professional abrasive solutions"
     },
-    "featuredCollections": "Featured Collections",
+    "featuredCollections": "Featured Categories",
     "featuredProducts": "Featured Products"
   },
   "collection": {
-    "allCollections": "All Collections",
+    "allCollections": "All Categories",
     "products": "products",
     "filter": "Filter",
     "sort": "Sort",
@@ -54,7 +57,8 @@
       "createdDesc": "Newest"
     },
     "loadMore": "Load more",
-    "noProducts": "No products found in this collection",
+    "noProducts": "No products found in this category",
+    "noCollections": "No categories found.",
     "filters": "Filters",
     "clearFilters": "Clear",
     "activeFiltersCount": "{count} filters active",
@@ -95,6 +99,7 @@
     "discountCodePlaceholder": "Discount code",
     "applyDiscount": "Apply",
     "discountInvalid": "Invalid discount code.",
+    "addedToCart": "Added to cart",
     "errors": {
       "lineNotFound": "This item is no longer in your cart.",
       "productUnavailable": "This product is no longer available.",
@@ -109,7 +114,7 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Search products, collections...",
+    "placeholder": "Search products, categories...",
     "results": "Search Results",
     "resultsFor": "Results for \"{query}\"",
     "noResults": "No results found for \"{query}\""
@@ -223,6 +228,36 @@
     "orderDate": "Date",
     "orderStatus": "Status",
     "orderTotal": "Total",
+    "orderItems": "Items",
+    "subtotal": "Subtotal",
+    "shippingCost": "Shipping",
+    "trackOrder": "Track Order",
+    "searchOrders": "#1002",
+    "filterStatus": "Status",
+    "allStatuses": "All",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "clearDates": "Clear",
+    "noOrdersFound": "No orders match your search.",
+    "page": "Page {current} of {total}",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "financialStatus": {
+      "pending": "Pending",
+      "authorized": "Authorized",
+      "partially_paid": "Partially Paid",
+      "paid": "Paid",
+      "partially_refunded": "Partially Refunded",
+      "refunded": "Refunded",
+      "voided": "Voided"
+    },
+    "fulfillmentStatus": {
+      "unfulfilled": "Processing",
+      "partial": "Partially Shipped",
+      "fulfilled": "Shipped",
+      "restocked": "Restocked"
+    },
+    "itemCount": "{count} items",
     "errors": {
       "loadFailed": "We could not load your account from the store. Please sign out and try again."
     },
@@ -367,6 +402,36 @@
     "paymentMethod": "Payment",
     "shippingMethod": "Shipping Method"
   },
+  "contactPage": {
+    "title": "Contact",
+    "subtitle": "Get in touch with us for any questions.",
+    "findOnMap": "Find us on Google Maps",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "addressValue": "Osman Yılmaz, Barbaros Street\nNo: 23/A\nGebze/Kocaeli, Turkey",
+    "form": {
+      "name": "First Name",
+      "namePlaceholder": "Your first name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Your last name",
+      "phoneNumber": "Phone Number",
+      "phoneNumberPlaceholder": "+90 5XX XXX XX XX",
+      "email": "Email",
+      "emailPlaceholder": "example@company.com",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "Your company name (optional)",
+      "contactAddress": "Contact Address",
+      "contactAddressPlaceholder": "City / District (optional)",
+      "message": "Message",
+      "messagePlaceholder": "Write your message here...",
+      "required": "* required field",
+      "send": "Send",
+      "sending": "Sending...",
+      "success": "Your message has been sent successfully. We will get back to you as soon as possible.",
+      "error": "An error occurred. Please try again."
+    }
+  },
   "footer": {
     "brandName": "Çark Zımpara",
     "tagline": "Professional abrasive solutions. Quality and trust at your service.",
@@ -374,6 +439,7 @@
     "account": "Account",
     "contact": "Contact",
     "rights": "All rights reserved.",
-    "orderTracking": "Order Tracking"
+    "orderTracking": "Order Tracking",
+    "softwareCredit": "Software services by bugrayuksel018.com"
   }
 }

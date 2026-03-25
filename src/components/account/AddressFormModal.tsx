@@ -10,6 +10,8 @@ import { useForm } from 'react-hook-form';
 import { saveAddressAction } from '@/lib/actions/addressActions';
 import type { ShopifyAddress } from '@/lib/shopify/types';
 
+import { Spinner } from '@/components/ui/Spinner';
+
 import { useModalAnimation } from '@/hooks/useModalAnimation';
 
 const inputClass =
@@ -251,15 +253,7 @@ export function AddressFormModal({ address, isDefault, onClose, onSuccess, isFet
               className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
             >
               {isBusy ? (
-                <span className="flex items-center gap-1.5" aria-hidden>
-                  {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-white"
-                      style={{ animation: `navDot 1s ease-in-out ${i * 0.15}s infinite` }}
-                    />
-                  ))}
-                </span>
+                <Spinner type="dots" size="md" color="white" aria-hidden />
               ) : (
                 t('save')
               )}

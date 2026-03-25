@@ -100,7 +100,7 @@ export interface ShopifyProduct {
   variants: Connection<ProductVariant>;
 }
 
-// ─── Koleksiyon ──────────────────────────────────────────────────────────────
+// ─── Collection (Shopify) / UI: kategori ───────────────────────────────────
 
 export interface ShopifyCollection {
   id: string;
