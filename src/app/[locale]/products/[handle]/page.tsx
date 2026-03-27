@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 
 import { flattenConnection } from '@/lib/shopify/normalize';
 import { getProduct, getRecommendedProducts } from '@/lib/shopify/queries/product';
@@ -206,7 +206,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <div
                     className="prose prose-sm max-w-none text-text-muted"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(product.descriptionHtml),
+                      __html: sanitizeHtml(product.descriptionHtml),
                     }}
                   />
                 </div>
