@@ -33,22 +33,26 @@ async function SearchResults({ query, locale }: { query: string; locale: string 
   return (
     <>
       <p className="mb-6 text-sm text-text-muted">{t('resultCount', { count: totalCount })}</p>
-      <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <li key={product.id}>
+            <ProductCard product={product} headingLevel="h2" />
+          </li>
         ))}
-      </div>
+      </ul>
     </>
   );
 }
 
 function SearchResultsSkeleton() {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <ProductCardSkeleton key={i} />
+        <li key={i}>
+          <ProductCardSkeleton />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 

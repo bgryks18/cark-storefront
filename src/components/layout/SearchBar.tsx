@@ -234,7 +234,7 @@ export function SearchBar() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-text-base">{product.title}</p>
+                    <p className="text-sm text-text-base">{product.title}</p>
                     <p className="text-xs font-medium text-primary">
                       {formatMoney(product.priceRange.minVariantPrice)}
                     </p>

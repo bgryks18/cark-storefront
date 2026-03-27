@@ -9,10 +9,12 @@ export async function FeaturedProducts() {
   if (products.length === 0) return null;
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <li key={product.id}>
+          <ProductCard product={product} />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

@@ -36,9 +36,10 @@ export function SortSelect({ options, currentSort, label }: SortSelectProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-text-muted">{label}</label>
+      <label htmlFor="sort-select" className="text-xs font-medium text-text-muted">{label}</label>
       <div className="relative">
         <select
+          id="sort-select"
           value={currentSort}
           onChange={handleChange}
           className="h-10 appearance-none rounded-xl border border-card-border bg-card pl-3 pr-9 text-sm text-text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary"

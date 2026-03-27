@@ -9,10 +9,12 @@ export async function FeaturedCollections() {
   if (collections.length === 0) return null;
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
       {collections.map((collection) => (
-        <CollectionCard key={collection.id} collection={collection} />
+        <li key={collection.id}>
+          <CollectionCard collection={collection} />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

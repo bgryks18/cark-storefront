@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 import { Link } from '@/i18n/navigation';
@@ -8,6 +9,28 @@ import { Container } from '@/components/ui/Container';
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: HomePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'home.hero' });
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shop.carkzimpara.com';
+  const url = locale === 'en' ? `${siteUrl}/en` : siteUrl;
+
+  return {
+    alternates: {
+      canonical: url,
+      languages: {
+        tr: siteUrl,
+        en: `${siteUrl}/en`,
+      },
+    },
+    openGraph: {
+      url,
+      title: t('title'),
+      description: t('subtitle'),
+    },
+  };
 }
 
 export default async function HomePage({ params }: HomePageProps) {

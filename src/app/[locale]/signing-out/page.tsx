@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 import { SigningOutClient } from '@/components/auth/SigningOutClient';
 import { isSameOriginAsApp, parseSignOutTransferToken } from '@/lib/auth/signOutTransferToken';
@@ -37,6 +37,8 @@ export default async function SigningOutPage({ searchParams }: SigningOutPagePro
   return <SigningOutClient callbackUrl={rawUrl} />;
 }
 
-export async function generateMetadata() {
-  return { title: 'Signing out' };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'auth.signingOut' });
+  return { title: t('title') };
 }

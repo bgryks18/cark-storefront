@@ -51,7 +51,6 @@ export async function generateMetadata({ params }: LocaleLayoutProps): Promise<M
       siteName: t('title'),
       title: t('title'),
       description: t('subtitle'),
-      url: siteUrl,
       images: [{ url: '/og.png', width: 1200, height: 630, alt: t('title') }],
     },
     twitter: {
@@ -59,13 +58,6 @@ export async function generateMetadata({ params }: LocaleLayoutProps): Promise<M
       title: t('title'),
       description: t('subtitle'),
       images: ['/og.png'],
-    },
-    alternates: {
-      canonical: siteUrl,
-      languages: {
-        tr: siteUrl,
-        en: `${siteUrl}/en`,
-      },
     },
     verification: {
       google: '_6wcclMiSAtX7sJB2yw9W0dKwn3kVULAtXvG0slaU6M',

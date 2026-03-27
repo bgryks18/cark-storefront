@@ -23,21 +23,25 @@ async function CollectionGrid() {
   }
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {collections.map((collection) => (
-        <CollectionCard key={collection.id} collection={collection} />
+        <li key={collection.id}>
+          <CollectionCard collection={collection} headingLevel="h2" />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
 function CollectionGridSkeleton() {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <CollectionCardSkeleton key={i} />
+        <li key={i}>
+          <CollectionCardSkeleton />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 

@@ -15,31 +15,33 @@ interface ProductCardProps {
     'handle' | 'title' | 'vendor' | 'featuredImage' | 'priceRange' | 'availableForSale' | 'variants'
   >;
   className?: string;
+  headingLevel?: 'h2' | 'h3';
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, headingLevel: Heading = 'h3' }: ProductCardProps) {
   const tCommon = useTranslations('common');
   const price = product.priceRange.minVariantPrice;
   const firstVariant = product.variants.edges[0]?.node;
 
   return (
-    <Link
-      href={`/products/${product.handle}`}
-      className={cn('group/card block rounded-xl border border-card-border bg-card', className)}
+    <div
+      className={cn('group/card relative rounded-xl border border-card-border bg-card', className)}
     >
       {/* Görsel */}
       <div className="relative aspect-square overflow-hidden rounded-t-xl bg-skeleton">
-        {product.featuredImage ? (
-          <Image
-            src={product.featuredImage.url}
-            alt={product.featuredImage.altText ?? product.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
-        ) : (
-          <div className="h-full w-full bg-skeleton" />
-        )}
+        <Link href={`/products/${product.handle}`} className="block h-full w-full">
+          {product.featuredImage ? (
+            <Image
+              src={product.featuredImage.url}
+              alt={product.featuredImage.altText ?? product.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="h-full w-full bg-skeleton" />
+          )}
+        </Link>
 
         {!product.availableForSale && (
           <span className="absolute left-3 top-3 rounded bg-gray-dark px-2 py-0.5 text-xs font-medium text-white">
@@ -57,18 +59,18 @@ export function ProductCard({ product, className }: ProductCardProps) {
       </div>
 
       {/* Bilgi */}
-      <div className="p-4 sm:p-5">
+      <Link href={`/products/${product.handle}`} className="block p-4 sm:p-5">
         {product.vendor && (
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-text-muted">
             {product.vendor}
           </p>
         )}
-        <h3 className="line-clamp-2 font-medium text-text-base">{product.title}</h3>
+        <Heading className="line-clamp-2 font-medium text-text-base">{product.title}</Heading>
         <p className="mt-2 font-semibold text-primary">
           {formatPrice(price.amount, price.currencyCode)}
         </p>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 

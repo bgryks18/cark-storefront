@@ -11,7 +11,7 @@ export interface BreadcrumbCrumb {
 
 interface PageBreadcrumbProps {
   crumbs: BreadcrumbCrumb[];
-  title: string;
+  title?: string;
 }
 
 export function PageBreadcrumb({ crumbs, title }: PageBreadcrumbProps) {
@@ -26,12 +26,14 @@ export function PageBreadcrumb({ crumbs, title }: PageBreadcrumbProps) {
           <Link href={crumb.href} className="text-text-muted hover:text-primary">
             {crumb.label}
           </Link>
-          <span className="text-text-muted" aria-hidden>
-            /
-          </span>
+          {(i < crumbs.length - 1 || title) && (
+            <span className="text-text-muted" aria-hidden>
+              /
+            </span>
+          )}
         </Fragment>
       ))}
-      <h1 className="text-2xl font-bold text-black-dark">{title}</h1>
+      {title && <h1 className="text-2xl font-bold text-black-dark">{title}</h1>}
     </nav>
   );
 }

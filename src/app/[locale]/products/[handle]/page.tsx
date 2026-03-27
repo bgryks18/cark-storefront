@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
-import { Link } from '@/i18n/navigation';
 import DOMPurify from 'isomorphic-dompurify';
 
 import { flattenConnection } from '@/lib/shopify/normalize';
@@ -12,6 +11,7 @@ import { getProduct, getRecommendedProducts } from '@/lib/shopify/queries/produc
 import { ProductForm } from '@/components/product/ProductForm';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { Container } from '@/components/ui/Container';
+import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 
 interface ProductPageProps {
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
       title,
       description,
       url: `${siteUrl}${locale === 'en' ? '/en' : ''}${canonicalPath}`,
-      type: 'website',
+      type: 'article',
       ...(image && {
         images: [
           {
@@ -69,21 +69,25 @@ async function RelatedProducts({ productId }: { productId: string }) {
   if (products.length === 0) return null;
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <li key={product.id}>
+          <ProductCard product={product} />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
 function RelatedProductsSkeleton() {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <ProductCardSkeleton key={i} />
+        <li key={i}>
+          <ProductCardSkeleton />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -112,7 +116,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     '@type': 'Product',
     name: product.title,
     description: product.description,
-    sku: product.id,
+    sku: variants[0]?.sku || undefined,
     brand: product.vendor ? { '@type': 'Brand', name: product.vendor } : undefined,
     image: product.featuredImage?.url,
     url: canonicalUrl,
@@ -164,18 +168,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
       <section className="py-8 sm:py-12">
         <Container>
-          {/* Breadcrumb */}
-          <nav className="mb-6 flex items-center gap-1.5 text-xs text-text-muted">
-            <Link href="/" className="hover:text-primary">
-              {t('breadcrumbHome')}
-            </Link>
-            <span>/</span>
-            <Link href="/collections" className="hover:text-primary">
-              {t('breadcrumbProducts')}
-            </Link>
-            <span>/</span>
-            <span className="text-text-base">{product.title}</span>
-          </nav>
+          <PageBreadcrumb
+            crumbs={[
+              { label: t('breadcrumbHome'), href: '/' },
+              { label: t('breadcrumbProducts'), href: '/collections' },
+            ]}
+            title={product.title}
+          />
 
           {/* Ürün detay grid */}
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -189,7 +188,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {product.vendor}
                 </p>
               )}
-              <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">{product.title}</h1>
+              <p className="text-2xl font-bold text-black-dark sm:text-3xl">{product.title}</p>
 
               <ProductForm
                 options={product.options}

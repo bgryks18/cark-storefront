@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
+
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 import type { ProductFilter } from '@/lib/shopify/queries/collection';
 
@@ -111,7 +113,7 @@ export function FilterPanel({ filters }: FilterPanelProps) {
                           className="h-4 w-4 rounded border-card-border text-primary accent-primary"
                         />
                         <span
-                          className={`flex-1 truncate ${isActive ? 'font-medium text-text-base' : 'text-text-muted'}`}
+                          className={`flex-1 ${isActive ? 'font-medium text-text-base' : 'text-text-muted'}`}
                         >
                           {value.label}
                         </span>
@@ -149,7 +151,10 @@ export function FilterPanel({ filters }: FilterPanelProps) {
         <div className="mt-3 rounded-xl border border-border bg-card p-4 lg:hidden">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-semibold text-text-base">{t('filters')}</span>
-            <button onClick={() => setIsOpen(false)} className="text-text-muted hover:text-text-base">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-text-muted hover:text-text-base"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>

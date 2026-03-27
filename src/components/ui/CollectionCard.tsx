@@ -8,9 +8,14 @@ import { cn } from '@/lib/utils/cn';
 interface CollectionCardProps {
   collection: Pick<ShopifyCollection, 'handle' | 'title' | 'description' | 'image'>;
   className?: string;
+  headingLevel?: 'h2' | 'h3';
 }
 
-export function CollectionCard({ collection, className }: CollectionCardProps) {
+export function CollectionCard({
+  collection,
+  className,
+  headingLevel: Heading = 'h3',
+}: CollectionCardProps) {
   return (
     <Link
       href={`/collections/${collection.handle}`}
@@ -33,7 +38,7 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
 
       {/* Bilgi */}
       <div className="p-4 sm:p-5">
-        <h3 className="truncate font-semibold text-text-base">{collection.title}</h3>
+        <Heading className="font-semibold text-text-base">{collection.title}</Heading>
         {collection.description && (
           <p className="mt-1 line-clamp-2 text-sm text-text-muted">{collection.description}</p>
         )}
