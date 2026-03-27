@@ -25,6 +25,7 @@ export default function CartPage() {
   const [page, setPage] = useState(1);
   const [lineErrors, setLineErrors] = useState<Record<string, string | null>>({});
   const t = useTranslations('cart');
+  const tCommon = useTranslations('common');
   const { confirm } = useModal();
   const {
     cart,
@@ -112,7 +113,7 @@ export default function CartPage() {
       <section className="py-16 sm:py-24">
         <Container>
           <div className="flex flex-col items-center gap-4 text-center">
-            <ShoppingBag className="h-16 w-16 text-text-muted" strokeWidth={1.25} />
+            <ShoppingBag className="h-16 w-16 text-text-muted" strokeWidth={1.25} aria-hidden="true" />
             <h1 className="text-2xl font-bold text-black-dark">{t('empty')}</h1>
             <p className="text-text-muted">{t('emptyDescription')}</p>
             <Link
@@ -230,9 +231,10 @@ export default function CartPage() {
                         <button
                           onClick={() => handleRemove(line.id)}
                           disabled={isRemoving}
+                          aria-label={t('remove')}
                           className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent text-error dark:text-text-muted transition-colors hover:border-error-border hover:bg-error-bg hover:text-error disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
 
                         {lineErrors[line.id] && (
@@ -253,13 +255,14 @@ export default function CartPage() {
 
             {/* ─── Pagination ───────────────────────────────────────────────── */}
             {totalPages > 1 && (
-              <div className="mt-6 flex items-center justify-center gap-1">
+              <nav aria-label={tCommon('pagination')} className="mt-6 flex items-center justify-center gap-1">
                 <button
                   onClick={() => setPage((p) => p - 1)}
                   disabled={safePage === 1}
+                  aria-label={tCommon('previous')}
                   className="flex h-9 w-9 items-center justify-center rounded-xl text-text-muted transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 </button>
 
                 {getPageNumbers(safePage, totalPages).map((item, idx) =>
@@ -267,6 +270,7 @@ export default function CartPage() {
                     <span
                       key={`ellipsis-${idx}`}
                       className="flex h-9 w-9 items-center justify-center text-sm text-text-muted"
+                      aria-hidden="true"
                     >
                       …
                     </span>
@@ -274,6 +278,8 @@ export default function CartPage() {
                     <button
                       key={item}
                       onClick={() => setPage(item as number)}
+                      aria-current={item === safePage ? 'page' : undefined}
+                      aria-label={tCommon('pageN', { n: item })}
                       className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-medium transition-colors ${
                         item === safePage
                           ? 'bg-primary text-white shadow-sm'
@@ -288,11 +294,12 @@ export default function CartPage() {
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={safePage === totalPages}
+                  aria-label={tCommon('next')}
                   className="flex h-9 w-9 items-center justify-center rounded-xl text-text-muted transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
-              </div>
+              </nav>
             )}
           </div>
 
@@ -337,7 +344,7 @@ export default function CartPage() {
                             key={d.code}
                             className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
                           >
-                            <Tag className="h-3 w-3 shrink-0" />
+                            <Tag className="h-3 w-3 shrink-0" aria-hidden="true" />
                             {d.code}
                             {discountSavings > 0 && (
                               <span className="text-success">
@@ -351,12 +358,13 @@ export default function CartPage() {
                             <button
                               onClick={() => removeDiscountCode(d.code)}
                               disabled={isApplyingDiscount}
+                              aria-label={tCommon('removeDiscount')}
                               className="ml-0.5 cursor-pointer opacity-60 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               {isApplyingDiscount ? (
-                                <Loader className="h-3 w-3 animate-spin" />
+                                <Loader className="h-3 w-3 animate-spin" aria-hidden="true" />
                               ) : (
-                                <X className="h-3 w-3" />
+                                <X className="h-3 w-3" aria-hidden="true" />
                               )}
                             </button>
                           </span>
@@ -372,39 +380,48 @@ export default function CartPage() {
                       setDiscountOpen((o) => !o);
                       setDiscountError(null);
                     }}
+                    aria-expanded={discountOpen}
                     className="flex w-full cursor-pointer items-center justify-between text-sm text-text-muted hover:text-text-base transition-colors"
                   >
                     <span>{t('discount')}</span>
                     <Plus
                       className={`h-4 w-4 transition-transform ${discountOpen ? 'rotate-45' : ''}`}
+                      aria-hidden="true"
                     />
                   </button>
                 )}
 
-                {discountOpen && (
-                  <div className="mt-2 flex flex-col gap-1.5">
-                    <input
-                      type="text"
-                      value={discountInput}
-                      onChange={(e) => setDiscountInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleApplyDiscount()}
-                      placeholder={t('discountCodePlaceholder')}
-                      className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                    <button
-                      onClick={handleApplyDiscount}
-                      disabled={isApplyingDiscount || !discountInput.trim()}
-                      className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isApplyingDiscount ? (
-                        <Loader className="h-4 w-4 animate-spin" />
-                      ) : (
-                        t('applyDiscount')
-                      )}
-                    </button>
-                    {discountError && <p className="text-xs text-error">{discountError}</p>}
+                <div
+                  className={[
+                    'grid transition-[grid-template-rows] duration-200 ease-in-out',
+                    discountOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                  ].join(' ')}
+                >
+                  <div className="overflow-hidden">
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      <input
+                        type="text"
+                        value={discountInput}
+                        onChange={(e) => setDiscountInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleApplyDiscount()}
+                        placeholder={t('discountCodePlaceholder')}
+                        className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <button
+                        onClick={handleApplyDiscount}
+                        disabled={isApplyingDiscount || !discountInput.trim()}
+                        className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isApplyingDiscount ? (
+                          <Loader className="h-4 w-4 animate-spin" />
+                        ) : (
+                          t('applyDiscount')
+                        )}
+                      </button>
+                      {discountError && <p className="text-xs text-error">{discountError}</p>}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
 
               <div className="mt-4 flex justify-between border-t border-border pt-3 text-base">

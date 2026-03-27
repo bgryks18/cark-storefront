@@ -109,6 +109,7 @@ function LanguageSwitcher() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations('common');
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -121,6 +122,14 @@ function LanguageSwitcher() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape' && open) setOpen(false);
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open]);
 
   function switchTo(target: 'tr' | 'en') {
     setOpen(false);
@@ -136,30 +145,41 @@ function LanguageSwitcher() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-controls={open ? 'language-menu' : undefined}
+        aria-label={t('language')}
         className="cursor-pointer flex h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors hover:bg-primary-hover"
       >
-        <span>{current.flag}</span>
+        <span aria-hidden="true">{current.flag}</span>
         <span className="text-text-base">{current.code.toUpperCase()}</span>
         <ChevronDown
           className={[
             'h-3.5 w-3.5 text-text-muted transition-transform',
             open ? 'rotate-180' : '',
           ].join(' ')}
-          aria-hidden
+          aria-hidden="true"
         />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+        <div
+          id="language-menu"
+          role="listbox"
+          aria-label={t('language')}
+          className="absolute right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+        >
           {LOCALES.map((l) => (
             <button
               key={l.code}
+              role="option"
+              aria-selected={l.code === locale}
               onClick={() => switchTo(l.code)}
               className={[
                 'cursor-pointer flex w-full items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-primary-hover',
                 l.code === locale ? 'font-semibold text-primary' : 'text-text-base',
               ].join(' ')}
             >
-              <span>{l.flag}</span>
+              <span aria-hidden="true">{l.flag}</span>
               <span>{l.label}</span>
             </button>
           ))}
@@ -231,6 +251,7 @@ export function Navbar() {
   }, [isCartLoading]);
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileAnimate, setMobileAnimate] = useState(true);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -259,7 +280,10 @@ export function Navbar() {
           <Link
             href="/"
             className="flex shrink-0 items-center gap-2 sm:gap-2.5 text-text-base"
-            onClick={() => setMobileOpen(false)}
+            onClick={() => {
+              setMobileAnimate(false);
+              setMobileOpen(false);
+            }}
           >
             <LogoMark className="h-8 w-auto shrink-0 sm:h-9" />
             <span className="text-lg font-bold tracking-tight sm:text-xl">{t('storeName')}</span>
@@ -267,16 +291,20 @@ export function Navbar() {
 
           {/* Masaüstü menü — ortada */}
           <ul className="hidden flex-1 items-center gap-1 md:flex" role="list">
-            {NAV_LINKS.map(({ key, href }) => (
-              <li key={key}>
-                <Link
-                  href={href}
-                  className="inline-flex h-9 items-center rounded px-4 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                >
-                  {t(key)}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map(({ key, href }) => {
+              const isCurrent = pathname === href;
+              return (
+                <li key={key}>
+                  <Link
+                    href={href}
+                    aria-current={isCurrent ? 'page' : undefined}
+                    className="inline-flex h-9 items-center rounded px-4 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
+                  >
+                    {t(key)}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           {/* Sağ aksiyonlar */}
@@ -293,11 +321,15 @@ export function Navbar() {
               aria-label={
                 cartCount > 0 ? tCommon('cartWithCount', { count: cartCount }) : t('cart')
               }
+              onClick={() => {
+                setMobileAnimate(false);
+                setMobileOpen(false);
+              }}
             >
               <CartIcon />
               <Badge count={cartCount} />
               {showCartPlus && (
-                <span className="animate-cart-plus pointer-events-none absolute bottom-4 -left-2">
+                <span className="animate-cart-plus pointer-events-none absolute bottom-4 -left-2" aria-hidden="true">
                   <PackagePlus className="h-4 w-4 text-success" strokeWidth={2} />
                 </span>
               )}
@@ -318,7 +350,12 @@ export function Navbar() {
             ) : isAuthenticated ? (
               <Link
                 href="/account"
+                aria-label={t('account')}
                 className="flex h-9 items-center gap-2 rounded px-2 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:px-3"
+                onClick={() => {
+                  setMobileAnimate(false);
+                  setMobileOpen(false);
+                }}
               >
                 <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
                 <span className="hidden md:inline">{t('account')}</span>
@@ -328,6 +365,10 @@ export function Navbar() {
                 href="/login"
                 className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:w-auto md:px-4"
                 aria-label={t('login')}
+                onClick={() => {
+                  setMobileAnimate(false);
+                  setMobileOpen(false);
+                }}
               >
                 <User className="h-5 w-5 md:hidden" strokeWidth={1.75} aria-hidden />
                 <span className="hidden md:inline text-sm font-medium">{t('login')}</span>
@@ -336,7 +377,10 @@ export function Navbar() {
             {/* Hamburger — mobil */}
             <button
               className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover md:hidden"
-              onClick={() => setMobileOpen((v) => !v)}
+              onClick={() => {
+                setMobileAnimate(true);
+                setMobileOpen((v) => !v);
+              }}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
               aria-label={mobileOpen ? tCommon('closeMenu') : tCommon('openMenu')}
@@ -350,8 +394,10 @@ export function Navbar() {
       {/* Mobil menü */}
       <div
         id="mobile-menu"
+        inert={!mobileOpen ? true : undefined}
         className={[
-          'grid transition-[grid-template-rows] duration-300 ease-in-out md:hidden',
+          'grid transition-[grid-template-rows] ease-in-out md:hidden',
+          mobileAnimate ? 'duration-300' : 'duration-0',
           mobileOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         ].join(' ')}
       >
@@ -364,7 +410,10 @@ export function Navbar() {
                     <Link
                       href={href}
                       className="flex h-12 items-center rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                      onClick={() => setMobileOpen(false)}
+                      onClick={() => {
+                        setMobileAnimate(false);
+                        setMobileOpen(false);
+                      }}
                     >
                       {t(key)}
                     </Link>

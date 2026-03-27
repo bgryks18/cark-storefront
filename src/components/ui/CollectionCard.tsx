@@ -26,7 +26,7 @@ export function CollectionCard({
         {collection.image ? (
           <Image
             src={collection.image.url}
-            alt={collection.image.altText ?? collection.title}
+            alt=""
             fill
             className="object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

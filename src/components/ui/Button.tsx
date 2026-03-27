@@ -59,6 +59,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || loading}
+        aria-busy={loading || undefined}
         className={cn(
           'inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl font-semibold transition-colors duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
@@ -75,6 +76,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             type="dots"
             size="sm"
             color={variant === 'contained' ? 'white' : color === 'primary' ? 'primary' : 'current'}
+            aria-hidden
           />
         )}
         {!loading && children}

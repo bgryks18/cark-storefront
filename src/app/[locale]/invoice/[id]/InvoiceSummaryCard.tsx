@@ -170,23 +170,32 @@ export function InvoiceSummaryCard({
           <p className="text-xs text-text-muted">{t('discountNotAllowed')}</p>
         )}
 
-        {discountOpen && !hasExistingDiscount && allowDiscountCodes && (
-          <div className="mt-2 flex flex-col gap-1.5">
-            <input
-              type="text"
-              value={discountInput}
-              onChange={(e) => setDiscountInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applyDiscount()}
-              placeholder={t('discountCodePlaceholder')}
-              className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <button
-              onClick={applyDiscount}
-              disabled={isPending || !discountInput.trim()}
-              className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isPending ? <Loader className="h-4 w-4 animate-spin" /> : t('applyDiscount')}
-            </button>
+        {!hasExistingDiscount && allowDiscountCodes && (
+          <div
+            className={[
+              'grid transition-[grid-template-rows] duration-200 ease-in-out',
+              discountOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+            ].join(' ')}
+          >
+            <div className="overflow-hidden">
+              <div className="mt-2 flex flex-col gap-1.5">
+                <input
+                  type="text"
+                  value={discountInput}
+                  onChange={(e) => setDiscountInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && applyDiscount()}
+                  placeholder={t('discountCodePlaceholder')}
+                  className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <button
+                  onClick={applyDiscount}
+                  disabled={isPending || !discountInput.trim()}
+                  className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isPending ? <Loader className="h-4 w-4 animate-spin" /> : t('applyDiscount')}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

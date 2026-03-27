@@ -28,7 +28,18 @@
     "select": "Seç",
     "soldOut": "Tükendi",
     "breadcrumb": "İçerik haritası",
-    "errorOccurred": "Bir hata oluştu."
+    "errorOccurred": "Bir hata oluştu.",
+    "language": "Dil",
+    "decreaseQuantity": "Miktarı azalt",
+    "increaseQuantity": "Miktarı artır",
+    "removeItem": "Ürünü kaldır",
+    "removeDiscount": "İndirim kodunu kaldır",
+    "pageN": "Sayfa {n}",
+    "previous": "Önceki sayfa",
+    "next": "Sonraki sayfa",
+    "pagination": "Sayfalama",
+    "clearSearch": "Aramayı temizle",
+    "navigating": "Yönlendiriliyor"
   },
   "nav": {
     "home": "Ana Sayfa",
@@ -93,6 +104,9 @@
   },
   "cart": {
     "title": "Sepetim",
+    "quantity": "Miktar",
+    "decreaseQuantity": "Miktarı azalt",
+    "increaseQuantity": "Miktarı artır",
     "empty": "Sepetiniz boş",
     "emptyDescription": "Henüz sepetinize ürün eklemediniz.",
     "continueShopping": "Alışverişe devam et",

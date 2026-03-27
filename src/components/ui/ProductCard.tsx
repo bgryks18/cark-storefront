@@ -33,7 +33,7 @@ export function ProductCard({ product, className, headingLevel: Heading = 'h3' }
           {product.featuredImage ? (
             <Image
               src={product.featuredImage.url}
-              alt={product.featuredImage.altText ?? product.title}
+              alt=""
               fill
               className="object-cover"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

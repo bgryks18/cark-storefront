@@ -1,6 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
+
+import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 
 import { useRouter, usePathname } from '@/i18n/navigation';
@@ -11,6 +13,7 @@ interface SearchInputProps {
 }
 
 export function SearchInput({ defaultValue = '', placeholder }: SearchInputProps) {
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const pathname = usePathname();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,7 +35,7 @@ export function SearchInput({ defaultValue = '', placeholder }: SearchInputProps
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+      <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden="true" />
       <input
         ref={inputRef}
         type="text"
@@ -44,9 +47,10 @@ export function SearchInput({ defaultValue = '', placeholder }: SearchInputProps
         <button
           type="button"
           onClick={handleClear}
+          aria-label={tCommon('clearSearch')}
           className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-text-muted hover:text-text-base"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
       )}
     </form>

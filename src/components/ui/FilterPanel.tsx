@@ -89,11 +89,13 @@ export function FilterPanel({ filters }: FilterPanelProps) {
             <div key={group.id} className="border-t border-border pt-4">
               <button
                 onClick={() => toggleGroup(group.id)}
+                aria-expanded={isGroupOpen}
                 className="flex w-full items-center justify-between text-sm font-medium text-text-base"
               >
                 {group.label}
                 <ChevronDown
                   className={`h-4 w-4 text-text-muted transition-transform ${isGroupOpen ? 'rotate-180' : ''}`}
+                  aria-hidden="true"
                 />
               </button>
 
@@ -135,9 +137,11 @@ export function FilterPanel({ filters }: FilterPanelProps) {
       {/* ─── Mobil toggle butonu ─────────────────────────────────────────────── */}
       <button
         onClick={() => setIsOpen((v) => !v)}
+        aria-expanded={isOpen}
+        aria-controls="filter-panel-mobile"
         className="flex items-center gap-2 rounded-lg border border-card-border bg-card px-3 py-1.5 text-sm text-text-base transition-colors hover:border-primary hover:text-primary lg:hidden"
       >
-        <SlidersHorizontal className="h-4 w-4" />
+        <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
         {isOpen ? t('hideFilters') : t('showFilters')}
         {activeCount > 0 && (
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-micro font-semibold text-white">
@@ -148,14 +152,15 @@ export function FilterPanel({ filters }: FilterPanelProps) {
 
       {/* ─── Mobil açılır panel ──────────────────────────────────────────────── */}
       {isOpen && (
-        <div className="mt-3 rounded-xl border border-border bg-card p-4 lg:hidden">
+        <div id="filter-panel-mobile" className="mt-3 rounded-xl border border-border bg-card p-4 lg:hidden">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-semibold text-text-base">{t('filters')}</span>
             <button
               onClick={() => setIsOpen(false)}
+              aria-label={t('hideFilters')}
               className="text-text-muted hover:text-text-base"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           {panelContent}

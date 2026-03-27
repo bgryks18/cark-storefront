@@ -120,7 +120,7 @@ export function SearchBar() {
           className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover"
           aria-label={tNav('search')}
         >
-          <Search className="h-5 w-5" />
+          <Search className="h-5 w-5" aria-hidden="true" />
         </button>
       )}
 
@@ -134,20 +134,25 @@ export function SearchBar() {
             type="button"
             onClick={close}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-text-muted transition-colors hover:bg-primary-hover hover:text-text-base"
+            aria-label={tCommon('close')}
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" aria-hidden="true" />
             <input
               ref={inputRef}
               value={query}
               onChange={handleChange}
               placeholder={tCommon('searchPlaceholder')}
+              role="combobox"
+              aria-expanded={showDropdown}
+              aria-controls="search-results"
+              aria-autocomplete="list"
               className="h-9 w-56 rounded-lg border border-card-border bg-card pl-9 pr-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-72"
             />
             {loading && (
-              <Loader className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-text-muted" />
+              <Loader className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-text-muted" aria-hidden="true" />
             )}
           </div>
         </form>
@@ -155,7 +160,14 @@ export function SearchBar() {
 
       {/* Dropdown sonuçlar */}
       {showDropdown && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-card-border bg-surface shadow-xl sm:w-96">
+        <div
+          id="search-results"
+          role="region"
+          aria-live="polite"
+          aria-busy={loading}
+          aria-label={tSearch('results')}
+          className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-card-border bg-surface shadow-xl sm:w-96"
+        >
           {!loading && !hasResults && (
             <p className="px-4 py-6 text-center text-sm text-text-muted">
               {tSearch('noResults', { query })}
@@ -174,7 +186,7 @@ export function SearchBar() {
                   }}
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-base hover:bg-primary-hover hover:text-primary"
                 >
-                  <Search className="h-3.5 w-3.5 shrink-0 text-text-muted" />
+                  <Search className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
                   <span dangerouslySetInnerHTML={{ __html: q.styledText }} />
                 </button>
               ))}

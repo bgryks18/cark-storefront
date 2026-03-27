@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 
@@ -12,6 +12,7 @@ import type { ShopifyAddress } from '@/lib/shopify/types';
 
 import { Spinner } from '@/components/ui/Spinner';
 
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useModalAnimation } from '@/hooks/useModalAnimation';
 
 const inputClass =
@@ -39,6 +40,7 @@ type Props = {
 export function AddressFormModal({ address, isDefault, onClose, onSuccess, isFetching }: Props) {
   const t = useTranslations('account.addresses');
   const { isVisible, handleClose } = useModalAnimation(onClose);
+  const trapRef = useFocusTrap<HTMLDivElement>();
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +59,14 @@ export function AddressFormModal({ address, isDefault, onClose, onSuccess, isFet
 
   const isBusy = isSaving || !!isFetching;
   const isEdit = !!address;
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !isBusy) handleClose();
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [handleClose, isBusy]);
 
   const onSubmit = async (values: FormValues) => {
     setIsSaving(true);
@@ -85,9 +95,11 @@ export function AddressFormModal({ address, isDefault, onClose, onSuccess, isFet
 
   return (
     <div
+      ref={trapRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="address-modal-title"
     >
       <div
         className={`absolute inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
@@ -98,7 +110,7 @@ export function AddressFormModal({ address, isDefault, onClose, onSuccess, isFet
         className={`relative w-full max-w-md rounded-2xl border border-card-border bg-card p-6 shadow-xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-text-base">
+          <h2 id="address-modal-title" className="text-base font-semibold text-text-base">
             {isEdit ? t('editTitle') : t('addTitle')}
           </h2>
           <button

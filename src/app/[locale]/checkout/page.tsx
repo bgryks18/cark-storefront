@@ -99,6 +99,7 @@ function PhoneInput({
         <select
           value={dialCode}
           onChange={handleDialChange}
+          aria-label={label}
           className="shrink-0 border-r border-card-border bg-transparent py-2 pl-3 pr-1 text-sm text-text-base focus:outline-none"
         >
           {COUNTRY_CODES.map((c) => (
@@ -590,13 +591,14 @@ export default function CheckoutPage() {
                   !selectedRate ||
                   (isAuthenticated && (addressesLoading || customerProfilePending))
                 }
+                aria-busy={paytrMutation.isPending || undefined}
                 className="mt-6 flex h-12 w-full cursor-pointer items-center justify-center rounded-xl bg-primary text-base font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-80"
               >
                 {paytrMutation.isPending ? t('submitting') : t('submit')}
               </button>
 
               <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-text-muted">
-                <ShieldCheck className="h-3.5 w-3.5" />
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>{t('securePayment')}</span>
               </div>
             </div>

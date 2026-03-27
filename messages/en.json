@@ -28,7 +28,18 @@
     "select": "Select",
     "soldOut": "Sold out",
     "breadcrumb": "Breadcrumb",
-    "errorOccurred": "An error occurred."
+    "errorOccurred": "An error occurred.",
+    "language": "Language",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "removeItem": "Remove item",
+    "removeDiscount": "Remove discount code",
+    "pageN": "Page {n}",
+    "previous": "Previous page",
+    "next": "Next page",
+    "pagination": "Pagination",
+    "clearSearch": "Clear search",
+    "navigating": "Navigating"
   },
   "nav": {
     "home": "Home",
@@ -93,6 +104,9 @@
   },
   "cart": {
     "title": "My Cart",
+    "quantity": "Quantity",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
     "empty": "Your cart is empty",
     "emptyDescription": "You haven't added any products to your cart yet.",
     "continueShopping": "Continue shopping",

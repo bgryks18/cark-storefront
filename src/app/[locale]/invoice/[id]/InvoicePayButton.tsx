@@ -40,6 +40,7 @@ export function InvoicePayButton({ draftOrderId, disabled = false }: Props) {
         type="button"
         onClick={() => paytrInitMutation.mutate()}
         disabled={paytrInitMutation.isPending || disabled}
+        aria-busy={paytrInitMutation.isPending || undefined}
         className="mt-6 flex h-12 w-full cursor-pointer items-center justify-center rounded-xl bg-primary text-base font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-80"
       >
         {paytrInitMutation.isPending ? t('paying') : t('pay')}

@@ -20,6 +20,7 @@ function CartPlusIcon({ className }: { className?: string }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
     >
       <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
       <line x1="3" y1="6" x2="21" y2="6" />
@@ -64,6 +65,7 @@ export function AddToCartButton({ variantId, availableForSale, className }: AddT
       onClick={handleClick}
       disabled={state === 'loading'}
       aria-label={tCommon('addToCart')}
+      aria-busy={state === 'loading'}
       className={cn(
         'group flex h-9 items-center overflow-hidden rounded-full min-w-9 justify-center',
         'bg-background text-foreground shadow-md',
@@ -75,8 +77,8 @@ export function AddToCartButton({ variantId, availableForSale, className }: AddT
         className,
       )}
     >
-      {state === 'loading' && <Loader className="h-4 w-4 animate-spin" />}
-      {state === 'added' && <Check className="h-4 w-4" />}
+      {state === 'loading' && <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />}
+      {state === 'added' && <Check className="h-4 w-4" aria-hidden="true" />}
       {isIdle && (
         <>
           <CartPlusIcon className="h-4 w-4" />

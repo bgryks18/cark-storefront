@@ -254,9 +254,10 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
           type="button"
           onClick={() => handleButtonChange(localQty - 1)}
           disabled={isFetching}
+          aria-label={t('decreaseQuantity')}
           className="flex h-8 w-8 cursor-pointer items-center justify-center text-text-muted transition-colors hover:bg-surface-hover hover:text-text-base disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <Minus className="h-3.5 w-3.5" />
+          <Minus className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
         <div className="h-4 w-px bg-border" />
         <input
@@ -267,6 +268,7 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
           onBlur={handleInputBlur}
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
           disabled={isFetching}
+          aria-label={t('quantity')}
           className="h-8 w-10 bg-transparent text-center text-sm font-medium text-text-base focus:outline-none disabled:opacity-40"
         />
         <div className="h-4 w-px bg-border" />
@@ -274,9 +276,10 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
           type="button"
           onClick={() => handleButtonChange(localQty + 1)}
           disabled={isFetching || atMax}
+          aria-label={t('increaseQuantity')}
           className="flex h-8 w-8 cursor-pointer items-center justify-center text-text-muted transition-colors hover:bg-surface-hover hover:text-text-base disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
       {isAnimationLoading && (

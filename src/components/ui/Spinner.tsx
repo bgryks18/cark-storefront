@@ -41,7 +41,7 @@ export function Spinner({
     return (
       <span
         role="status"
-        aria-label={label}
+        aria-label={label ?? 'Loading'}
         className={['flex items-center gap-1', className].filter(Boolean).join(' ')}
       >
         {[0, 1, 2].map((i) => (
@@ -58,7 +58,7 @@ export function Spinner({
   return (
     <span
       role="status"
-      aria-label={label}
+      aria-label={label ?? 'Loading'}
       className={[
         'inline-block animate-spin rounded-full',
         spinSizeClasses[size],

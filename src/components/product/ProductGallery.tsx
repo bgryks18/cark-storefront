@@ -39,6 +39,8 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
             <button
               key={i}
               onClick={() => setActiveIndex(i)}
+              aria-label={img.altText ?? `${title} ${i + 1}`}
+              aria-pressed={i === activeIndex}
               className={[
                 'relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors',
                 i === activeIndex

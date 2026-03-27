@@ -172,7 +172,7 @@ export default function OrdersPage() {
           <p className="text-sm text-error-text">{t('errors.loadFailed')}</p>
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-16 text-center">
-            <Package className="h-16 w-16 text-text-muted" strokeWidth={1.25} />
+            <Package className="h-16 w-16 text-text-muted" strokeWidth={1.25} aria-hidden="true" />
             <p className="text-text-muted">{t('noOrders')}</p>
             <Link
               href="/collections"
@@ -186,8 +186,9 @@ export default function OrdersPage() {
             {/* Search + Filter */}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex flex-1 flex-col gap-1">
-                <span className="text-xs font-medium text-text-muted">{t('orderNumber')}</span>
+                <label htmlFor="order-search" className="text-xs font-medium text-text-muted">{t('orderNumber')}</label>
                 <input
+                  id="order-search"
                   type="search"
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
@@ -196,9 +197,10 @@ export default function OrdersPage() {
                 />
               </div>
               <div className="flex flex-1 flex-col gap-1">
-                <span className="text-xs font-medium text-text-muted">{t('filterStatus')}</span>
+                <label htmlFor="order-status-filter" className="text-xs font-medium text-text-muted">{t('filterStatus')}</label>
                 <div className="relative">
                 <select
+                  id="order-status-filter"
                   value={statusFilter}
                   onChange={(e) => handleStatusFilter(e.target.value as FinancialStatus | 'all')}
                   className="h-10 w-full appearance-none rounded-xl border border-border bg-card pl-3 pr-9 text-sm text-text-base focus:border-primary focus:outline-none"
@@ -210,7 +212,7 @@ export default function OrdersPage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden="true" />
                 </div>
               </div>
               <div className="flex flex-1 flex-col gap-1">
@@ -236,7 +238,7 @@ export default function OrdersPage() {
 
               {paginated.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 py-12 text-center">
-                  <Package className="h-10 w-10 text-text-muted" strokeWidth={1.25} />
+                  <Package className="h-10 w-10 text-text-muted" strokeWidth={1.25} aria-hidden="true" />
                   <p className="text-sm text-text-muted">{t('noOrdersFound')}</p>
                 </div>
               ) : (
@@ -293,7 +295,7 @@ export default function OrdersPage() {
                   className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-muted transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-40"
                   aria-label={t('prevPage')}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 </button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
@@ -306,7 +308,7 @@ export default function OrdersPage() {
                   if (!isVisible) {
                     if (showLeftEllipsis || showRightEllipsis) {
                       return (
-                        <span key={p} className="flex h-9 w-9 items-center justify-center text-sm text-text-muted">
+                        <span key={p} className="flex h-9 w-9 items-center justify-center text-sm text-text-muted" aria-hidden="true">
                           …
                         </span>
                       );
@@ -318,6 +320,7 @@ export default function OrdersPage() {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
+                      aria-current={isActive ? 'page' : undefined}
                       className={[
                         'flex h-9 w-9 items-center justify-center rounded-xl text-sm font-medium transition-colors',
                         isActive
@@ -336,7 +339,7 @@ export default function OrdersPage() {
                   className="flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-muted transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-40"
                   aria-label={t('nextPage')}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
             )}

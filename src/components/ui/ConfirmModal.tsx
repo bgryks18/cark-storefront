@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 
 import type { ConfirmOptions } from '@/contexts/ModalContext';
 
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useModalAnimation } from '@/hooks/useModalAnimation';
 
 import { AlertBox } from '@/components/ui/AlertBox';
@@ -28,6 +29,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
   } = config;
 
   const { isVisible, handleClose: animateClose } = useModalAnimation(onCancel);
+  const trapRef = useFocusTrap<HTMLDivElement>();
   const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +59,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
 
   return (
     <div
+      ref={trapRef}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"

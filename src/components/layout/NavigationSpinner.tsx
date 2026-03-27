@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 
 import { Container } from '@/components/ui/Container';
@@ -10,6 +11,7 @@ import { Container } from '@/components/ui/Container';
 let pendingNavigation = false;
 
 export function NavigationSpinner() {
+  const tCommon = useTranslations('common');
   const pathname = usePathname();
   const [loading, setLoading] = useState(() => pendingNavigation);
 
@@ -47,9 +49,9 @@ export function NavigationSpinner() {
   if (!loading) return null;
 
   return (
-    <div className="fixed bottom-6 z-50 w-full">
+    <div className="fixed bottom-6 z-50 w-full" role="status" aria-live="polite" aria-label={tCommon('navigating')}>
       <Container className="flex justify-end w-full max-w-360">
-        <div className="flex items-center gap-1 bg-surface rounded-full px-3 py-2 shadow-md">
+        <div className="flex items-center gap-1 bg-surface rounded-full px-3 py-2 shadow-md" aria-hidden="true">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
