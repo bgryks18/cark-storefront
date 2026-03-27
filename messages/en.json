@@ -474,7 +474,170 @@
     "contact": "Contact",
     "rights": "All rights reserved.",
     "orderTracking": "Order Tracking",
-    "softwareCredit": "Software services by bugrayuksel018.com"
+    "softwareCredit": "Software services by bugrayuksel018.com",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "metaDescription": "Çark Zımpara privacy policy. Learn how we collect, use and protect your personal information.",
+    "lastUpdated": "Last Updated: March 26, 2026",
+    "intro": "carkstore operates this store and website, including all related information, content, features, tools, products, and services, to offer you a personalized shopping experience (\"Services\"). carkstore is powered by Shopify, which enables us to provide the Services to you. This Privacy Policy explains how we collect, use, and share your personal information when you visit, use, or make a purchase or other transaction through the Services, or when you otherwise communicate with us. In the event of a conflict between this Privacy Policy and our Terms of Service, this Privacy Policy shall prevail with respect to the collection, processing, and sharing of your personal information.",
+    "introAcceptance": "Please read this Privacy Policy carefully. By using and accessing any of the Services, you acknowledge that you have read this Privacy Policy and understand that your information will be collected, used, and shared as described in this Privacy Policy.",
+    "sections": {
+      "personalInfo": {
+        "title": "Personal Information We Collect or Process",
+        "description": "When we use the term \"personal information,\" we mean information that reveals, or is reasonably linkable to, your identity or that of another person. We may collect or process the following categories of personal information, depending on how you interact with the Services, where you reside, and as permitted or required by applicable law:",
+        "items": {
+          "contact": {
+            "label": "Contact information",
+            "desc": "such as your name, address, billing address, shipping address, phone number, and email address."
+          },
+          "financial": {
+            "label": "Financial information",
+            "desc": "such as credit card, debit card and financial account numbers, payment card information, transaction details, payment method, and other payment details."
+          },
+          "account": {
+            "label": "Account information",
+            "desc": "such as your username, password, security questions, preferences, and settings."
+          },
+          "transaction": {
+            "label": "Transaction information",
+            "desc": "such as products added to cart, purchased, returned, exchanged, or cancelled, and your past transactions."
+          },
+          "communication": {
+            "label": "Your communications with us",
+            "desc": "such as information you share when submitting a customer support request."
+          },
+          "device": {
+            "label": "Device information",
+            "desc": "such as information about your device, browser, or network connection, IP address, and other unique identifiers."
+          },
+          "usage": {
+            "label": "Usage information",
+            "desc": "such as information about your interactions with the Services, including when and how you interact with or browse them."
+          }
+        }
+      },
+      "sources": {
+        "title": "Sources of Personal Information",
+        "description": "We may collect personal information from the following sources:",
+        "items": {
+          "direct": {
+            "label": "Directly from you",
+            "desc": "for example, when you create an account, visit or use the Services, contact us, or otherwise provide your personal information;"
+          },
+          "automatic": {
+            "label": "Automatically through the Services",
+            "desc": "for example, from your device and through cookies and similar technologies when you use our products or services or visit our websites;"
+          },
+          "providers": {
+            "label": "From our service providers",
+            "desc": "for example, when we engage service providers to provide certain technologies or when they collect or process your personal information on our behalf;"
+          },
+          "partners": {
+            "label": "From our business partners or other third parties."
+          }
+        }
+      },
+      "howWeUse": {
+        "title": "How We Use Your Personal Information",
+        "description": "Depending on how you interact with us or which of the Services you use, we may use your personal information for the following purposes:",
+        "items": {
+          "providing": {
+            "label": "Providing, Personalizing, and Improving Services.",
+            "desc": "We use your personal information to fulfill our contract with you, process your payments, ship your orders, remember your preferences and products of interest, send account-related notifications, process your purchases, returns, exchanges, or other transactions, and create a personalized shopping experience."
+          },
+          "marketing": {
+            "label": "Marketing and Advertising.",
+            "desc": "We use your personal information for marketing and promotional purposes, such as sending you marketing, advertising, and promotional communications via email, text message, or mail, and to show you online advertisements for products or services based on your previous purchases."
+          },
+          "security": {
+            "label": "Security and Fraud Prevention.",
+            "desc": "We use your personal information to verify your account, provide a secure payment and shopping experience, detect, investigate, or take action against potential fraud, illegal, harmful, or malicious activities, and to ensure the security of our Services."
+          },
+          "communication": {
+            "label": "Communicating with You.",
+            "desc": "We use your personal information to provide you with customer support, respond promptly, deliver effective services, and maintain our business relationship with you."
+          },
+          "legal": {
+            "label": "Legal Reasons.",
+            "desc": "We use your personal information to comply with applicable laws or respond to valid legal processes, conduct discovery, participate in litigation, and investigate or enforce potential violations of our terms or policies."
+          }
+        }
+      },
+      "sharing": {
+        "title": "How We Share Your Personal Information",
+        "description": "In certain circumstances, we may share your personal information with third parties for legitimate purposes subject to this Privacy Policy:",
+        "items": {
+          "serviceProviders": "Sharing with third parties, Shopify, and vendors who perform services on our behalf (IT management, payment processing, data analytics, customer support, cloud storage, shipping and delivery).",
+          "marketingPartners": "Sharing with our business and marketing partners to provide you with marketing services and advertising.",
+          "yourDirection": "Sharing certain information with third parties at your direction, request, or with your explicit consent.",
+          "affiliates": "Sharing among our affiliates or other entities within our corporate group.",
+          "legalObligations": "Sharing in connection with business transactions such as mergers or bankruptcy, to comply with applicable legal obligations, enforce our terms or policies, and protect our rights."
+        }
+      },
+      "shopify": {
+        "title": "Relationship with Shopify",
+        "description": "The Services are hosted by Shopify, which collects and processes personal information related to your access to and use of the Services to provide and improve them. Information you provide through the Services will be transferred to and shared with Shopify and third parties outside your country of residence. For more information about how Shopify uses your personal information, please review the Shopify Consumer Privacy Policy."
+      },
+      "thirdParty": {
+        "title": "Third-Party Websites and Links",
+        "description": "The Services may contain links to websites or other online platforms operated by third parties. If you follow links to sites not affiliated with or controlled by us, you should review their privacy and security policies and other terms and conditions. We do not guarantee the privacy or security of such sites."
+      },
+      "children": {
+        "title": "Children's Data",
+        "description": "The Services are not designed for use by children, and we do not intentionally collect any personal information from children under the legal age of majority in your jurisdiction. If you believe your child has provided us with personal information, you can contact us to request deletion of that information."
+      },
+      "security": {
+        "title": "Security and Retention of Your Information",
+        "description1": "Please note that no security measures are perfect or impenetrable, and we cannot guarantee \"perfect security.\" We recommend that you do not use insecure communication channels to transmit sensitive or confidential information to us.",
+        "description2": "How long we retain your personal information depends on various factors, such as whether we need the information to maintain your account, provide you with the Services, comply with legal obligations, resolve disputes, or enforce our other applicable agreements and policies."
+      },
+      "rights": {
+        "title": "Your Rights and Choices",
+        "description": "Depending on where you reside, you may have all or some of the following rights with respect to your personal information:",
+        "items": {
+          "access": {
+            "label": "Right of Access.",
+            "desc": "You may have the right to request access to the personal information we hold about you."
+          },
+          "deletion": {
+            "label": "Right to Deletion.",
+            "desc": "You may have the right to request that we delete the personal information we hold about you."
+          },
+          "correction": {
+            "label": "Right to Correction.",
+            "desc": "You may have the right to request that we correct inaccurate personal information about you."
+          },
+          "portability": {
+            "label": "Right to Data Portability.",
+            "desc": "You may have the right to receive a copy of the personal information we hold about you and, under certain conditions, to request that it be transferred to a third party."
+          },
+          "preferences": {
+            "label": "Managing Communication Preferences.",
+            "desc": "We may send you promotional emails, and you can opt out at any time by using the unsubscribe option in those emails."
+          }
+        },
+        "exercising": "You can exercise these rights at the points indicated in the Services or by contacting us using the contact information provided below. We will not discriminate against you for exercising your rights."
+      },
+      "complaints": {
+        "title": "Complaints",
+        "description": "If you have a complaint about the way your personal information is being processed, please contact us using the contact information provided below. Depending on where you reside, you may also have the right to file a complaint with your local data protection authority."
+      },
+      "transfers": {
+        "title": "International Transfers",
+        "description1": "Please note that we may transfer, store, and process your personal information outside of your country of residence.",
+        "description2": "Where we transfer your personal information outside of the European Economic Area or the United Kingdom, we rely on recognized transfer mechanisms such as the European Commission's Standard Contractual Clauses."
+      },
+      "changes": {
+        "title": "Changes to This Privacy Policy",
+        "description": "We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will post the revised Privacy Policy on this website and update the \"Last Updated\" date."
+      },
+      "contact": {
+        "title": "Contact",
+        "description": "If you have any questions about our privacy practices or this Privacy Policy, or if you wish to exercise a right you may have, please email us at info@carkzimpara.com or contact us at Gebze, Kocaeli, 41400, TR."
+      }
+    }
   },
   "invoice": {
     "title": "Order Invoice",

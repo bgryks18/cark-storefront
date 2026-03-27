@@ -21,9 +21,7 @@ export function Footer() {
               <span className="text-lg font-bold text-primary">Çark</span>
               <span className="text-lg font-bold text-black-dark">Zımpara</span>
             </Link>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-muted">
-              {ft('tagline')}
-            </p>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-text-muted">{ft('tagline')}</p>
           </div>
 
           {/* Mağaza */}
@@ -39,7 +37,10 @@ export function Footer() {
                 { href: '/contact', label: t('contact') },
               ].map(({ href, label }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-text-muted transition-colors hover:text-primary">
+                  <Link
+                    href={href}
+                    className="text-sm text-text-muted transition-colors hover:text-primary"
+                  >
                     {label}
                   </Link>
                 </li>
@@ -58,7 +59,10 @@ export function Footer() {
                 { href: '/account', label: t('account') },
               ].map(({ href, label }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-text-muted transition-colors hover:text-primary">
+                  <Link
+                    href={href}
+                    className="text-sm text-text-muted transition-colors hover:text-primary"
+                  >
                     {label}
                   </Link>
                 </li>
@@ -73,13 +77,19 @@ export function Footer() {
             </h3>
             <ul className="space-y-3" role="list">
               <li>
-                <a href="tel:+905375407666" className="flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-primary">
+                <a
+                  href="tel:+905375407666"
+                  className="flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-primary"
+                >
                   <Phone className="h-4 w-4 shrink-0" />
                   +90 537 540 76 66
                 </a>
               </li>
               <li>
-                <a href="mailto:info@carkzimpara.com" className="flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-primary">
+                <a
+                  href="mailto:info@carkzimpara.com"
+                  className="flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-primary"
+                >
                   <Mail className="h-4 w-4 shrink-0" />
                   info@carkzimpara.com
                 </a>
@@ -93,23 +103,29 @@ export function Footer() {
         </div>
 
         {/* Alt çizgi */}
-        <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-col gap-2">
+        <div className="mt-10 flex flex-col items-start gap-3 border-t border-border pt-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center">
             <p className="text-xs text-text-muted">
               © {year} {ft('brandName')}. {ft('rights')}
             </p>
+            <Link
+              href="/privacy-policy"
+              className="text-xs text-text-muted transition-colors hover:text-primary"
+            >
+              {ft('privacyPolicy')}
+            </Link>
+          </div>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center">
             <a
               href="https://bugrayuksel018.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-fit text-xs text-text-muted transition-colors hover:text-primary"
+              className="text-xs text-text-muted transition-colors hover:text-primary"
             >
               {ft('softwareCredit')}
             </a>
+            <p className="text-xs text-text-muted">shop.carkzimpara.com</p>
           </div>
-          <p className="self-end text-xs text-text-muted sm:self-auto sm:text-right">
-            shop.carkzimpara.com
-          </p>
         </div>
       </Container>
     </footer>
