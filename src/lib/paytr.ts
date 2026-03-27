@@ -33,8 +33,16 @@ interface TokenParams {
 export async function getPayTRToken(params: TokenParams): Promise<string> {
   const { merchantId, merchantKey, merchantSalt, testMode } = getConfig();
   const {
-    userIp, merchantOid, email, paymentAmountKurus,
-    basket, userName, userAddress, userPhone, okUrl, failUrl,
+    userIp,
+    merchantOid,
+    email,
+    paymentAmountKurus,
+    basket,
+    userName,
+    userAddress,
+    userPhone,
+    okUrl,
+    failUrl,
   } = params;
 
   const noInstallment = '1';
@@ -42,15 +50,12 @@ export async function getPayTRToken(params: TokenParams): Promise<string> {
   const currency = 'TL';
 
   const userBasket = Buffer.from(
-    JSON.stringify(basket.map(i => [i.name, i.price, i.quantity])),
+    JSON.stringify(basket.map((i) => [i.name, i.price, i.quantity])),
   ).toString('base64');
 
   const hashStr = `${merchantId}${userIp}${merchantOid}${email}${paymentAmountKurus}${userBasket}${noInstallment}${maxInstallment}${currency}${testMode}${merchantSalt}`;
 
-  const paytrToken = crypto
-    .createHmac('sha256', merchantKey)
-    .update(hashStr)
-    .digest('base64');
+  const paytrToken = crypto.createHmac('sha256', merchantKey).update(hashStr).digest('base64');
 
   const body = new URLSearchParams({
     merchant_id: merchantId,
@@ -81,7 +86,6 @@ export async function getPayTRToken(params: TokenParams): Promise<string> {
   });
 
   const rawText = await response.text();
-  console.log('[PayTR token response]', response.status, rawText);
 
   let data: { status: string; token?: string; reason?: string };
   try {
@@ -109,9 +113,6 @@ export function verifyPayTRNotification(
 ): boolean {
   const { merchantKey, merchantSalt } = getConfig();
   const hashStr = `${merchantOid}${merchantSalt}${status}${totalAmount}`;
-  const expectedHash = crypto
-    .createHmac('sha256', merchantKey)
-    .update(hashStr)
-    .digest('base64');
+  const expectedHash = crypto.createHmac('sha256', merchantKey).update(hashStr).digest('base64');
   return expectedHash === receivedHash;
 }

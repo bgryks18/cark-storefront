@@ -11,6 +11,7 @@ import {
   applyInvoiceDiscountAction,
   removeInvoiceDiscountAction,
 } from '@/lib/actions/invoiceDiscountActions';
+import { formatPrice } from '@/lib/shopify/normalize';
 
 import { InvoicePayButton } from './InvoicePayButton';
 
@@ -41,10 +42,6 @@ export function InvoiceSummaryCard({
   const [discountInput, setDiscountInput] = useState('');
   const [discountOpen, setDiscountOpen] = useState(false);
   const [discountError, setDiscountError] = useState<string | null>(null);
-
-  function formatMoney(value: number): string {
-    return `${value.toFixed(2)} ₺`;
-  }
 
   const applyMutation = useMutation({
     mutationFn: async (code: string) => {
@@ -108,26 +105,26 @@ export function InvoiceSummaryCard({
       <div className="space-y-2 border-b border-card-border pb-4">
         <div className="flex justify-between text-sm text-text-muted">
           <span>{t('subtotal')}</span>
-          <span>{formatMoney(summary.subtotal)}</span>
+          <span>{formatPrice(summary.subtotal)}</span>
         </div>
         {summary.shipping && (
           <div className="flex justify-between text-sm text-text-muted">
             <span>
               {t('shipping')} ({summary.shipping.title})
             </span>
-            <span>{formatMoney(summary.shipping.price)}</span>
+            <span>{formatPrice(summary.shipping.price)}</span>
           </div>
         )}
         {summary.discountAmount > 0 && (
           <div className="flex justify-between text-sm text-success">
             <span>{t('discount')}</span>
-            <span>-{formatMoney(summary.discountAmount)}</span>
+            <span>-{formatPrice(summary.discountAmount)}</span>
           </div>
         )}
       </div>
       <div className="flex justify-between border-b border-card-border py-4 text-base font-bold text-text-base">
         <span>{t('total')}</span>
-        <span>{formatMoney(summary.total)}</span>
+        <span>{formatPrice(summary.total)}</span>
       </div>
 
       <div className="mt-4 border-b border-card-border pb-4">
@@ -136,7 +133,7 @@ export function InvoiceSummaryCard({
             <Tag className="h-3 w-3 shrink-0" />
             {summary.appliedCode}
             {summary.discountAmount > 0 && (
-              <span className="text-success">-{formatMoney(summary.discountAmount)}</span>
+              <span className="text-success">-{formatPrice(summary.discountAmount)}</span>
             )}
             {canRemove && (
               <button
@@ -156,7 +153,7 @@ export function InvoiceSummaryCard({
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             <Tag className="h-3 w-3 shrink-0" />
             {t('discount')}
-            <span className="text-success">-{formatMoney(summary.discountAmount)}</span>
+            <span className="text-success">-{formatPrice(summary.discountAmount)}</span>
           </div>
         ) : allowDiscountCodes ? (
           <button

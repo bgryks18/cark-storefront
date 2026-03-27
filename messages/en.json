@@ -478,6 +478,20 @@
     "deliveryAddress": "Delivery Address",
     "pay": "Proceed to Payment →",
     "paying": "Redirecting...",
-    "connectionError": "Connection error"
+    "connectionError": "Connection error",
+    "errors": {
+      "missingInfo": "Missing information",
+      "orderNotFound": "Order not found",
+      "orderCompleted": "Order already completed",
+      "discountNotAllowed": "Discount codes cannot be used for this order",
+      "invalidDiscount": "Invalid discount code",
+      "discountApplyFailed": "Discount could not be applied",
+      "missingCustomerInfo": "Customer info incomplete (email, phone, address required)",
+      "zeroTotal": "Payment cannot be initiated because the total is 0.00",
+      "cartNotFound": "Cart not found or empty",
+      "invalidShipping": "Invalid shipping option",
+      "orderCreateFailed": "Order could not be prepared",
+      "paytrError": "Payment service error"
+    }
   }
 }

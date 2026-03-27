@@ -1,5 +1,7 @@
 'use server';
 
+import { getTranslations } from 'next-intl/server';
+
 import {
   getDraftOrder,
   getPriceRule,
@@ -62,23 +64,24 @@ export async function applyInvoiceDiscountAction(
   draftOrderId: string,
   code: string,
 ): Promise<ActionResult> {
+  const t = await getTranslations('invoice.errors');
   try {
     const normalizedCode = code.trim().toUpperCase();
-    if (!draftOrderId || !normalizedCode) return { ok: false, error: 'Eksik bilgi' };
+    if (!draftOrderId || !normalizedCode) return { ok: false, error: t('missingInfo') };
 
     const draft = await getDraftOrder(draftOrderId);
-    if (!draft) return { ok: false, error: 'Sipariş bulunamadı' };
-    if (draft.status === 'completed') return { ok: false, error: 'Sipariş tamamlanmış' };
+    if (!draft) return { ok: false, error: t('orderNotFound') };
+    if (draft.status === 'completed') return { ok: false, error: t('orderCompleted') };
     if (!isDiscountAllowed(draft)) {
-      return { ok: false, error: 'Bu siparişte indirim kodu kullanılamıyor' };
+      return { ok: false, error: t('discountNotAllowed') };
     }
 
     const lookup = await lookupDiscountCode(normalizedCode);
-    if (!lookup) return { ok: false, error: 'Geçersiz indirim kodu' };
+    if (!lookup) return { ok: false, error: t('invalidDiscount') };
 
     const rule = await getPriceRule(lookup.price_rule_id);
     if (!rule || rule.value_type === 'shipping') {
-      return { ok: false, error: 'Geçersiz indirim kodu' };
+      return { ok: false, error: t('invalidDiscount') };
     }
 
     const updated = await updateDraftOrderAppliedDiscount({
@@ -95,22 +98,23 @@ export async function applyInvoiceDiscountAction(
       !updated.applied_discount ||
       updated.applied_discount.title.toUpperCase() !== normalizedCode
     ) {
-      return { ok: false, error: 'Geçersiz indirim kodu' };
+      return { ok: false, error: t('invalidDiscount') };
     }
 
     return { ok: true, summary: toSummary(updated) };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'İndirim uygulanamadı';
+    const msg = err instanceof Error ? err.message : t('discountApplyFailed');
     return { ok: false, error: msg };
   }
 }
 
 export async function removeInvoiceDiscountAction(draftOrderId: string): Promise<ActionResult> {
-  if (!draftOrderId) return { ok: false, error: 'Eksik bilgi' };
+  const t = await getTranslations('invoice.errors');
+  if (!draftOrderId) return { ok: false, error: t('missingInfo') };
 
   const draft = await getDraftOrder(draftOrderId);
-  if (!draft) return { ok: false, error: 'Sipariş bulunamadı' };
-  if (draft.status === 'completed') return { ok: false, error: 'Sipariş tamamlanmış' };
+  if (!draft) return { ok: false, error: t('orderNotFound') };
+  if (draft.status === 'completed') return { ok: false, error: t('orderCompleted') };
 
   const updated = await updateDraftOrderAppliedDiscount({
     draftOrderId: draft.id,

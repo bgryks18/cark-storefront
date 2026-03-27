@@ -11,6 +11,7 @@ import {
   getDraftOrderPricingGraphql,
 } from '@/lib/shopify/admin';
 import { shopifyFetch } from '@/lib/shopify/client';
+import { formatPrice } from '@/lib/shopify/normalize';
 
 import { Container } from '@/components/ui/Container';
 import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
@@ -165,7 +166,7 @@ export default async function InvoicePage({ params }: Props) {
                     </div>
                   </div>
                   <p className="shrink-0 text-sm font-semibold text-text-base">
-                    {(parseFloat(item.price) * item.quantity).toFixed(2)} ₺
+                    {formatPrice(parseFloat(item.price) * item.quantity)}
                   </p>
                 </li>
               ))}

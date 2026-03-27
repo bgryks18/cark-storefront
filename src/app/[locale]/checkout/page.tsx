@@ -23,6 +23,7 @@ import { useCart } from '@/hooks/useCart';
 import { AddressFormModal } from '@/components/account/AddressFormModal';
 import { AlertBox } from '@/components/ui/AlertBox';
 import { Container } from '@/components/ui/Container';
+import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 
 interface ShippingRateWithDescription extends ShippingRate {
   description: string;
@@ -170,6 +171,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const t = useTranslations('checkout.form');
   const tCart = useTranslations('cart');
+  const tApiErr = useTranslations('invoice.errors');
   const { cart, cartId, isLoading: isCartLoading } = useCart();
   const lines = getCartLines(cart);
 
@@ -284,8 +286,12 @@ export default function CheckoutPage() {
       } catch {
         throw new Error(t('errors.connectionError'));
       }
-      const data = (await res.json()) as { paytrUrl?: string; error?: string };
-      if (!res.ok || !data.paytrUrl) throw new Error(data.error ?? t('errors.paymentFailed'));
+      const data = (await res.json()) as { paytrUrl?: string; errorCode?: string };
+      if (!res.ok || !data.paytrUrl) {
+        throw new Error(
+          data.errorCode ? tApiErr(data.errorCode as never) : t('errors.paymentFailed'),
+        );
+      }
       return data.paytrUrl;
     },
     onSuccess: (paytrUrl) => {
@@ -319,7 +325,7 @@ export default function CheckoutPage() {
     return (
       <section className="py-8 sm:py-12">
         <Container>
-          <div className="mb-8 h-8 w-32 animate-pulse rounded-lg bg-skeleton" />
+          <PageBreadcrumb crumbs={[]} title={t('title')} />
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
             <div className="flex flex-col gap-6">
               {[1, 2, 3].map((i) => (
@@ -349,7 +355,7 @@ export default function CheckoutPage() {
   return (
     <section className="py-8 sm:py-12">
       <Container>
-        <h1 className="mb-8 text-2xl font-bold text-black-dark sm:text-3xl">{t('title')}</h1>
+        <PageBreadcrumb crumbs={[]} title={t('title')} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-8 lg:grid-cols-[1fr_360px]">
           {/* ─── Sol: Form ─────────────────────────────────────────────── */}

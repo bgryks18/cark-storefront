@@ -14,6 +14,8 @@ interface Props {
 export function InvoicePayButton({ draftOrderId, disabled = false }: Props) {
   const t = useTranslations('invoice');
 
+  const tErr = useTranslations('invoice.errors');
+
   const paytrInitMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch('/api/paytr/init', {
@@ -21,8 +23,10 @@ export function InvoicePayButton({ draftOrderId, disabled = false }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ draftOrderId }),
       });
-      const data = (await res.json()) as { paytrUrl?: string; error?: string };
-      if (!res.ok || !data.paytrUrl) throw new Error(data.error ?? t('connectionError'));
+      const data = (await res.json()) as { paytrUrl?: string; errorCode?: string };
+      if (!res.ok || !data.paytrUrl) {
+        throw new Error(data.errorCode ? tErr(data.errorCode as never) : t('connectionError'));
+      }
       return data.paytrUrl;
     },
     onSuccess: (paytrUrl) => {

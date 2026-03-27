@@ -1,4 +1,4 @@
-const SHOPIFY_ADMIN_VERSION = '2024-01';
+const SHOPIFY_ADMIN_VERSION = '2026-01';
 
 function getAdminUrl(path: string): string {
   const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;

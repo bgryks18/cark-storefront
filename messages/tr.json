@@ -478,6 +478,20 @@
     "deliveryAddress": "Teslimat Adresi",
     "pay": "Ödemeye Geç →",
     "paying": "Yönlendiriliyor...",
-    "connectionError": "Bağlantı hatası"
+    "connectionError": "Bağlantı hatası",
+    "errors": {
+      "missingInfo": "Eksik bilgi",
+      "orderNotFound": "Sipariş bulunamadı",
+      "orderCompleted": "Sipariş zaten tamamlandı",
+      "discountNotAllowed": "Bu siparişte indirim kodu kullanılamıyor",
+      "invalidDiscount": "Geçersiz indirim kodu",
+      "discountApplyFailed": "İndirim uygulanamadı",
+      "missingCustomerInfo": "Müşteri bilgileri eksik (e-posta, telefon, adres zorunludur)",
+      "zeroTotal": "Ödenecek tutar 0.00 olduğu için ödeme başlatılamıyor",
+      "cartNotFound": "Sepet bulunamadı veya boş",
+      "invalidShipping": "Geçersiz kargo seçeneği",
+      "orderCreateFailed": "Sipariş hazırlanamadı",
+      "paytrError": "Ödeme servisi hatası"
+    }
   }
 }
