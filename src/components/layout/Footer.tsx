@@ -103,19 +103,19 @@ export function Footer() {
         </div>
 
         {/* Alt çizgi */}
-        <div className="mt-10 flex flex-col items-start gap-3 border-t border-border pt-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center">
+        <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-start sm:justify-between items-center">
+          <div className="flex flex-col gap-2">
             <p className="text-xs text-text-muted">
               © {year} {ft('brandName')}. {ft('rights')}
             </p>
             <Link
               href="/privacy-policy"
-              className="text-xs text-text-muted transition-colors hover:text-primary"
+              className="w-fit text-xs text-text-muted transition-colors hover:text-primary"
             >
               {ft('privacyPolicy')}
             </Link>
           </div>
-          <div className="flex flex-col gap-2 md:flex-row md:items-center">
+          <div className="flex flex-col items-end gap-2 self-end sm:self-auto">
             <a
               href="https://bugrayuksel018.com"
               target="_blank"
@@ -124,7 +124,6 @@ export function Footer() {
             >
               {ft('softwareCredit')}
             </a>
-            <p className="text-xs text-text-muted">shop.carkzimpara.com</p>
           </div>
         </div>
       </Container>
