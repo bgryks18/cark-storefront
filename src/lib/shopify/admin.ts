@@ -198,6 +198,298 @@ export async function deleteDraftOrder(draftOrderId: number): Promise<void> {
   });
 }
 
+export async function updateDraftOrderNote(draftOrderId: number, note: string): Promise<void> {
+  await fetch(getAdminUrl(`/draft_orders/${draftOrderId}.json`), {
+    method: 'PUT',
+    headers: await getAdminHeaders(),
+    body: JSON.stringify({ draft_order: { note } }),
+  });
+}
+
+export interface AdminAppliedDiscount {
+  title: string;
+  description: string | null;
+  value_type: 'fixed_amount' | 'percentage' | 'shipping';
+  value: string;
+  amount: string;
+}
+
+export interface AdminDraftOrderLineItem {
+  id: number;
+  product_id?: number | null;
+  title: string;
+  quantity: number;
+  price: string;
+  total_discount?: string | null;
+  applied_discount?: { amount: string; value: string; value_type: string; title?: string } | null;
+  variant_id: number | null;
+  variant_title: string | null;
+  sku: string | null;
+  custom: boolean;
+}
+
+export interface AdminDraftOrder {
+  id: number;
+  name: string;
+  email: string;
+  total_price: string;
+  subtotal_price: string;
+  total_discounts?: string | null;
+  phone: string | null;
+  status: string;
+  shipping_address: AdminAddress | null;
+  billing_address: AdminAddress | null;
+  shipping_line: { title: string; price: string } | null;
+  applied_discount: AdminAppliedDiscount | null;
+  allow_discount_codes_in_checkout?: boolean | null;
+  'allow_discount_codes_in_checkout?'?: boolean | null;
+  line_items: AdminDraftOrderLineItem[];
+}
+
+export async function getDraftOrder(draftOrderId: string): Promise<AdminDraftOrder | null> {
+  const response = await fetch(getAdminUrl(`/draft_orders/${draftOrderId}.json`), {
+    headers: await getAdminHeaders(),
+    cache: 'no-store',
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Draft order sorgulanamadı');
+  const data = (await response.json()) as { draft_order: AdminDraftOrder };
+  return data.draft_order;
+}
+
+export interface AdminDraftOrderPricing {
+  subtotalPrice: string;
+  totalPrice: string;
+  appliedDiscount: { title: string | null; amount: string } | null;
+  lineItemDiscountTitle: string | null;
+  hasDiscountSignal: boolean;
+  originalSubtotalPrice: string;
+  discountAmount: string;
+}
+
+export async function getDraftOrderDiscountCodeGraphql(
+  draftOrderId: string,
+): Promise<string | null> {
+  const gid = `gid://shopify/DraftOrder/${draftOrderId}`;
+
+  try {
+    const result = await adminGraphql<{
+      draftOrder: { discountCodes: string[] | null } | null;
+    }>(
+      `
+        query DraftOrderDiscountCode($id: ID!) {
+          draftOrder(id: $id) {
+            discountCodes
+          }
+        }
+      `,
+      { id: gid },
+    );
+    if (!result.errors?.length) {
+      const code = result.data?.draftOrder?.discountCodes?.[0]?.trim();
+      if (code) return code;
+    }
+  } catch {
+    // Discount code fetch is optional; return null on failure.
+  }
+
+  return null;
+}
+
+export async function getDraftOrderPricingGraphql(
+  draftOrderId: string,
+): Promise<AdminDraftOrderPricing | null> {
+  const gid = `gid://shopify/DraftOrder/${draftOrderId}`;
+  const query = `
+    query DraftOrderPricing($id: ID!) {
+      draftOrder(id: $id) {
+        subtotalPrice
+        totalPrice
+        appliedDiscount {
+          title
+          amountV2 { amount }
+        }
+        lineItems(first: 50) {
+          nodes {
+            quantity
+            originalUnitPrice
+            discountedUnitPrice
+            appliedDiscount { title }
+          }
+        }
+      }
+    }
+  `;
+
+  const result = await adminGraphql<{
+    draftOrder: {
+      subtotalPrice: string;
+      totalPrice: string;
+      appliedDiscount: { title: string | null; amountV2: { amount: string } | null } | null;
+      lineItems: {
+        nodes: Array<{
+          quantity: number;
+          originalUnitPrice: string | null;
+          discountedUnitPrice: string | null;
+          appliedDiscount: { title: string | null } | null;
+        }>;
+      };
+    } | null;
+  }>(query, { id: gid });
+
+  if (result.errors?.length) {
+    throw new Error(
+      `Draft order GraphQL sorgusu başarısız: ${result.errors[0]?.message ?? 'Unknown error'}`,
+    );
+  }
+
+  const draft = result.data?.draftOrder;
+  if (!draft) return null;
+
+  const firstLineDiscount = draft.lineItems.nodes.find((n) => n.appliedDiscount)?.appliedDiscount;
+  const originalSubtotal = draft.lineItems.nodes.reduce((sum, n) => {
+    const price = parseFloat(n.originalUnitPrice ?? '0');
+    return sum + (Number.isFinite(price) ? price : 0) * n.quantity;
+  }, 0);
+  const discountedSubtotal = draft.lineItems.nodes.reduce((sum, n) => {
+    const price = parseFloat(n.discountedUnitPrice ?? n.originalUnitPrice ?? '0');
+    return sum + (Number.isFinite(price) ? price : 0) * n.quantity;
+  }, 0);
+  const topLevelDiscountAmount = parseFloat(draft.appliedDiscount?.amountV2?.amount ?? '0');
+  const lineItemDiscountAmount = Math.max(0, originalSubtotal - discountedSubtotal);
+  const totalPriceNumber = parseFloat(draft.totalPrice);
+  const diffByTotal = Number.isFinite(totalPriceNumber)
+    ? Math.max(0, originalSubtotal - totalPriceNumber)
+    : 0;
+  const effectiveDiscountAmount = Math.max(
+    topLevelDiscountAmount,
+    lineItemDiscountAmount,
+    diffByTotal,
+  );
+  const hasDiscountByLinePrice = draft.lineItems.nodes.some((n) => {
+    if (!n.originalUnitPrice || !n.discountedUnitPrice) return false;
+    return parseFloat(n.discountedUnitPrice) < parseFloat(n.originalUnitPrice);
+  });
+  const hasDiscountSignal = Boolean(
+    draft.appliedDiscount || firstLineDiscount || hasDiscountByLinePrice,
+  );
+
+  return {
+    subtotalPrice: draft.subtotalPrice,
+    totalPrice: draft.totalPrice,
+    appliedDiscount: draft.appliedDiscount
+      ? {
+          title: draft.appliedDiscount.title,
+          amount: draft.appliedDiscount.amountV2?.amount ?? '0',
+        }
+      : null,
+    lineItemDiscountTitle: firstLineDiscount?.title ?? null,
+    hasDiscountSignal,
+    originalSubtotalPrice: originalSubtotal.toFixed(2),
+    discountAmount: effectiveDiscountAmount.toFixed(2),
+  };
+}
+
+export interface ShopifyDiscountCodeLookup {
+  id: number;
+  price_rule_id: number;
+  code: string;
+}
+
+export async function lookupDiscountCode(code: string): Promise<ShopifyDiscountCodeLookup | null> {
+  const response = await fetch(
+    getAdminUrl(`/discount_codes/lookup.json?code=${encodeURIComponent(code)}`),
+    {
+      headers: await getAdminHeaders(),
+      cache: 'no-store',
+      redirect: 'manual',
+    },
+  );
+
+  if ([301, 302, 303].includes(response.status)) {
+    const location = response.headers.get('location') ?? '';
+    const match = location.match(/price_rules\/(\d+)\/discount_codes\/(\d+)\.json/i);
+    if (!match) throw new Error('İndirim kodu yönlendirmesi çözümlenemedi');
+    return {
+      id: parseInt(match[2]!, 10),
+      price_rule_id: parseInt(match[1]!, 10),
+      code,
+    };
+  }
+
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Shopify Admin uygulamasında read_discounts izni eksik');
+    }
+    throw new Error(`İndirim kodu sorgulanamadı (HTTP ${response.status})`);
+  }
+
+  let data: { discount_code?: ShopifyDiscountCodeLookup };
+  try {
+    data = (await response.json()) as { discount_code?: ShopifyDiscountCodeLookup };
+  } catch {
+    throw new Error('İndirim kodu sorgusu geçersiz yanıt döndürdü');
+  }
+  return data.discount_code ?? null;
+}
+
+export interface ShopifyPriceRule {
+  id: number;
+  title: string;
+  value_type: 'fixed_amount' | 'percentage' | 'shipping';
+  value: string;
+}
+
+export async function getPriceRule(priceRuleId: number): Promise<ShopifyPriceRule | null> {
+  const response = await fetch(getAdminUrl(`/price_rules/${priceRuleId}.json`), {
+    headers: await getAdminHeaders(),
+    cache: 'no-store',
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('İndirim kuralı sorgulanamadı');
+
+  const data = (await response.json()) as { price_rule?: ShopifyPriceRule };
+  return data.price_rule ?? null;
+}
+
+interface UpdateDraftOrderDiscountParams {
+  draftOrderId: number;
+  appliedDiscount: {
+    title: string;
+    description?: string;
+    value_type: 'fixed_amount' | 'percentage';
+    value: string;
+  } | null;
+}
+
+export async function updateDraftOrderAppliedDiscount({
+  draftOrderId,
+  appliedDiscount,
+}: UpdateDraftOrderDiscountParams): Promise<AdminDraftOrder> {
+  const response = await fetch(getAdminUrl(`/draft_orders/${draftOrderId}.json`), {
+    method: 'PUT',
+    headers: await getAdminHeaders(),
+    body: JSON.stringify({
+      draft_order: {
+        applied_discount: appliedDiscount
+          ? {
+              title: appliedDiscount.title,
+              description: appliedDiscount.description ?? appliedDiscount.title,
+              value_type: appliedDiscount.value_type,
+              value: appliedDiscount.value,
+            }
+          : null,
+      },
+    }),
+  });
+
+  if (!response.ok) throw new Error('Draft order indirimi güncellenemedi');
+  const data = (await response.json()) as { draft_order?: AdminDraftOrder };
+  if (!data.draft_order) throw new Error('Draft order cevabı geçersiz');
+  return data.draft_order;
+}
+
 export interface AdminAddress {
   first_name: string | null;
   last_name: string | null;
@@ -277,7 +569,9 @@ export async function getOrderByIdAndEmail(
   email: string,
 ): Promise<AdminOrder | null> {
   const response = await fetch(
-    getAdminUrl(`/orders/${orderId}.json?fields=id,name,email,created_at,financial_status,fulfillment_status,total_price,subtotal_price,total_discounts,payment_gateway,total_shipping_price_set,shipping_address,billing_address,shipping_lines,line_items,fulfillments,refunds`),
+    getAdminUrl(
+      `/orders/${orderId}.json?fields=id,name,email,created_at,financial_status,fulfillment_status,total_price,subtotal_price,total_discounts,payment_gateway,total_shipping_price_set,shipping_address,billing_address,shipping_lines,line_items,fulfillments,refunds`,
+    ),
     {
       headers: await getAdminHeaders(),
       cache: 'no-store',
@@ -315,9 +609,7 @@ export async function getOrderByIdAndEmail(
       };
     };
     const nodes = imgData.data?.order?.lineItems?.nodes ?? [];
-    const imageMap = new Map(
-      nodes.map((n) => [parseInt(n.id.split('/').pop()!), n.image]),
-    );
+    const imageMap = new Map(nodes.map((n) => [parseInt(n.id.split('/').pop()!), n.image]));
     order.line_items = order.line_items.map((item) => ({
       ...item,
       image: item.image?.src
@@ -359,9 +651,7 @@ export async function getShippingRates(): Promise<ShippingRate[]> {
     }>;
   };
 
-  const domestic = data.shipping_zones.find((z) =>
-    z.countries?.some((c) => c.code === 'TR'),
-  );
+  const domestic = data.shipping_zones.find((z) => z.countries?.some((c) => c.code === 'TR'));
 
   // Shopify flat rate'leri price_based_shipping_rates'te saklıyor
   // Ücretsiz kargo (price=0) hariç her ikisini de alıyoruz

@@ -1,16 +1,23 @@
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
+import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+
+import { Link } from '@/i18n/navigation';
+
+import { flattenConnection } from '@/lib/shopify/normalize';
+import {
+  getCollection,
+  getCollectionFilters,
+  getCollectionMeta,
+} from '@/lib/shopify/queries/collection';
+import type { SortKey } from '@/lib/shopify/types';
+
 import { Container } from '@/components/ui/Container';
+import { FilterPanel } from '@/components/ui/FilterPanel';
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 import { SortSelect } from '@/components/ui/SortSelect';
-import { FilterPanel } from '@/components/ui/FilterPanel';
-import { Link } from '@/i18n/navigation';
-import { getCollection, getCollectionFilters } from '@/lib/shopify/queries/collection';
-import { flattenConnection } from '@/lib/shopify/normalize';
-import type { SortKey } from '@/lib/shopify/types';
 
 interface CollectionPageProps {
   params: Promise<{ locale: string; handle: string }>;
@@ -18,18 +25,18 @@ interface CollectionPageProps {
 }
 
 const SORT_MAP: Record<string, { sortKey: SortKey; reverse: boolean }> = {
-  manual:      { sortKey: 'MANUAL',       reverse: false },
+  manual: { sortKey: 'MANUAL', reverse: false },
   bestSelling: { sortKey: 'BEST_SELLING', reverse: false },
-  titleAsc:    { sortKey: 'TITLE',        reverse: false },
-  titleDesc:   { sortKey: 'TITLE',        reverse: true  },
-  priceAsc:    { sortKey: 'PRICE',        reverse: false },
-  priceDesc:   { sortKey: 'PRICE',        reverse: true  },
-  createdDesc: { sortKey: 'CREATED',      reverse: true  },
+  titleAsc: { sortKey: 'TITLE', reverse: false },
+  titleDesc: { sortKey: 'TITLE', reverse: true },
+  priceAsc: { sortKey: 'PRICE', reverse: false },
+  priceDesc: { sortKey: 'PRICE', reverse: true },
+  createdDesc: { sortKey: 'CREATED', reverse: true },
 };
 
 export async function generateMetadata({ params }: CollectionPageProps) {
   const { locale, handle } = await params;
-  const collection = await getCollection({ handle });
+  const collection = await getCollectionMeta(handle, locale);
   if (!collection) return {};
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shop.carkzimpara.com';
@@ -54,7 +61,14 @@ export async function generateMetadata({ params }: CollectionPageProps) {
       url: `${siteUrl}${locale === 'en' ? '/en' : ''}${canonicalPath}`,
       type: 'website',
       ...(image && {
-        images: [{ url: image.url, width: image.width ?? 1200, height: image.height ?? 630, alt: image.altText ?? title }],
+        images: [
+          {
+            url: image.url,
+            width: image.width ?? 1200,
+            height: image.height ?? 630,
+            alt: image.altText ?? title,
+          },
+        ],
       }),
     },
     twitter: {
@@ -86,7 +100,14 @@ async function ProductGrid({
       return [];
     }
   });
-  const collection = await getCollection({ handle, first: 48, sortKey, reverse, locale, filters: filters.length ? filters : undefined });
+  const collection = await getCollection({
+    handle,
+    first: 48,
+    sortKey,
+    reverse,
+    locale,
+    filters: filters.length ? filters : undefined,
+  });
 
   if (!collection) notFound();
 
@@ -94,11 +115,7 @@ async function ProductGrid({
 
   if (products.length === 0) {
     const tGrid = await getTranslations({ locale, namespace: 'collection' });
-    return (
-      <p className="py-16 text-center text-text-muted">
-        {tGrid('noProducts')}
-      </p>
-    );
+    return <p className="py-16 text-center text-text-muted">{tGrid('noProducts')}</p>;
   }
 
   return (
@@ -139,19 +156,34 @@ export default async function CollectionPage({ params, searchParams }: Collectio
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: locale === 'tr' ? 'Ana Sayfa' : 'Home', item: `${siteUrl}${localePfx}/` },
-      { '@type': 'ListItem', position: 2, name: locale === 'tr' ? 'Kategoriler' : 'Categories', item: `${siteUrl}${localePfx}/collections` },
-      { '@type': 'ListItem', position: 3, name: collection.title, item: `${siteUrl}${localePfx}/collections/${handle}` },
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('breadcrumbHome'),
+        item: `${siteUrl}${localePfx}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: t('allCollections'),
+        item: `${siteUrl}${localePfx}/collections`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: collection.title,
+        item: `${siteUrl}${localePfx}/collections/${handle}`,
+      },
     ],
   };
 
   const sortOptions = [
-    { value: 'manual',      label: t('sortOptions.manual') },
+    { value: 'manual', label: t('sortOptions.manual') },
     { value: 'bestSelling', label: t('sortOptions.bestSelling') },
-    { value: 'titleAsc',    label: t('sortOptions.titleAsc') },
-    { value: 'titleDesc',   label: t('sortOptions.titleDesc') },
-    { value: 'priceAsc',    label: t('sortOptions.priceAsc') },
-    { value: 'priceDesc',   label: t('sortOptions.priceDesc') },
+    { value: 'titleAsc', label: t('sortOptions.titleAsc') },
+    { value: 'titleDesc', label: t('sortOptions.titleDesc') },
+    { value: 'priceAsc', label: t('sortOptions.priceAsc') },
+    { value: 'priceDesc', label: t('sortOptions.priceDesc') },
     { value: 'createdDesc', label: t('sortOptions.createdDesc') },
   ];
 
@@ -166,9 +198,13 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         <Container className="py-8 sm:py-10">
           {/* Breadcrumb */}
           <nav className="mb-4 flex items-center gap-1.5 text-xs text-text-muted">
-            <Link href="/" className="hover:text-primary">Ana Sayfa</Link>
+            <Link href="/" className="hover:text-primary">
+              {t('breadcrumbHome')}
+            </Link>
             <span>/</span>
-            <Link href="/collections" className="hover:text-primary">{t('allCollections')}</Link>
+            <Link href="/collections" className="hover:text-primary">
+              {t('allCollections')}
+            </Link>
             <span>/</span>
             <span className="text-text-base">{collection.title}</span>
           </nav>
@@ -186,13 +222,9 @@ export default async function CollectionPage({ params, searchParams }: Collectio
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">
-                {collection.title}
-              </h1>
+              <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">{collection.title}</h1>
               {collection.description && (
-                <p className="mt-1.5 max-w-2xl text-sm text-text-muted">
-                  {collection.description}
-                </p>
+                <p className="mt-1.5 max-w-2xl text-sm text-text-muted">{collection.description}</p>
               )}
             </div>
           </div>
@@ -211,15 +243,16 @@ export default async function CollectionPage({ params, searchParams }: Collectio
             <div className="min-w-0 flex-1">
               {/* Sıralama çubuğu */}
               <div className="mb-6 flex items-center justify-end">
-                <SortSelect
-                  options={sortOptions}
-                  currentSort={sort}
-                  label={t('sort')}
-                />
+                <SortSelect options={sortOptions} currentSort={sort} label={t('sort')} />
               </div>
 
               <Suspense fallback={<ProductGridSkeleton />}>
-                <ProductGrid handle={handle} sort={sort} locale={locale} activeFilters={activeFilters} />
+                <ProductGrid
+                  handle={handle}
+                  sort={sort}
+                  locale={locale}
+                  activeFilters={activeFilters}
+                />
               </Suspense>
             </div>
           </div>

@@ -1,19 +1,23 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import debounce from 'lodash/debounce';
-import { Loader, Search, X } from 'lucide-react';
+
 import { useLocale, useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Link, useRouter } from '@/i18n/navigation';
-import { getPredictiveSearch } from '@/lib/shopify/queries/search';
+import debounce from 'lodash/debounce';
+import { Loader, Search, X } from 'lucide-react';
+
 import { formatMoney } from '@/lib/shopify/normalize';
+import { getPredictiveSearch } from '@/lib/shopify/queries/search';
 import type { PredictiveSearchResult } from '@/lib/shopify/types';
 
 export function SearchBar() {
   const locale = useLocale();
   const tNav = useTranslations('nav');
+  const tSearch = useTranslations('search');
+  const tCommon = useTranslations('common');
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -114,7 +118,7 @@ export function SearchBar() {
         <button
           onClick={open}
           className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover"
-          aria-label="Arama"
+          aria-label={tNav('search')}
         >
           <Search className="h-5 w-5" />
         </button>
@@ -139,7 +143,7 @@ export function SearchBar() {
               ref={inputRef}
               value={query}
               onChange={handleChange}
-              placeholder="Ürün ara..."
+              placeholder={tCommon('searchPlaceholder')}
               className="h-9 w-56 rounded-lg border border-card-border bg-card pl-9 pr-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-72"
             />
             {loading && (
@@ -154,7 +158,7 @@ export function SearchBar() {
         <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-card-border bg-surface shadow-xl sm:w-96">
           {!loading && !hasResults && (
             <p className="px-4 py-6 text-center text-sm text-text-muted">
-              &ldquo;{query}&rdquo; için sonuç bulunamadı
+              {tSearch('noResults', { query })}
             </p>
           )}
 
@@ -191,7 +195,13 @@ export function SearchBar() {
                 >
                   {col.image && (
                     <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md bg-skeleton">
-                      <Image src={col.image.url} alt={col.title} fill className="object-cover" sizes="32px" />
+                      <Image
+                        src={col.image.url}
+                        alt={col.title}
+                        fill
+                        className="object-cover"
+                        sizes="32px"
+                      />
                     </div>
                   )}
                   <span className="text-sm text-text-base">{col.title}</span>
@@ -241,7 +251,7 @@ export function SearchBar() {
                 onClick={handleSubmit as unknown as React.MouseEventHandler}
                 className="flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-primary hover:bg-primary-hover"
               >
-                &ldquo;{query}&rdquo; için tüm sonuçları gör
+                {tSearch('seeAllResults', { query })}
               </button>
             </div>
           )}

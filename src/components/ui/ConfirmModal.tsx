@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
-
 import { useTranslations } from 'next-intl';
 
 import type { ConfirmOptions } from '@/contexts/ModalContext';
+
 import { useModalAnimation } from '@/hooks/useModalAnimation';
 
 import { AlertBox } from '@/components/ui/AlertBox';
@@ -18,7 +18,14 @@ interface ConfirmModalProps {
 
 export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps) {
   const t = useTranslations('common');
-  const { title, message, confirmLabel = t('confirm'), cancelLabel = t('cancel'), variant = 'default', action } = config;
+  const {
+    title,
+    message,
+    confirmLabel = t('confirm'),
+    cancelLabel = t('cancel'),
+    variant = 'default',
+    action,
+  } = config;
 
   const { isVisible, handleClose: animateClose } = useModalAnimation(onCancel);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -43,7 +50,7 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
       await action();
       animateClose(onConfirm);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
+      setError(e instanceof Error ? e.message : t('errorOccurred'));
       setIsConfirming(false);
     }
   }
@@ -73,13 +80,9 @@ export function ConfirmModal({ config, onConfirm, onCancel }: ConfirmModalProps)
           {title}
         </h2>
 
-        {message && (
-          <p className="mt-2 text-sm text-text-muted">{message}</p>
-        )}
+        {message && <p className="mt-2 text-sm text-text-muted">{message}</p>}
 
-        {error && (
-          <AlertBox className="mt-3">{error}</AlertBox>
-        )}
+        {error && <AlertBox className="mt-3">{error}</AlertBox>}
 
         <div className="mt-6 flex justify-end gap-2">
           <button

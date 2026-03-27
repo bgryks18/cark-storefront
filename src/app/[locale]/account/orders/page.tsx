@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
 
 import { getOrdersAction } from '@/lib/actions/order';
 import { formatMoney } from '@/lib/shopify/normalize';
-import { formatDateShort } from '@/lib/utils/date';
+import { formatDateTime } from '@/lib/utils/date';
 
 import { AccountLoginRequired } from '@/components/account/AccountLoginRequired';
 import { Container } from '@/components/ui/Container';
@@ -133,19 +133,41 @@ export default function OrdersPage() {
         <PageBreadcrumb crumbs={[{ label: t('title'), href: '/account' }]} title={t('orders')} />
 
         {isPageLoading ? (
-          <div className="overflow-hidden rounded-2xl border border-card-border bg-card">
-            <div className="hidden grid-cols-4 gap-4 border-b border-border px-6 pb-3 pt-6 text-xs font-semibold uppercase tracking-wide text-text-muted sm:grid">
-              <span>{t('orderNumber')}</span>
-              <span>{t('orderDate')}</span>
-              <span>{t('orderStatus')}</span>
-              <span className="text-right">{t('orderTotal')}</span>
+          <>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex flex-1 flex-col gap-1">
+                <div className="h-4 w-20 animate-pulse rounded bg-skeleton" />
+                <div className="h-10 w-full animate-pulse rounded-xl bg-skeleton" />
+              </div>
+              <div className="flex flex-1 flex-col gap-1">
+                <div className="h-4 w-12 animate-pulse rounded bg-skeleton" />
+                <div className="h-10 w-full animate-pulse rounded-xl bg-skeleton" />
+              </div>
+              <div className="flex flex-1 gap-3">
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="h-4 w-10 animate-pulse rounded bg-skeleton" />
+                  <div className="h-10 w-full animate-pulse rounded-xl bg-skeleton" />
+                </div>
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="h-4 w-10 animate-pulse rounded bg-skeleton" />
+                  <div className="h-10 w-full animate-pulse rounded-xl bg-skeleton" />
+                </div>
+              </div>
             </div>
-            <div className="divide-y divide-border">
-              {[1, 2, 3].map((i) => (
-                <OrderRowSkeleton key={i} />
-              ))}
+            <div className="overflow-hidden rounded-2xl border border-card-border bg-card">
+              <div className="hidden grid-cols-4 gap-4 border-b border-border px-6 pb-3 pt-6 text-xs font-semibold uppercase tracking-wide text-text-muted sm:grid">
+                <span>{t('orderNumber')}</span>
+                <span>{t('orderDate')}</span>
+                <span>{t('orderStatus')}</span>
+                <span className="text-right">{t('orderTotal')}</span>
+              </div>
+              <div className="divide-y divide-border">
+                {[1, 2, 3].map((i) => (
+                  <OrderRowSkeleton key={i} />
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         ) : isError || orders == null ? (
           <p className="text-sm text-error-text">{t('errors.loadFailed')}</p>
         ) : orders.length === 0 ? (
@@ -163,7 +185,7 @@ export default function OrdersPage() {
           <>
             {/* Search + Filter */}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div className="flex flex-col gap-1 sm:max-w-64">
+              <div className="flex flex-1 flex-col gap-1">
                 <span className="text-xs font-medium text-text-muted">{t('orderNumber')}</span>
                 <input
                   type="search"
@@ -173,7 +195,7 @@ export default function OrdersPage() {
                   className="h-10 w-full rounded-xl border border-border bg-card px-4 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none"
                 />
               </div>
-              <div className="flex flex-col gap-1 sm:w-48">
+              <div className="flex flex-1 flex-col gap-1">
                 <span className="text-xs font-medium text-text-muted">{t('filterStatus')}</span>
                 <div className="relative">
                 <select
@@ -191,15 +213,17 @@ export default function OrdersPage() {
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
                 </div>
               </div>
-              <DateRangeFilter
-                from={dateFrom}
-                to={dateTo}
-                onFromChange={handleDateFrom}
-                onToChange={handleDateTo}
-                labelFrom={t('dateFrom')}
-                labelTo={t('dateTo')}
-                clearLabel={t('clearDates')}
-              />
+              <div className="flex flex-1 flex-col gap-1">
+                <DateRangeFilter
+                  from={dateFrom}
+                  to={dateTo}
+                  onFromChange={handleDateFrom}
+                  onToChange={handleDateTo}
+                  labelFrom={t('dateFrom')}
+                  labelTo={t('dateTo')}
+                  clearLabel={t('clearDates')}
+                />
+              </div>
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-card-border bg-card">
@@ -237,7 +261,7 @@ export default function OrdersPage() {
                       {/* col 2: date | col 3: statuses | col 4: total */}
                       <div className="mt-0.5 flex items-center justify-between sm:contents">
                         <span className="text-xs text-text-muted sm:self-center sm:text-sm">
-                          {formatDateShort(order.processedAt, locale)}
+                          {formatDateTime(order.processedAt, locale)}
                           <span className="ml-1.5 sm:hidden">
                             · {t('itemCount', { count: order.itemCount })}
                           </span>

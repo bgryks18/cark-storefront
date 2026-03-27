@@ -3,6 +3,7 @@ interface SpinnerProps {
   className?: string;
   type?: 'spin' | 'dots';
   color?: 'primary' | 'white' | 'current';
+  label?: string;
 }
 
 const spinSizeClasses = {
@@ -29,12 +30,18 @@ const dotColorClasses = {
   current: 'bg-current',
 };
 
-export function Spinner({ size = 'md', className = '', type = 'spin', color = 'primary' }: SpinnerProps) {
+export function Spinner({
+  size = 'md',
+  className = '',
+  type = 'spin',
+  color = 'primary',
+  label,
+}: SpinnerProps) {
   if (type === 'dots') {
     return (
       <span
         role="status"
-        aria-label="Yükleniyor"
+        aria-label={label}
         className={['flex items-center gap-1', className].filter(Boolean).join(' ')}
       >
         {[0, 1, 2].map((i) => (
@@ -51,7 +58,7 @@ export function Spinner({ size = 'md', className = '', type = 'spin', color = 'p
   return (
     <span
       role="status"
-      aria-label="Yükleniyor"
+      aria-label={label}
       className={[
         'inline-block animate-spin rounded-full',
         spinSizeClasses[size],

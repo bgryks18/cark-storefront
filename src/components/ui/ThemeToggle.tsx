@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 
 export function ThemeToggle() {
+  const tCommon = useTranslations('common');
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -14,7 +16,7 @@ export function ThemeToggle() {
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="cursor-pointer rounded p-2 text-black-dark transition-colors hover:bg-primary-hover dark:text-black dark:hover:bg-primary-hover"
-      aria-label="Tema değiştir"
+      aria-label={tCommon('toggleTheme')}
     >
       {!mounted ? (
         <span className="block h-5 w-5" />

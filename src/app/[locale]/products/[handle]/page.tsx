@@ -1,15 +1,18 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+
 import { getTranslations } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+
+import { Link } from '@/i18n/navigation';
 import DOMPurify from 'isomorphic-dompurify';
 
+import { flattenConnection } from '@/lib/shopify/normalize';
+import { getProduct, getRecommendedProducts } from '@/lib/shopify/queries/product';
+
+import { ProductForm } from '@/components/product/ProductForm';
+import { ProductGallery } from '@/components/product/ProductGallery';
 import { Container } from '@/components/ui/Container';
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
-import { ProductGallery } from '@/components/product/ProductGallery';
-import { ProductForm } from '@/components/product/ProductForm';
-import { Link } from '@/i18n/navigation';
-import { getProduct, getRecommendedProducts } from '@/lib/shopify/queries/product';
-import { flattenConnection } from '@/lib/shopify/normalize';
 
 interface ProductPageProps {
   params: Promise<{ locale: string; handle: string }>;
@@ -17,7 +20,7 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { locale, handle } = await params;
-  const product = await getProduct(handle);
+  const product = await getProduct(handle, locale);
   if (!product) return {};
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shop.carkzimpara.com';
@@ -42,7 +45,14 @@ export async function generateMetadata({ params }: ProductPageProps) {
       url: `${siteUrl}${locale === 'en' ? '/en' : ''}${canonicalPath}`,
       type: 'website',
       ...(image && {
-        images: [{ url: image.url, width: image.width ?? 1200, height: image.height ?? 630, alt: image.altText ?? title }],
+        images: [
+          {
+            url: image.url,
+            width: image.width ?? 1200,
+            height: image.height ?? 630,
+            alt: image.altText ?? title,
+          },
+        ],
       }),
     },
     twitter: {
@@ -117,19 +127,52 @@ export default async function ProductPage({ params }: ProductPageProps) {
     },
   };
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('breadcrumbHome'),
+        item: siteUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: t('breadcrumbProducts'),
+        item: `${siteUrl}${locale === 'en' ? '/en' : ''}/collections`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.title,
+        item: canonicalUrl,
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <section className="py-8 sm:py-12">
         <Container>
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-1.5 text-xs text-text-muted">
-            <Link href="/" className="hover:text-primary">Ana Sayfa</Link>
+            <Link href="/" className="hover:text-primary">
+              {t('breadcrumbHome')}
+            </Link>
             <span>/</span>
-            <Link href="/collections" className="hover:text-primary">Ürünler</Link>
+            <Link href="/collections" className="hover:text-primary">
+              {t('breadcrumbProducts')}
+            </Link>
             <span>/</span>
             <span className="text-text-base">{product.title}</span>
           </nav>
@@ -146,9 +189,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {product.vendor}
                 </p>
               )}
-              <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">
-                {product.title}
-              </h1>
+              <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">{product.title}</h1>
 
               <ProductForm
                 options={product.options}
@@ -165,7 +206,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <h2 className="mb-3 font-semibold text-text-base">{t('description')}</h2>
                   <div
                     className="prose prose-sm max-w-none text-text-muted"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.descriptionHtml) }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(product.descriptionHtml),
+                    }}
                   />
                 </div>
               )}

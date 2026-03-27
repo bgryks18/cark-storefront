@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 import { IMAGE_FRAGMENT, MONEY_FRAGMENT, PRODUCT_CARD_FRAGMENT, PRODUCT_VARIANT_FRAGMENT, SEO_FRAGMENT } from '../fragments';
 import { shopifyFetch } from '../client';
 
@@ -95,7 +97,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
 
 // ─── Fonksiyonlar ─────────────────────────────────────────────────────────────
 
-export async function getProduct(handle: string, locale?: string): Promise<ShopifyProduct | null> {
+export const getProduct = cache(async function getProduct(handle: string, locale?: string): Promise<ShopifyProduct | null> {
   const data = await shopifyFetch<{ product: ShopifyProduct | null }>(
     PRODUCT_DETAIL_QUERY,
     { handle },
@@ -103,7 +105,7 @@ export async function getProduct(handle: string, locale?: string): Promise<Shopi
   );
 
   return data.product;
-}
+});
 
 export interface GetProductsParams {
   first?: number;

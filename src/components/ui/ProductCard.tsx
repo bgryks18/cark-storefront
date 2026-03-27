@@ -1,10 +1,13 @@
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 import { Link } from '@/i18n/navigation';
-import { cn } from '@/lib/utils/cn';
+
 import { formatPrice } from '@/lib/shopify/normalize';
-import { AddToCartButton } from '@/components/ui/AddToCartButton';
 import type { ShopifyProduct } from '@/lib/shopify/types';
+import { cn } from '@/lib/utils/cn';
+
+import { AddToCartButton } from '@/components/ui/AddToCartButton';
 
 interface ProductCardProps {
   product: Pick<
@@ -14,18 +17,15 @@ interface ProductCardProps {
   className?: string;
 }
 
-
 export function ProductCard({ product, className }: ProductCardProps) {
+  const tCommon = useTranslations('common');
   const price = product.priceRange.minVariantPrice;
   const firstVariant = product.variants.edges[0]?.node;
 
   return (
     <Link
       href={`/products/${product.handle}`}
-      className={cn(
-        'group/card block rounded-xl border border-card-border bg-card',
-        className,
-      )}
+      className={cn('group/card block rounded-xl border border-card-border bg-card', className)}
     >
       {/* Görsel */}
       <div className="relative aspect-square overflow-hidden rounded-t-xl bg-skeleton">
@@ -43,7 +43,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         {!product.availableForSale && (
           <span className="absolute left-3 top-3 rounded bg-gray-dark px-2 py-0.5 text-xs font-medium text-white">
-            Tükendi
+            {tCommon('soldOut')}
           </span>
         )}
 
@@ -63,9 +63,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
             {product.vendor}
           </p>
         )}
-        <h3 className="line-clamp-2 font-medium text-text-base">
-          {product.title}
-        </h3>
+        <h3 className="line-clamp-2 font-medium text-text-base">{product.title}</h3>
         <p className="mt-2 font-semibold text-primary">
           {formatPrice(price.amount, price.currencyCode)}
         </p>
@@ -76,12 +74,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
 export function ProductCardSkeleton({ className }: { className?: string }) {
   return (
-    <div
-      className={cn(
-        'overflow-hidden rounded-xl border border-card-border bg-card',
-        className,
-      )}
-    >
+    <div className={cn('overflow-hidden rounded-xl border border-card-border bg-card', className)}>
       <div className="aspect-square animate-pulse bg-skeleton" />
       <div className="min-h-33 space-y-2 p-4 sm:min-h-35 sm:p-5">
         <div className="h-3 w-1/3 animate-pulse rounded bg-skeleton" />

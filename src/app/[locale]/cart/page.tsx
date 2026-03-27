@@ -16,6 +16,7 @@ import { useModal } from '@/hooks/useModal';
 
 import { QuantityCounter } from '@/components/cart/QuantityCounter';
 import { Container } from '@/components/ui/Container';
+import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 
 const PAGE_SIZE = 10;
 
@@ -25,7 +26,17 @@ export default function CartPage() {
   const [lineErrors, setLineErrors] = useState<Record<string, string | null>>({});
   const t = useTranslations('cart');
   const { confirm } = useModal();
-  const { cart, cartId, isLoading, isRemoving, isAnyItemLoading, removeFromCart, applyDiscountCode, removeDiscountCode, isApplyingDiscount } = useCart();
+  const {
+    cart,
+    cartId,
+    isLoading,
+    isRemoving,
+    isAnyItemLoading,
+    removeFromCart,
+    applyDiscountCode,
+    removeDiscountCode,
+    isApplyingDiscount,
+  } = useCart();
   const [discountOpen, setDiscountOpen] = useState(false);
   const [discountInput, setDiscountInput] = useState('');
   const [discountError, setDiscountError] = useState<string | null>(null);
@@ -102,13 +113,13 @@ export default function CartPage() {
         <Container>
           <div className="flex flex-col items-center gap-4 text-center">
             <ShoppingBag className="h-16 w-16 text-text-muted" strokeWidth={1.25} />
-            <h1 className="text-2xl font-bold text-black-dark">Sepetiniz boş</h1>
-            <p className="text-text-muted">Henüz sepetinize ürün eklemediniz.</p>
+            <h1 className="text-2xl font-bold text-black-dark">{t('empty')}</h1>
+            <p className="text-text-muted">{t('emptyDescription')}</p>
             <Link
               href="/collections"
               className="mt-2 inline-flex h-11 items-center rounded-xl bg-primary px-8 text-sm font-semibold text-white hover:bg-primary-dark"
             >
-              Alışverişe devam et
+              {t('continueShopping')}
             </Link>
           </div>
         </Container>
@@ -146,9 +157,7 @@ export default function CartPage() {
   return (
     <section key="content" className="animate-fade-in py-8 sm:py-12">
       <Container>
-        <h1 className="sticky top-16 z-10 -mt-4 rounded-xl border-none bg-background py-4 text-2xl font-bold text-black-dark sm:text-3xl px-4 -mx-4">
-          Sepetim
-        </h1>
+        <PageBreadcrumb crumbs={[]} title={t('title')} />
 
         <div className="grid gap-8 md:grid-cols-[1fr_360px]">
           {/* ─── Ürün listesi ─────────────────────────────────────────────── */}
@@ -306,7 +315,11 @@ export default function CartPage() {
                   <div className="flex justify-between">
                     <span className="text-text-muted">{t('summary.discount')}</span>
                     <span className="font-medium text-success">
-                      -{formatMoney({ amount: discountSavings.toFixed(2), currencyCode: subtotal.currencyCode })}
+                      -
+                      {formatMoney({
+                        amount: discountSavings.toFixed(2),
+                        currencyCode: subtotal.currencyCode,
+                      })}
                     </span>
                   </div>
                 )}
@@ -315,44 +328,56 @@ export default function CartPage() {
               {/* ─── İndirim kodu ─────────────────────────────────────── */}
               <div className="mt-4 border-t border-border pt-4">
                 {/* Uygulanan kodlar */}
-                {appliedCodes.length > 0 && (() => {
-                  return (
-                    <div className="mb-3 flex flex-wrap gap-1.5">
-                      {appliedCodes.map((d) => (
-                        <span
-                          key={d.code}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
-                        >
-                          <Tag className="h-3 w-3 shrink-0" />
-                          {d.code}
-                          {discountSavings > 0 && (
-                            <span className="text-success">
-                              -{formatMoney({ amount: discountSavings.toFixed(2), currencyCode: total.currencyCode })}
-                            </span>
-                          )}
-                          <button
-                            onClick={() => removeDiscountCode(d.code)}
-                            disabled={isApplyingDiscount}
-                            className="ml-0.5 cursor-pointer opacity-60 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
+                {appliedCodes.length > 0 &&
+                  (() => {
+                    return (
+                      <div className="mb-3 flex flex-wrap gap-1.5">
+                        {appliedCodes.map((d) => (
+                          <span
+                            key={d.code}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
                           >
-                            {isApplyingDiscount
-                              ? <Loader className="h-3 w-3 animate-spin" />
-                              : <X className="h-3 w-3" />}
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  );
-                })()}
+                            <Tag className="h-3 w-3 shrink-0" />
+                            {d.code}
+                            {discountSavings > 0 && (
+                              <span className="text-success">
+                                -
+                                {formatMoney({
+                                  amount: discountSavings.toFixed(2),
+                                  currencyCode: total.currencyCode,
+                                })}
+                              </span>
+                            )}
+                            <button
+                              onClick={() => removeDiscountCode(d.code)}
+                              disabled={isApplyingDiscount}
+                              className="ml-0.5 cursor-pointer opacity-60 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              {isApplyingDiscount ? (
+                                <Loader className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <X className="h-3 w-3" />
+                              )}
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
 
                 {/* Accordion toggle — only show when no code is applied */}
                 {appliedCodes.length === 0 && (
                   <button
-                    onClick={() => { setDiscountOpen((o) => !o); setDiscountError(null); }}
+                    onClick={() => {
+                      setDiscountOpen((o) => !o);
+                      setDiscountError(null);
+                    }}
                     className="flex w-full cursor-pointer items-center justify-between text-sm text-text-muted hover:text-text-base transition-colors"
                   >
                     <span>{t('discount')}</span>
-                    <Plus className={`h-4 w-4 transition-transform ${discountOpen ? 'rotate-45' : ''}`} />
+                    <Plus
+                      className={`h-4 w-4 transition-transform ${discountOpen ? 'rotate-45' : ''}`}
+                    />
                   </button>
                 )}
 
@@ -371,11 +396,13 @@ export default function CartPage() {
                       disabled={isApplyingDiscount || !discountInput.trim()}
                       className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {isApplyingDiscount ? <Loader className="h-4 w-4 animate-spin" /> : t('applyDiscount')}
+                      {isApplyingDiscount ? (
+                        <Loader className="h-4 w-4 animate-spin" />
+                      ) : (
+                        t('applyDiscount')
+                      )}
                     </button>
-                    {discountError && (
-                      <p className="text-xs text-error">{discountError}</p>
-                    )}
+                    {discountError && <p className="text-xs text-error">{discountError}</p>}
                   </div>
                 )}
               </div>
@@ -406,7 +433,7 @@ export default function CartPage() {
                 href="/collections"
                 className="mt-3 flex h-10 w-full items-center justify-center rounded-xl text-sm text-text-muted transition-colors hover:text-primary"
               >
-                Alışverişe devam et
+                {t('continueShopping')}
               </Link>
             </div>
           </div>

@@ -1,20 +1,27 @@
 'use client';
 
 import { useEffect } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+
 import { Link } from '@/i18n/navigation';
-import { Container } from '@/components/ui/Container';
+import { CheckCircle2 } from 'lucide-react';
+
 import { useCart } from '@/hooks/useCart';
+
+import { Container } from '@/components/ui/Container';
 
 export default function CheckoutSuccessPage() {
   const t = useTranslations('checkout.success');
   const { clearCart } = useCart();
+  const searchParams = useSearchParams();
+  const isInvoice = searchParams.get('source') === 'invoice';
 
   useEffect(() => {
-    clearCart();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!isInvoice) clearCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInvoice]);
 
   return (
     <section className="py-16 sm:py-24">
@@ -25,12 +32,8 @@ export default function CheckoutSuccessPage() {
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-text-base sm:text-3xl">
-              {t('title')}
-            </h1>
-            <p className="mt-3 text-text-muted">
-              {t('description')}
-            </p>
+            <h1 className="text-2xl font-bold text-text-base sm:text-3xl">{t('title')}</h1>
+            <p className="mt-3 text-text-muted">{t('description')}</p>
           </div>
 
           <div className="flex w-full flex-col gap-3">

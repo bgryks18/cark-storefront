@@ -1,5 +1,7 @@
 import { Fragment } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { Link } from '@/i18n/navigation';
 
 export interface BreadcrumbCrumb {
@@ -13,8 +15,12 @@ interface PageBreadcrumbProps {
 }
 
 export function PageBreadcrumb({ crumbs, title }: PageBreadcrumbProps) {
+  const tCommon = useTranslations('common');
   return (
-    <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm" aria-label="Breadcrumb">
+    <nav
+      className="mb-8 flex flex-wrap items-center gap-2 text-sm"
+      aria-label={tCommon('breadcrumb')}
+    >
       {crumbs.map((crumb, i) => (
         <Fragment key={i}>
           <Link href={crumb.href} className="text-text-muted hover:text-primary">

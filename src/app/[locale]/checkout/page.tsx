@@ -486,7 +486,7 @@ export default function CheckoutPage() {
             <div className={CARD_CLASS}>
               <h2 className="mb-4 text-base font-semibold text-text-base">{t('shippingMethod')}</h2>
               {ratesError ? (
-                <p className="text-sm text-error">Kargo seçenekleri yüklenemedi.</p>
+                <p className="text-sm text-error">{t('shippingLoadError')}</p>
               ) : ratesLoading || shippingRates.length === 0 ? (
                 <div className="flex flex-col gap-3">
                   {[1, 2].map((i) => (

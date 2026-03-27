@@ -14,6 +14,7 @@ import { AccountFetchError } from '@/components/account/AccountFetchError';
 import { AccountLoginRequired } from '@/components/account/AccountLoginRequired';
 import { AccountSignOut } from '@/components/account/AccountSignOut';
 import { Container } from '@/components/ui/Container';
+import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 
 export default async function AccountPage() {
   const session = await getServerSession(authOptions);
@@ -52,9 +53,11 @@ export default async function AccountPage() {
   return (
     <section className="py-8 sm:py-12">
       <Container>
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">{t('title')}</h1>
-          <span className="hidden md:block"><AccountSignOut label={tNav('logout')} /></span>
+        <div className="flex items-center justify-between">
+          <PageBreadcrumb crumbs={[]} title={t('title')} />
+          <span className="hidden md:block">
+            <AccountSignOut label={tNav('logout')} />
+          </span>
         </div>
 
         <div className="grid gap-6 md:grid-cols-[1fr_320px]">
@@ -97,7 +100,9 @@ export default async function AccountPage() {
                     <div className="text-right">
                       <p className="font-semibold text-primary">{formatMoney(order.totalPrice)}</p>
                       <p className="text-xs text-text-muted">
-                        {t(`financialStatus.${order.financialStatus.toLowerCase() as 'pending' | 'authorized' | 'partially_paid' | 'paid' | 'partially_refunded' | 'refunded' | 'voided'}`)}
+                        {t(
+                          `financialStatus.${order.financialStatus.toLowerCase() as 'pending' | 'authorized' | 'partially_paid' | 'paid' | 'partially_refunded' | 'refunded' | 'voided'}`,
+                        )}
                       </p>
                     </div>
                   </Link>

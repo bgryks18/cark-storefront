@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 
 import { Link } from '@/i18n/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { Package } from 'lucide-react';
 
 import { getOrderDetailAction } from '@/lib/actions/order';
 import { formatMoney } from '@/lib/shopify/normalize';
@@ -94,8 +95,8 @@ export default function OrderDetailPage() {
                 <div className="flex flex-col divide-y divide-border">
                   {order?.lineItems.map((item, i) => (
                     <div key={i} className="flex gap-4 py-4">
-                      {item.variant?.image && (
-                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-skeleton">
+                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-skeleton">
+                        {item.variant?.image ? (
                           <Image
                             src={item.variant.image.url}
                             alt={item.title}
@@ -103,8 +104,12 @@ export default function OrderDetailPage() {
                             className="object-cover"
                             sizes="64px"
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <Package className="h-6 w-6 text-text-muted" strokeWidth={1.5} />
+                          </div>
+                        )}
+                      </div>
                       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
                         <p className="text-sm font-medium text-text-base">{item.title}</p>
                         {item.variant && item.variant.title !== 'Default Title' && (

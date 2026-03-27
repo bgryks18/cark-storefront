@@ -49,6 +49,16 @@ export async function generateMetadata({ params }: LocaleLayoutProps): Promise<M
       type: 'website',
       locale: locale === 'tr' ? 'tr_TR' : 'en_US',
       siteName: t('title'),
+      title: t('title'),
+      description: t('subtitle'),
+      url: siteUrl,
+      images: [{ url: '/og.png', width: 1200, height: 630, alt: t('title') }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('subtitle'),
+      images: ['/og.png'],
     },
     alternates: {
       canonical: siteUrl,
@@ -56,6 +66,9 @@ export async function generateMetadata({ params }: LocaleLayoutProps): Promise<M
         tr: siteUrl,
         en: `${siteUrl}/en`,
       },
+    },
+    verification: {
+      google: '_6wcclMiSAtX7sJB2yw9W0dKwn3kVULAtXvG0slaU6M',
     },
   };
 }
@@ -72,6 +85,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   }
 
   const messages = await getMessages();
+  const tCommon = await getTranslations({ locale, namespace: 'common' });
 
   const session = await getServerSession(authOptions);
 
@@ -80,7 +94,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <head />
       <body className="flex min-h-screen flex-col bg-background">
         <a href="#main-content" className="skip-link">
-          {locale === 'tr' ? 'İçeriğe geç' : 'Skip to content'}
+          {tCommon('skipToContent')}
         </a>
         <NextIntlClientProvider messages={messages}>
           <Providers session={session}>

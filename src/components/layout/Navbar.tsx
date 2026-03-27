@@ -171,6 +171,7 @@ function LanguageSwitcher() {
 
 export function Navbar() {
   const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const isAuthenticated = !!session?.shopifyAccessToken;
@@ -252,7 +253,7 @@ export function Navbar() {
         scrolled ? 'shadow-md' : 'border-b border-border',
       ].join(' ')}
     >
-      <Container as="nav" aria-label="Ana navigasyon">
+      <Container as="nav" aria-label={t('home')}>
         <div className="flex h-16 items-center justify-between gap-6">
           {/* Logo */}
           <Link
@@ -289,7 +290,9 @@ export function Navbar() {
             <Link
               href="/cart"
               className="relative flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover"
-              aria-label={`${t('cart')}${cartCount > 0 ? `, ${cartCount} ürün` : ''}`}
+              aria-label={
+                cartCount > 0 ? tCommon('cartWithCount', { count: cartCount }) : t('cart')
+              }
             >
               <CartIcon />
               <Badge count={cartCount} />
@@ -336,7 +339,7 @@ export function Navbar() {
               onClick={() => setMobileOpen((v) => !v)}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
-              aria-label={mobileOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+              aria-label={mobileOpen ? tCommon('closeMenu') : tCommon('openMenu')}
             >
               <MenuIcon open={mobileOpen} />
             </button>

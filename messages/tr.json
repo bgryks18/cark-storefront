@@ -19,7 +19,16 @@
     "total": "Toplam",
     "subtotal": "Ara toplam",
     "free": "Ücretsiz",
-    "currency": "TRY"
+    "currency": "TRY",
+    "skipToContent": "İçeriğe geç",
+    "toggleTheme": "Tema değiştir",
+    "openMenu": "Menüyü aç",
+    "closeMenu": "Menüyü kapat",
+    "cartWithCount": "Sepet, {count} ürün",
+    "select": "Seç",
+    "soldOut": "Tükendi",
+    "breadcrumb": "İçerik haritası",
+    "errorOccurred": "Bir hata oluştu."
   },
   "nav": {
     "home": "Ana Sayfa",
@@ -37,13 +46,15 @@
   "home": {
     "hero": {
       "title": "Çark Zımpara",
-      "subtitle": "Profesyonel zımpara çözümleri"
+      "subtitle": "Profesyonel zımpara çözümleri",
+      "eyebrow": "Türkiye'nin zımpara uzmanı"
     },
     "featuredCollections": "Öne Çıkan Kategoriler",
     "featuredProducts": "Öne Çıkan Ürünler"
   },
   "collection": {
     "allCollections": "Tüm Kategoriler",
+    "pageDescription": "Zımpara, aşındırıcı ve yüzey işleme ürünlerimizi kategorilere göre keşfedin.",
     "products": "ürün",
     "filter": "Filtrele",
     "sort": "Sırala",
@@ -63,7 +74,8 @@
     "clearFilters": "Temizle",
     "activeFiltersCount": "{count} filtre aktif",
     "showFilters": "Filtreleri göster",
-    "hideFilters": "Filtreleri gizle"
+    "hideFilters": "Filtreleri gizle",
+    "breadcrumbHome": "Ana Sayfa"
   },
   "product": {
     "description": "Açıklama",
@@ -75,7 +87,9 @@
     "buyNow": "Hemen Satın Al",
     "outOfStock": "Stokta Yok",
     "sku": "Stok Kodu",
-    "shareProduct": "Ürünü Paylaş"
+    "shareProduct": "Ürünü Paylaş",
+    "breadcrumbHome": "Ana Sayfa",
+    "breadcrumbProducts": "Ürünler"
   },
   "cart": {
     "title": "Sepetim",
@@ -83,7 +97,7 @@
     "emptyDescription": "Henüz sepetinize ürün eklemediniz.",
     "continueShopping": "Alışverişe devam et",
     "remove": "Kaldır",
-    "checkout": "Ödemeye geç",
+    "checkout": "Ödemeye Geç →",
     "itemCount": "{count} ürün",
     "removeConfirmTitle": "Ürünü kaldır",
     "removeConfirmMessage": "Bu ürünü sepetten kaldırmak istiyor musunuz?",
@@ -117,7 +131,9 @@
     "placeholder": "Ürün, kategori ara...",
     "results": "Arama Sonuçları",
     "resultsFor": "\"{query}\" için sonuçlar",
-    "noResults": "\"{query}\" için sonuç bulunamadı"
+    "noResults": "\"{query}\" için sonuç bulunamadı",
+    "resultCount": "{count} sonuç bulundu",
+    "seeAllResults": "\"{query}\" için tüm sonuçları gör"
   },
   "auth": {
     "signingOut": {
@@ -317,6 +333,7 @@
       "city": "Şehir",
       "zip": "Posta kodu",
       "shippingMethod": "Kargo Yöntemi",
+      "shippingLoadError": "Kargo seçenekleri yüklenemedi.",
       "shipping": "Kargo",
       "submit": "Ödemeye Geç →",
       "submitting": "Yönlendiriliyor...",
@@ -400,7 +417,8 @@
     "shippingAddress": "Kargo Adresi",
     "billingAddress": "Fatura Adresi",
     "paymentMethod": "Ödeme",
-    "shippingMethod": "Kargo Yöntemi"
+    "shippingMethod": "Kargo Yöntemi",
+    "gatewayManual": "Havale / EFT"
   },
   "contactPage": {
     "title": "İletişim",
@@ -426,6 +444,8 @@
       "message": "Mesaj",
       "messagePlaceholder": "Mesajınızı buraya yazın...",
       "required": "* zorunlu alan",
+      "fieldRequired": "{field} zorunludur.",
+      "fieldInvalid": "{field} geçersiz.",
       "send": "Gönder",
       "sending": "Gönderiliyor...",
       "success": "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.",
@@ -441,5 +461,23 @@
     "rights": "Tüm hakları saklıdır.",
     "orderTracking": "Sipariş Takibi",
     "softwareCredit": "Yazılım hizmetleri: bugrayuksel018.com"
+  },
+  "invoice": {
+    "title": "Sipariş Faturası",
+    "orderNo": "Sipariş No:",
+    "products": "Ürünler",
+    "quantity": "Adet:",
+    "subtotal": "Ara toplam",
+    "shipping": "Kargo",
+    "discount": "İndirim",
+    "discountCodePlaceholder": "İndirim kodu",
+    "applyDiscount": "Uygula",
+    "discountInvalid": "Geçersiz indirim kodu",
+    "discountNotAllowed": "Bu siparişte indirim kodu kullanılamıyor.",
+    "total": "Toplam",
+    "deliveryAddress": "Teslimat Adresi",
+    "pay": "Ödemeye Geç →",
+    "paying": "Yönlendiriliyor...",
+    "connectionError": "Bağlantı hatası"
   }
 }

@@ -37,14 +37,14 @@ export function DateRangeFilter({
         value={from}
         max={to || undefined}
         onChange={(e) => onFromChange(e.target.value)}
-        className="w-36"
+        className="flex-1"
       />
       <DateInput
         label={labelTo}
         value={to}
         min={from || undefined}
         onChange={(e) => onToChange(e.target.value)}
-        className="w-36"
+        className="flex-1"
       />
       {hasFilter && (
         <button

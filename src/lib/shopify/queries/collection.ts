@@ -1,6 +1,10 @@
+import { cache } from 'react';
+
 import { shopifyFetch } from '../client';
 import { IMAGE_FRAGMENT, MONEY_FRAGMENT, PRODUCT_CARD_FRAGMENT, SEO_FRAGMENT } from '../fragments';
 import type { Connection, ShopifyCollection, SortKey } from '../types';
+
+export type CollectionMeta = Pick<ShopifyCollection, 'id' | 'handle' | 'title' | 'description' | 'seo' | 'image' | 'updatedAt'>;
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
@@ -114,7 +118,36 @@ export interface GetCollectionProductsParams {
   locale?: string;
 }
 
+const COLLECTION_META_QUERY = `#graphql
+  query CollectionMeta($handle: String!) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      description
+      seo { ...SeoFields }
+      image { ...ImageFields }
+      updatedAt
+    }
+  }
+  ${SEO_FRAGMENT}
+  ${IMAGE_FRAGMENT}
+`;
+
 // ─── Fonksiyonlar ─────────────────────────────────────────────────────────────
+
+export const getCollectionMeta = cache(async function getCollectionMeta(
+  handle: string,
+  locale?: string,
+): Promise<CollectionMeta | null> {
+  const data = await shopifyFetch<{ collection: CollectionMeta | null }>(
+    COLLECTION_META_QUERY,
+    { handle },
+    { locale, next: { revalidate: 3600, tags: [`collection-${handle}`, 'collections'] } },
+  );
+
+  return data.collection;
+});
 
 export async function getCollection(
   params: GetCollectionProductsParams,

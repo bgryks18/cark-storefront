@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { Check, Loader } from 'lucide-react';
 
-import { useCart } from '@/hooks/useCart';
 import { cn } from '@/lib/utils/cn';
+
+import { useCart } from '@/hooks/useCart';
 
 function CartPlusIcon({ className }: { className?: string }) {
   return (
@@ -33,6 +36,7 @@ interface AddToCartButtonProps {
 }
 
 export function AddToCartButton({ variantId, availableForSale, className }: AddToCartButtonProps) {
+  const tCommon = useTranslations('common');
   const { addToCart } = useCart();
   const [state, setState] = useState<'idle' | 'loading' | 'added'>('idle');
 
@@ -59,13 +63,13 @@ export function AddToCartButton({ variantId, availableForSale, className }: AddT
     <button
       onClick={handleClick}
       disabled={state === 'loading'}
-      aria-label="Sepete ekle"
+      aria-label={tCommon('addToCart')}
       className={cn(
         'group flex h-9 items-center overflow-hidden rounded-full min-w-9 justify-center',
         'bg-background text-foreground shadow-md',
         'cursor-pointer',
         'disabled:pointer-events-none',
-        'transition-[width] duration-100 ease-out',
+        'transition-all duration-100 ease-out',
         'hover:justify-start',
         'p-2',
         className,
@@ -77,7 +81,7 @@ export function AddToCartButton({ variantId, availableForSale, className }: AddT
         <>
           <CartPlusIcon className="h-4 w-4" />
           <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs transition-all duration-100 group-hover:max-w-xs group-hover:pl-1">
-            Seç
+            {tCommon('select')}
           </span>
         </>
       )}

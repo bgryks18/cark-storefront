@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import debounce from 'lodash/debounce';
 import { Minus, Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 import { CartErrorCode } from '@/lib/shopify/queries/cart';
 import type { CartUserError } from '@/lib/shopify/queries/cart';
@@ -23,7 +24,13 @@ interface QuantityCounterProps {
 export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: QuantityCounterProps) {
   const t = useTranslations('cart');
   const { confirm } = useModal();
-  const { removeFromCart, updateQuantity, isFetching, isItemLoading: isAnimationLoading, setItemLoading } = useCartItem(lineId);
+  const {
+    removeFromCart,
+    updateQuantity,
+    isFetching,
+    isItemLoading: isAnimationLoading,
+    setItemLoading,
+  } = useCartItem(lineId);
 
   const [localQty, setLocalQty] = useState(quantity);
   const [inputValue, setInputValue] = useState(String(quantity));
@@ -68,7 +75,11 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
     const elapsed = (performance.now() - animStartRef.current) % ANIMATION_CYCLE_MS;
     const remaining = ANIMATION_CYCLE_MS - elapsed;
     hideTimerRef.current = setTimeout(() => {
-      setItemLoading((prev: Record<string, boolean>) => { const next = { ...prev }; delete next[lineId]; return next; });
+      setItemLoading((prev: Record<string, boolean>) => {
+        const next = { ...prev };
+        delete next[lineId];
+        return next;
+      });
       animStartRef.current = -1;
       hideTimerRef.current = null;
     }, remaining);
@@ -146,7 +157,7 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
       const { cart, userErrors } = await updateQuantityRef.current(qty);
       handleResult(cart, userErrors, qty);
     } catch {
-      showError('Güncelleme başarısız oldu. Lütfen tekrar deneyin.');
+      showError(t('errors.updateFailed'));
     } finally {
       stopBar();
     }
@@ -160,7 +171,9 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
         message: t('removeConfirmMessage'),
         confirmLabel: t('removeConfirmLabel'),
         variant: 'danger',
-        action: async () => { await removeFromCart(); },
+        action: async () => {
+          await removeFromCart();
+        },
       });
       return;
     }
@@ -176,7 +189,7 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
           const { cart, userErrors } = await updateQuantityRef.current(qty);
           handleResult(cart, userErrors, qty);
         } catch {
-          showError('Güncelleme başarısız oldu. Lütfen tekrar deneyin.');
+          showError(t('errors.updateFailed'));
         } finally {
           stopBar();
           debouncedFn.current = null;
@@ -206,7 +219,9 @@ export function QuantityCounter({ lineId, quantity, maxQuantity, onError }: Quan
         message: t('removeConfirmMessage'),
         confirmLabel: t('removeConfirmLabel'),
         variant: 'danger',
-        action: async () => { await removeFromCart(); },
+        action: async () => {
+          await removeFromCart();
+        },
       });
       return;
     }

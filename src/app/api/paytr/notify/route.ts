@@ -55,7 +55,6 @@ export async function POST(req: NextRequest) {
   }
 
   if (status !== 'success') {
-    // Ödeme başarısız — draft order'ı sil
     void deleteDraftOrder(draftOrderId);
     return ok();
   }

@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
+
 import { getTranslations } from 'next-intl/server';
 
+import { searchProducts } from '@/lib/shopify/queries/search';
+
 import { Container } from '@/components/ui/Container';
+import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 import { SearchInput } from '@/components/ui/SearchInput';
-import { searchProducts } from '@/lib/shopify/queries/search';
 
 interface SearchPageProps {
   params: Promise<{ locale: string }>;
@@ -14,6 +17,7 @@ interface SearchPageProps {
 async function SearchResults({ query, locale }: { query: string; locale: string }) {
   const language = locale === 'tr' ? 'TR' : 'EN';
   const country = locale === 'tr' ? 'TR' : 'US';
+  const t = await getTranslations({ locale, namespace: 'search' });
 
   const { totalCount, products } = await searchProducts({
     query,
@@ -23,18 +27,12 @@ async function SearchResults({ query, locale }: { query: string; locale: string 
   });
 
   if (products.length === 0) {
-    return (
-      <p className="py-16 text-center text-text-muted">
-        &ldquo;{query}&rdquo; için sonuç bulunamadı.
-      </p>
-    );
+    return <p className="py-16 text-center text-text-muted">{t('noResults', { query })}</p>;
   }
 
   return (
     <>
-      <p className="mb-6 text-sm text-text-muted">
-        <span className="font-medium text-text-base">{totalCount}</span> sonuç bulundu
-      </p>
+      <p className="mb-6 text-sm text-text-muted">{t('resultCount', { count: totalCount })}</p>
       <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -57,7 +55,10 @@ function SearchResultsSkeleton() {
 export async function generateMetadata({ params }: SearchPageProps) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'search' });
-  return { title: t('title') };
+  return {
+    title: t('title'),
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
@@ -68,9 +69,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   return (
     <section className="py-10 sm:py-14">
       <Container>
-        <h1 className="mb-6 text-2xl font-bold text-black-dark sm:text-3xl">
-          {t('title')}
-        </h1>
+        <PageBreadcrumb crumbs={[]} title={t('title')} />
 
         <div className="mb-8 max-w-xl">
           <SearchInput defaultValue={q} placeholder={t('placeholder')} />

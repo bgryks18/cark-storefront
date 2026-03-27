@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 
 import { Link } from '@/i18n/navigation';
-import { Container } from '@/components/ui/Container';
+
 import { FeaturedCollections } from '@/components/sections/FeaturedCollections';
 import { FeaturedProducts } from '@/components/sections/FeaturedProducts';
+import { Container } from '@/components/ui/Container';
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -17,9 +18,19 @@ export default async function HomePage({ params }: HomePageProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shop.carkzimpara.com';
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': ['LocalBusiness', 'Store'],
     name: t('hero.title'),
     url: siteUrl,
+    telephone: '+905375407666',
+    email: 'info@carkzimpara.com',
+    image: `${siteUrl}/og.png`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Osman Yılmaz Mahallesi, Barbaros Caddesi No: 23/A',
+      addressLocality: 'Gebze',
+      addressRegion: 'Kocaeli',
+      addressCountry: 'TR',
+    },
     sameAs: [],
   };
 
@@ -31,20 +42,24 @@ export default async function HomePage({ params }: HomePageProps) {
       />
       {/* ─── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-linear-to-br from-primary to-primary-dark text-white">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-40 -top-40 h-125 w-125 rounded-full bg-white/5" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-32 h-90 w-90 rounded-full bg-white/5" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-40 -top-40 h-125 w-125 rounded-full bg-white/5"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-32 -left-32 h-90 w-90 rounded-full bg-white/5"
+        />
 
         <Container className="relative py-16 sm:py-20">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-primary-light">
-              {locale === 'tr' ? "Türkiye'nin zımpara uzmanı" : "Turkey's abrasive expert"}
+              {t('hero.eyebrow')}
             </p>
             <h1 className="mb-5 text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               {t('hero.title')}
             </h1>
-            <p className="mb-10 text-lg text-white/80 sm:text-xl">
-              {t('hero.subtitle')}
-            </p>
+            <p className="mb-10 text-lg text-white/80 sm:text-xl">{t('hero.subtitle')}</p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
