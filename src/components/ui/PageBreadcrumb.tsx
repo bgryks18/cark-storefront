@@ -18,7 +18,7 @@ export function PageBreadcrumb({ crumbs, title }: PageBreadcrumbProps) {
   const tCommon = useTranslations('common');
   return (
     <nav
-      className="mb-8 flex flex-wrap items-center gap-2 text-sm"
+      className="mb-6 flex flex-wrap items-center gap-2 text-sm"
       aria-label={tCommon('breadcrumb')}
     >
       {crumbs.map((crumb, i) => (

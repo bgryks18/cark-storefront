@@ -31,10 +31,9 @@ export default async function PrivacyPolicyPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'privacyPolicy' });
   return (
-    <section className="py-4">
+    <section className="py-8">
       <Container>
         <PageBreadcrumb crumbs={[]} title={t('title')} />
-
         <article>
           <p className="mb-4 text-sm text-text-muted">{t('lastUpdated')}</p>
 
