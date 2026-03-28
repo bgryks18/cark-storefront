@@ -30,7 +30,7 @@ const ACCOUNT_AVATAR_CHANGED = 'account-avatar-changed';
 function AccountNavAvatarRing({ avatarUrl }: { avatarUrl: string | null | undefined }) {
   const showPhoto = Boolean(avatarUrl);
   return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary-hover text-primary">
+    <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary-hover text-primary md:h-7 md:w-7">
       {showPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element -- /api + Admin URL
         <img
@@ -41,7 +41,7 @@ function AccountNavAvatarRing({ avatarUrl }: { avatarUrl: string | null | undefi
           className="h-full w-full object-cover"
         />
       ) : (
-        <User className="h-4 w-4" strokeWidth={2} aria-hidden />
+        <User className="h-3.5 w-3.5 md:h-4 md:w-4" strokeWidth={2} aria-hidden />
       )}
     </span>
   );
@@ -55,7 +55,7 @@ function CartIcon() {
       viewBox="0 0 24 24"
       strokeWidth={1.75}
       stroke="currentColor"
-      className="h-5 w-5"
+      className="h-4 w-4 md:h-5 md:w-5"
       aria-hidden="true"
     >
       <path
@@ -75,7 +75,7 @@ function MenuIcon({ open }: { open: boolean }) {
       viewBox="0 0 24 24"
       strokeWidth={1.75}
       stroke="currentColor"
-      className="h-6 w-6"
+      className="h-5 w-5 md:h-6 md:w-6"
       aria-hidden="true"
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -87,7 +87,7 @@ function MenuIcon({ open }: { open: boolean }) {
       viewBox="0 0 24 24"
       strokeWidth={1.75}
       stroke="currentColor"
-      className="h-6 w-6"
+      className="h-5 w-5 md:h-6 md:w-6"
       aria-hidden="true"
     >
       <path
@@ -149,13 +149,13 @@ function LanguageSwitcher() {
         aria-haspopup="listbox"
         aria-controls={open ? 'language-menu' : undefined}
         aria-label={t('language')}
-        className="cursor-pointer flex h-9 items-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors hover:bg-primary-hover"
+        className="cursor-pointer flex h-8 items-center gap-1 rounded-lg px-1.5 text-xs font-medium transition-colors hover:bg-primary-hover md:h-9 md:gap-1.5 md:px-2 md:text-sm"
       >
         <span aria-hidden="true">{current.flag}</span>
-        <span className="text-text-base">{current.code.toUpperCase()}</span>
+        <span className="hidden text-text-base md:inline">{current.code.toUpperCase()}</span>
         <ChevronDown
           className={[
-            'h-3.5 w-3.5 text-text-muted transition-transform',
+            'h-3 w-3 shrink-0 text-text-muted transition-transform md:h-3.5 md:w-3.5',
             open ? 'rotate-180' : '',
           ].join(' ')}
           aria-hidden="true"
@@ -251,7 +251,6 @@ export function Navbar() {
   }, [isCartLoading]);
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileAnimate, setMobileAnimate] = useState(true);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -267,160 +266,161 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
+  function closeMobileMenu() {
+    setMobileOpen(false);
+  }
+
   return (
-    <header
-      className={[
-        'sticky top-0 z-50 w-full bg-surface transition-shadow duration-200',
-        scrolled ? 'shadow-md' : 'border-b border-border',
-      ].join(' ')}
-    >
-      <Container as="nav" aria-label={t('home')}>
-        <div className="flex h-16 items-center justify-between gap-6">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-2 sm:gap-2.5 text-text-base"
-            onClick={() => {
-              setMobileAnimate(false);
-              setMobileOpen(false);
-            }}
-          >
-            <LogoMark className="h-8 w-auto shrink-0 sm:h-9" />
-            <span className="text-lg font-bold tracking-tight sm:text-xl">{t('storeName')}</span>
-          </Link>
-
-          {/* Masaüstü menü — ortada */}
-          <ul className="hidden flex-1 items-center gap-1 md:flex" role="list">
-            {NAV_LINKS.map(({ key, href }) => {
-              const isCurrent = pathname === href;
-              return (
-                <li key={key}>
-                  <Link
-                    href={href}
-                    aria-current={isCurrent ? 'page' : undefined}
-                    className="inline-flex h-9 items-center rounded px-4 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                  >
-                    {t(key)}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Sağ aksiyonlar */}
-          <div className="flex items-center gap-1">
-            {/* Arama */}
-            <div className="hidden md:block">
-              <SearchBar />
-            </div>
-
-            {/* Sepet */}
+    <>
+      <header
+        className={[
+          'sticky top-0 z-50 w-full bg-surface transition-shadow duration-200',
+          scrolled ? 'shadow-md' : 'border-b border-border',
+        ].join(' ')}
+      >
+        <Container as="nav" aria-label={t('home')}>
+          <div className="flex h-16 min-w-0 items-center justify-between gap-2 md:gap-6">
+            {/* Logo */}
             <Link
-              href="/cart"
-              className="relative flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover"
-              aria-label={
-                cartCount > 0 ? tCommon('cartWithCount', { count: cartCount }) : t('cart')
-              }
-              onClick={() => {
-                setMobileAnimate(false);
-                setMobileOpen(false);
-              }}
+              href="/"
+              className="flex shrink-0 items-center gap-1.5 text-text-base sm:gap-2.5"
+              onClick={closeMobileMenu}
             >
-              <CartIcon />
-              <Badge count={cartCount} />
-              {showCartPlus && (
-                <span className="animate-cart-plus pointer-events-none absolute bottom-4 -left-2" aria-hidden="true">
-                  <PackagePlus className="h-4 w-4 text-success" strokeWidth={2} />
-                </span>
-              )}
+              <LogoMark className="h-7 w-auto shrink-0 md:h-8 lg:h-9" />
+              <span className="text-base font-bold tracking-tight md:text-lg lg:text-xl">
+                {t('storeName')}
+              </span>
             </Link>
 
-            {/* Tema toggle */}
-            <ThemeToggle />
+            {/* Masaüstü menü — ortada */}
+            <ul className="hidden flex-1 items-center gap-1 md:flex" role="list">
+              {NAV_LINKS.map(({ key, href }) => {
+                const isCurrent = pathname === href;
+                return (
+                  <li key={key}>
+                    <Link
+                      href={href}
+                      aria-current={isCurrent ? 'page' : undefined}
+                      className="inline-flex h-9 items-center rounded px-4 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
+                    >
+                      {t(key)}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-            {/* Dil switcher */}
-            <LanguageSwitcher />
+            {/* Sağ aksiyonlar */}
+            <div className="flex min-w-0 shrink-0 items-center gap-0.5 md:gap-1">
+              {/* Arama */}
+              <div className="hidden md:block">
+                <SearchBar />
+              </div>
 
-            {/* Giriş / Hesap */}
-            {isSessionLoading ? (
-              <span
-                className="h-9 w-9 self-center rounded-md bg-gray-light/80 animate-pulse inline-block md:w-24"
-                aria-hidden="true"
-              />
-            ) : isAuthenticated ? (
+              {/* Sepet */}
               <Link
-                href="/account"
-                aria-label={t('account')}
-                className="flex h-9 items-center gap-2 rounded px-2 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:px-3"
-                onClick={() => {
-                  setMobileAnimate(false);
-                  setMobileOpen(false);
-                }}
+                href="/cart"
+                className="relative flex h-8 w-8 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover md:h-9 md:w-9"
+                aria-label={
+                  cartCount > 0 ? tCommon('cartWithCount', { count: cartCount }) : t('cart')
+                }
+                onClick={closeMobileMenu}
               >
-                <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
-                <span className="hidden md:inline">{t('account')}</span>
+                <CartIcon />
+                <Badge count={cartCount} />
+                {showCartPlus && (
+                  <span
+                    className="animate-cart-plus pointer-events-none absolute bottom-4 -left-2"
+                    aria-hidden="true"
+                  >
+                    <PackagePlus className="h-4 w-4 text-success" strokeWidth={2} />
+                  </span>
+                )}
               </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:w-auto md:px-4"
-                aria-label={t('login')}
-                onClick={() => {
-                  setMobileAnimate(false);
-                  setMobileOpen(false);
-                }}
+
+              {/* Tema toggle */}
+              <ThemeToggle />
+
+              {/* Dil switcher */}
+              <LanguageSwitcher />
+
+              {/* Giriş / Hesap */}
+              {isSessionLoading ? (
+                <span
+                  className="h-8 w-8 shrink-0 self-center rounded-md bg-gray-light/80 animate-pulse inline-block md:h-9 md:w-24"
+                  aria-hidden="true"
+                />
+              ) : isAuthenticated ? (
+                <Link
+                  href="/account"
+                  aria-label={t('account')}
+                  className="flex h-8 items-center gap-1.5 rounded px-1.5 text-sm font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:h-9 md:gap-2 md:px-3"
+                  onClick={closeMobileMenu}
+                >
+                  <AccountNavAvatarRing avatarUrl={navAvatarUrl} />
+                  <span className="hidden md:inline">{t('account')}</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex h-8 w-8 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover hover:text-primary md:h-9 md:w-auto md:px-4"
+                  aria-label={t('login')}
+                  onClick={closeMobileMenu}
+                >
+                  <User className="h-4 w-4 md:hidden" strokeWidth={1.75} aria-hidden />
+                  <span className="hidden md:inline text-sm font-medium">{t('login')}</span>
+                </Link>
+              )}
+              {/* Hamburger — mobil */}
+              <button
+                className="flex h-8 w-8 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover md:hidden"
+                onClick={() => setMobileOpen((v) => !v)}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-menu"
+                aria-label={mobileOpen ? tCommon('closeMenu') : tCommon('openMenu')}
               >
-                <User className="h-5 w-5 md:hidden" strokeWidth={1.75} aria-hidden />
-                <span className="hidden md:inline text-sm font-medium">{t('login')}</span>
-              </Link>
-            )}
-            {/* Hamburger — mobil */}
-            <button
-              className="flex h-9 w-9 items-center justify-center rounded text-black-dark transition-colors hover:bg-primary-hover md:hidden"
-              onClick={() => {
-                setMobileAnimate(true);
-                setMobileOpen((v) => !v);
-              }}
-              aria-expanded={mobileOpen}
-              aria-controls="mobile-menu"
-              aria-label={mobileOpen ? tCommon('closeMenu') : tCommon('openMenu')}
-            >
-              <MenuIcon open={mobileOpen} />
-            </button>
+                <MenuIcon open={mobileOpen} />
+              </button>
+            </div>
           </div>
-        </div>
-      </Container>
+        </Container>
+      </header>
 
-      {/* Mobil menü */}
+      {/* Mobil menü: karartma yok; dışarı tıklanınca kapanır (görünmez katman) */}
       <div
+        className={[
+          'fixed inset-x-0 bottom-0 top-16 z-30 md:hidden',
+          mobileOpen ? 'block' : 'hidden',
+        ].join(' ')}
+        aria-hidden="true"
+        onClick={closeMobileMenu}
+      />
+      <nav
         id="mobile-menu"
         inert={!mobileOpen ? true : undefined}
         className={[
-          'grid transition-[grid-template-rows] ease-in-out md:hidden',
-          mobileAnimate ? 'duration-300' : 'duration-0',
+          'fixed left-0 right-0 top-16 z-40 grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none md:hidden',
           mobileOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         ].join(' ')}
+        aria-label={t('storeName')}
       >
-        <div className="overflow-hidden">
-          <div className="border-t border-border bg-surface pb-4">
+        <div className="min-h-0 overflow-hidden">
+          <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-surface shadow-lg">
             <Container>
-              <ul className="flex flex-col pt-2" role="list">
+              <ul className="flex flex-col py-2 pb-4" role="list">
                 {NAV_LINKS.map(({ key, href }) => (
                   <li key={key}>
                     <Link
                       href={href}
                       className="flex h-12 items-center rounded px-3 text-base font-medium text-black-dark transition-colors hover:bg-primary-hover hover:text-primary"
-                      onClick={() => {
-                        setMobileAnimate(false);
-                        setMobileOpen(false);
-                      }}
+                      onClick={closeMobileMenu}
                     >
                       {t(key)}
                     </Link>
                   </li>
                 ))}
                 {isAuthenticated && (
-                  <li className="border-t border-border pt-1 mt-1">
+                  <li className="mt-1 border-t border-border pt-1">
                     <AccountSignOut label={t('logout')} />
                   </li>
                 )}
@@ -428,7 +428,7 @@ export function Navbar() {
             </Container>
           </div>
         </div>
-      </div>
-    </header>
+      </nav>
+    </>
   );
 }

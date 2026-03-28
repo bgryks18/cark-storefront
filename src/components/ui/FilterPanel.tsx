@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
@@ -24,6 +24,18 @@ export function FilterPanel({ filters }: FilterPanelProps) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(filters.map((f) => [f.id, true])),
   );
+  const mobileWrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function handlePointerDown(e: MouseEvent) {
+      if (mobileWrapRef.current && !mobileWrapRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [isOpen]);
 
   const activeFilters = searchParams.getAll('filter');
 
@@ -133,39 +145,47 @@ export function FilterPanel({ filters }: FilterPanelProps) {
 
   return (
     // Tek container: mobilde tam genişlik, desktopda w-56 sidebar
-    <div className="lg:w-56 lg:shrink-0">
-      {/* ─── Mobil toggle butonu ─────────────────────────────────────────────── */}
-      <button
-        onClick={() => setIsOpen((v) => !v)}
-        aria-expanded={isOpen}
-        aria-controls="filter-panel-mobile"
-        className="flex items-center gap-2 rounded-lg border border-card-border bg-card px-3 py-1.5 text-sm text-text-base transition-colors hover:border-primary hover:text-primary lg:hidden"
-      >
-        <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-        {isOpen ? t('hideFilters') : t('showFilters')}
-        {activeCount > 0 && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-micro font-semibold text-white">
-            {activeCount}
-          </span>
-        )}
-      </button>
+    <div className="w-full lg:w-56 lg:shrink-0">
+      {/* Mobil: absolute panel (lg:contents kullanma — relative positioning bozulabiliyor) */}
+      <div ref={mobileWrapRef} className="relative z-20 w-full lg:hidden">
+        {/* ─── Mobil toggle butonu ─────────────────────────────────────────────── */}
+        <button
+          type="button"
+          onClick={() => setIsOpen((v) => !v)}
+          aria-expanded={isOpen}
+          aria-controls="filter-panel-mobile"
+          className="flex items-center gap-2 rounded-lg border border-card-border bg-card px-3 py-1.5 text-sm text-text-base transition-colors hover:border-primary hover:text-primary lg:hidden"
+        >
+          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+          {isOpen ? t('hideFilters') : t('showFilters')}
+          {activeCount > 0 && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-micro font-semibold text-white">
+              {activeCount}
+            </span>
+          )}
+        </button>
 
-      {/* ─── Mobil açılır panel ──────────────────────────────────────────────── */}
-      {isOpen && (
-        <div id="filter-panel-mobile" className="mt-3 rounded-xl border border-border bg-card p-4 lg:hidden">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="font-semibold text-text-base">{t('filters')}</span>
-            <button
-              onClick={() => setIsOpen(false)}
-              aria-label={t('hideFilters')}
-              className="text-text-muted hover:text-text-base"
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+        {/* ─── Mobil: absolute panel (içeriği itmez) ───────────────────────────── */}
+        {isOpen && (
+          <div
+            id="filter-panel-mobile"
+            className="absolute left-0 right-0 top-full z-100 mt-2 max-h-[min(70vh,28rem)] overflow-y-auto rounded-xl border border-border bg-card p-4 shadow-xl"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="font-semibold text-text-base">{t('filters')}</span>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                aria-label={t('hideFilters')}
+                className="text-text-muted hover:text-text-base"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            {panelContent}
           </div>
-          {panelContent}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ─── Desktop sidebar ─────────────────────────────────────────────────── */}
       <aside className="hidden lg:block">{panelContent}</aside>

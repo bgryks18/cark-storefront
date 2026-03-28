@@ -15,11 +15,11 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="cursor-pointer rounded p-2 text-black-dark transition-colors hover:bg-primary-hover dark:text-black dark:hover:bg-primary-hover"
+      className="cursor-pointer rounded p-1.5 text-black-dark transition-colors hover:bg-primary-hover dark:text-black dark:hover:bg-primary-hover md:p-2"
       aria-label={tCommon('toggleTheme')}
     >
       {!mounted ? (
-        <span className="block h-5 w-5" />
+        <span className="block h-4 w-4 md:h-5 md:w-5" />
       ) : isDark ? (
         /* Ay ikonu — dark modda */
         <svg
@@ -28,7 +28,7 @@ export function ThemeToggle() {
           viewBox="0 0 24 24"
           strokeWidth={1.75}
           stroke="currentColor"
-          className="h-5 w-5"
+          className="h-4 w-4 md:h-5 md:w-5"
           aria-hidden="true"
         >
           <path
@@ -45,7 +45,7 @@ export function ThemeToggle() {
           viewBox="0 0 24 24"
           strokeWidth={1.75}
           stroke="currentColor"
-          className="h-5 w-5"
+          className="h-4 w-4 md:h-5 md:w-5"
           aria-hidden="true"
         >
           <path
