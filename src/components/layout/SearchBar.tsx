@@ -9,6 +9,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import debounce from 'lodash/debounce';
 import { Loader, Search, X } from 'lucide-react';
 
+import { sanitizeSearchStyledText } from '@/lib/sanitizeSearchStyledText';
 import { formatMoney } from '@/lib/shopify/normalize';
 import { getPredictiveSearch } from '@/lib/shopify/queries/search';
 import type { PredictiveSearchResult } from '@/lib/shopify/types';
@@ -139,7 +140,10 @@ export function SearchBar() {
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" aria-hidden="true" />
+            <Search
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none"
+              aria-hidden="true"
+            />
             <input
               ref={inputRef}
               value={query}
@@ -152,7 +156,10 @@ export function SearchBar() {
               className="h-9 w-56 rounded-lg border border-card-border bg-card pl-9 pr-3 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-72"
             />
             {loading && (
-              <Loader className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-text-muted" aria-hidden="true" />
+              <Loader
+                className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-text-muted"
+                aria-hidden="true"
+              />
             )}
           </div>
         </form>
@@ -187,7 +194,9 @@ export function SearchBar() {
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-base hover:bg-primary-hover hover:text-primary"
                 >
                   <Search className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
-                  <span dangerouslySetInnerHTML={{ __html: q.styledText }} />
+                  <span
+                    dangerouslySetInnerHTML={{ __html: sanitizeSearchStyledText(q.styledText) }}
+                  />
                 </button>
               ))}
             </div>
