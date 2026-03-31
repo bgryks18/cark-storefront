@@ -156,6 +156,12 @@
   --color-skeleton: #383c55;
 }
 
+/* ─── Dark modda link hover rengi text-base kalsın ──────────────────────────── */
+
+.dark .hover\:text-primary:hover {
+  color: var(--color-text-base);
+}
+
 /* ─── Base stiller ───────────────────────────────────────────────────────────── */
 
 @layer base {
