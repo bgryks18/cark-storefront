@@ -362,8 +362,9 @@
         "phoneInvalid": "Geçerli bir telefon numarası giriniz (05xx xxx xx xx)"
       },
       "shippingOptions": {
-        "standard": { "label": "Standart Kargo", "description": "3-5 iş günü" },
-        "fast": { "label": "Hızlı Kargo", "description": "1-2 iş günü" }
+        "standard": { "label": "Standart Kargo", "description": "1-3 iş günü" },
+        "fast": { "label": "Hızlı Kargo", "description": "1-2 iş günü" },
+        "free": "Ücretsiz"
       }
     },
     "success": {

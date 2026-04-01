@@ -626,13 +626,17 @@ export async function getOrderByIdAndEmail(
 export interface ShippingRate {
   title: string;
   price: number;
+  originalPrice: number;
+  isFree: boolean;
 }
 
-let ratesCache: ShippingRate[] | null = null;
+const FREE_SHIPPING_MIN = parseFloat(process.env.SHOPIFY_FREE_SHIPPING_MIN ?? '0') || null;
+
+let ratesCache: { title: string; price: number }[] | null = null;
 let ratesCachedAt = 0;
 const RATES_CACHE_TTL = 5 * 60 * 1000;
 
-export async function getShippingRates(): Promise<ShippingRate[]> {
+async function fetchRawRates(): Promise<{ title: string; price: number }[]> {
   if (ratesCache && Date.now() - ratesCachedAt < RATES_CACHE_TTL) {
     return ratesCache;
   }
@@ -653,19 +657,25 @@ export async function getShippingRates(): Promise<ShippingRate[]> {
 
   const domestic = data.shipping_zones.find((z) => z.countries?.some((c) => c.code === 'TR'));
 
-  // Shopify flat rate'leri price_based_shipping_rates'te saklıyor
-  // Ücretsiz kargo (price=0) hariç her ikisini de alıyoruz
-  const rates: ShippingRate[] = [
+  ratesCache = [
     ...(domestic?.weight_based_shipping_rates ?? []),
     ...(domestic?.price_based_shipping_rates ?? []),
-  ]
-    .filter((r) => parseFloat(r.price) > 0)
-    .map((r) => ({
-      title: r.name,
-      price: parseFloat(r.price),
-    }));
+  ].map((r) => ({ title: r.name, price: parseFloat(r.price) }));
 
-  ratesCache = rates;
+
   ratesCachedAt = Date.now();
-  return rates;
+  return ratesCache;
+}
+
+export async function getShippingRates(cartSubtotal?: number): Promise<ShippingRate[]> {
+  const raw = await fetchRawRates();
+  const isFree =
+    FREE_SHIPPING_MIN !== null && cartSubtotal !== undefined && cartSubtotal >= FREE_SHIPPING_MIN;
+
+  return raw.map((r) => ({
+    title: r.title,
+    price: isFree ? 0 : r.price,
+    originalPrice: r.price,
+    isFree,
+  }));
 }

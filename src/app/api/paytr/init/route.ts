@@ -124,17 +124,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ errorCode: 'cartNotFound' }, { status: 400 });
   }
 
-  // Kargo ücretini Shopify'dan doğrula — client'a güvenme
-  const rates = await getShippingRates();
+  const lines = getCartLines(cart);
+  const subtotalTL = parseFloat(cart.cost.totalAmount.amount);
+
+  // Kargo ücretini Shopify'dan doğrula — client'a güvenme, cart subtotal'ını server'dan al
+  const rates = await getShippingRates(subtotalTL);
   const shipping = rates.find((r) => r.title === shippingTitle);
   if (!shipping) {
     return NextResponse.json({ errorCode: 'invalidShipping' }, { status: 400 });
   }
 
-  const lines = getCartLines(cart);
-
   // PayTR'a göndereceğimiz tutar: ürün toplamı + kargo (kuruş cinsinden)
-  const subtotalTL = parseFloat(cart.cost.totalAmount.amount);
   const totalTL = subtotalTL + shipping.price;
   const totalKurus = Math.round(totalTL * 100);
 

@@ -25,7 +25,12 @@ import { AlertBox } from '@/components/ui/AlertBox';
 import { Container } from '@/components/ui/Container';
 import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
 
-interface ShippingRateWithDescription extends ShippingRate {
+interface DisplayRate {
+  title: string; // UI'da gösterilen ad ("Standart")
+  submitTitle: string; // PayTR'ye gönderilen ad ("Standart" veya "StandartFree")
+  originalPrice: number;
+  price: number; // 0 ise ücretsiz
+  isFree: boolean;
   description: string;
 }
 
@@ -254,15 +259,17 @@ export default function CheckoutPage() {
     if (customerProfile.email) setValue('email', customerProfile.email);
   }, [customerProfile, setValue]);
 
+  const cartSubtotal = parseFloat(cart?.cost.totalAmount.amount ?? '0');
+
   const {
     data: ratesData,
     isPending: ratesLoading,
     isError: ratesError,
   } = useQuery({
-    queryKey: ['shipping-options'],
+    queryKey: ['shipping-options', cartSubtotal],
     queryFn: async () => {
-      const r = await fetch('/api/shipping-options');
-      const json = (await r.json()) as { rates?: ShippingRateWithDescription[]; error?: string };
+      const r = await fetch(`/api/shipping-options?subtotal=${cartSubtotal}`);
+      const json = (await r.json()) as { rates?: ShippingRate[]; error?: string };
       if (!r.ok) throw new Error(json.error ?? 'Kargo seçenekleri alınamadı');
       return json.rates ?? [];
     },
@@ -270,10 +277,28 @@ export default function CheckoutPage() {
     retry: 2,
   });
 
-  const shippingRates = ratesData ?? [];
+  const shippingRates = useMemo<DisplayRate[]>(() => {
+    const mapped = (ratesData ?? []).map((r) => {
+      const description = r.title.toLowerCase().includes('standart')
+        ? t('shippingOptions.standard.description')
+        : r.title.toLowerCase().includes('hızlı') || r.title.toLowerCase().includes('express')
+          ? t('shippingOptions.fast.description')
+          : '';
+      return {
+        title: r.title,
+        submitTitle: r.title,
+        originalPrice: r.originalPrice,
+        price: r.price,
+        isFree: r.isFree,
+        description,
+      };
+    });
+
+    return mapped;
+  }, [ratesData, t]);
 
   const [mounted, setMounted] = useState(false);
-  const [selectedRate, setSelectedRate] = useState<ShippingRateWithDescription | null>(null);
+  const [selectedRate, setSelectedRate] = useState<DisplayRate | null>(null);
 
   const paytrMutation = useMutation({
     mutationFn: async (payload: FormValues & { cartId: string; shippingTitle: string }) => {
@@ -305,10 +330,10 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (shippingRates.length > 0 && !selectedRate) {
-      setSelectedRate(shippingRates[0]!);
-    }
-  }, [shippingRates, selectedRate]);
+    if (shippingRates.length === 0) return;
+    const current = shippingRates.find((r) => r.title === selectedRate?.title);
+    setSelectedRate(current ?? shippingRates[0]!);
+  }, [shippingRates]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (mounted && !isCartLoading && lines.length === 0) {
@@ -341,8 +366,7 @@ export default function CheckoutPage() {
   }
 
   const currencyCode = cart?.cost.totalAmount.currencyCode ?? 'TRY';
-  const subtotalTL = parseFloat(cart?.cost.totalAmount.amount ?? '0');
-  const totalTL = subtotalTL + (selectedRate?.price ?? 0);
+  const totalTL = cartSubtotal + (selectedRate?.price ?? 0);
 
   function formatTL(amount: number) {
     return formatPrice(amount, currencyCode, 'tr-TR');
@@ -350,7 +374,7 @@ export default function CheckoutPage() {
 
   function onSubmit(values: FormValues) {
     if (!cartId || !selectedRate) return;
-    paytrMutation.mutate({ cartId, ...values, shippingTitle: selectedRate.title });
+    paytrMutation.mutate({ cartId, ...values, shippingTitle: selectedRate.submitTitle });
   }
 
   return (
@@ -527,9 +551,20 @@ export default function CheckoutPage() {
                           )}
                         </div>
                       </div>
-                      <span className="text-sm font-semibold text-text-base">
-                        {formatTL(rate.price)}
-                      </span>
+                      {rate.isFree ? (
+                        <span className="flex flex-col items-end">
+                          <span className="text-sm text-text-muted line-through">
+                            {formatTL(rate.originalPrice)}
+                          </span>
+                          <span className="text-sm font-semibold text-success">
+                            {t('shippingOptions.free')}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-sm font-semibold text-text-base">
+                          {formatTL(rate.originalPrice)}
+                        </span>
+                      )}
                     </label>
                   ))}
                 </div>
@@ -566,13 +601,22 @@ export default function CheckoutPage() {
               <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-text-muted">{tCart('summary.subtotal')}</span>
-                  <span className="font-medium text-text-base">{formatTL(subtotalTL)}</span>
+                  <span className="font-medium text-text-base">{formatTL(cartSubtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">{t('shipping')}</span>
-                  <span className="font-medium text-text-base">
-                    {selectedRate ? formatTL(selectedRate.price) : '—'}
-                  </span>
+                  {selectedRate?.isFree ? (
+                    <span className="flex flex-col items-end">
+                      <span className="text-sm text-text-muted line-through">
+                        {formatTL(selectedRate.originalPrice)}
+                      </span>
+                      <span className="font-medium text-success">{t('shippingOptions.free')}</span>
+                    </span>
+                  ) : (
+                    <span className="font-medium text-text-base">
+                      {selectedRate ? formatTL(selectedRate.originalPrice) : '—'}
+                    </span>
+                  )}
                 </div>
                 <div className="mt-2 flex justify-between border-t border-border pt-3 text-base">
                   <span className="font-semibold text-text-base">{tCart('summary.total')}</span>
