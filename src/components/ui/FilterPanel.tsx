@@ -188,32 +188,36 @@ export function FilterPanel({ filters }: FilterPanelProps) {
               aria-hidden="true"
             />
           </button>
-          {(openGroups['price'] ?? true) && (
-            <div className="mt-3 flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={0}
-                  placeholder={t('priceMin')}
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
-                  className="w-full rounded-md border border-card-border bg-surface px-2 py-1.5 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none"
-                />
-                <span className="shrink-0 text-text-muted">–</span>
-                <input
-                  type="number"
-                  min={0}
-                  placeholder={t('priceMax')}
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  className="w-full rounded-md border border-card-border bg-surface px-2 py-1.5 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none"
-                />
+          <div
+            className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${(openGroups['price'] ?? true) ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+          >
+            <div className="overflow-hidden">
+              <div className="mt-3 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder={t('priceMin')}
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(e.target.value)}
+                    className="w-full rounded-md border border-card-border bg-surface px-2 py-1.5 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none"
+                  />
+                  <span className="shrink-0 text-text-muted">–</span>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder={t('priceMax')}
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(e.target.value)}
+                    className="w-full rounded-md border border-card-border bg-surface px-2 py-1.5 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <Button type="button" size="sm" onClick={applyPrice}>
+                  {t('apply')}
+                </Button>
               </div>
-              <Button type="button" size="sm" onClick={applyPrice}>
-                {t('apply')}
-              </Button>
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -240,34 +244,40 @@ export function FilterPanel({ filters }: FilterPanelProps) {
                 />
               </button>
 
-              {isGroupOpen && (
-                <div className="mt-3 flex flex-col gap-2">
-                  {group.values
-                    .filter((v) => v.count > 0)
-                    .map((value) => {
-                      const isActive = activeFilters.includes(value.input);
-                      return (
-                        <label
-                          key={value.id}
-                          className="flex cursor-pointer items-center gap-2.5 text-sm"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isActive}
-                            onChange={() => toggleFilter(value.input)}
-                            className="h-4 w-4 rounded border-card-border text-primary accent-primary"
-                          />
-                          <span
-                            className={`flex-1 ${isActive ? 'font-medium text-text-base' : 'text-text-muted'}`}
+              <div
+                className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isGroupOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+              >
+                <div className="overflow-hidden">
+                  <div className="mt-3 flex flex-col gap-2">
+                    {group.values
+                      .filter((v) => v.count > 0)
+                      .map((value) => {
+                        const isActive = activeFilters.includes(value.input);
+                        return (
+                          <label
+                            key={value.id}
+                            className="flex cursor-pointer items-center gap-2.5 text-sm"
                           >
-                            {value.label}
-                          </span>
-                          <span className="shrink-0 text-xs text-text-muted">({value.count})</span>
-                        </label>
-                      );
-                    })}
+                            <input
+                              type="checkbox"
+                              checked={isActive}
+                              onChange={() => toggleFilter(value.input)}
+                              className="h-4 w-4 rounded border-card-border text-primary accent-primary"
+                            />
+                            <span
+                              className={`flex-1 ${isActive ? 'font-medium text-text-base' : 'text-text-muted'}`}
+                            >
+                              {value.label}
+                            </span>
+                            <span className="shrink-0 text-xs text-text-muted">
+                              ({value.count})
+                            </span>
+                          </label>
+                        );
+                      })}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
