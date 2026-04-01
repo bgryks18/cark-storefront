@@ -28,17 +28,18 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
     paid: 'bg-green/10 text-green-dark border-green/20',
     fulfilled: 'bg-green/10 text-green-dark border-green/20',
     delivered: 'bg-green/10 text-green-dark border-green/20',
-    pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    authorized: 'bg-blue-50 text-blue-700 border-blue-200',
-    partial: 'bg-blue-50 text-blue-700 border-blue-200',
-    in_transit: 'bg-blue-50 text-blue-700 border-blue-200',
-    unfulfilled: 'bg-gray-light text-gray-dark border-gray-light',
+    pending: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    processing: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    authorized: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    partial: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    in_transit: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    unfulfilled: 'bg-surface text-text-muted border-border',
     refunded: 'bg-error-bg text-error-text border-error-border',
     voided: 'bg-error-bg text-error-text border-error-border',
     restocked: 'bg-error-bg text-error-text border-error-border',
-    partially_refunded: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    partially_refunded: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
   };
-  const colorClass = colorMap[status] ?? 'bg-gray-light text-gray-dark border-gray-light';
+  const colorClass = colorMap[status] ?? 'bg-surface text-text-muted border-border';
   return (
     <span
       className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${colorClass}`}
@@ -299,7 +300,7 @@ export function OrderTrackingClient() {
                       label={t(`financialStatus.${financialKey}`)}
                     />
                     <StatusBadge
-                      status={order.fulfillment_status ?? 'unfulfilled'}
+                      status={order.fulfillment_status ?? 'processing'}
                       label={t(`fulfillmentStatus.${fulfillmentKey}`)}
                     />
                   </div>
