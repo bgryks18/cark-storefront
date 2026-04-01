@@ -612,6 +612,8 @@ export default function CheckoutPage() {
                       </span>
                       <span className="font-medium text-success">{t('shippingOptions.free')}</span>
                     </span>
+                  ) : ratesLoading ? (
+                    <span className="w-16 animate-pulse rounded bg-skeleton inline-flex items-center" />
                   ) : (
                     <span className="font-medium text-text-base">
                       {selectedRate ? formatTL(selectedRate.originalPrice) : '—'}
