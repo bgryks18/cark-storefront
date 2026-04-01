@@ -88,6 +88,7 @@ export interface DraftOrderParams {
   shippingTitle: string;
   shippingPrice: string;
   merchantOid: string;
+  discountCode?: string;
 }
 
 export async function createDraftOrder(params: DraftOrderParams): Promise<{ id: number }> {
@@ -103,7 +104,28 @@ export async function createDraftOrder(params: DraftOrderParams): Promise<{ id: 
     shippingTitle,
     shippingPrice,
     merchantOid,
+    discountCode,
   } = params;
+
+  // Discount kodu varsa Shopify'dan gerçek değeri çek — client'a güvenme
+  let appliedDiscount: { title: string; value_type: string; value: string } | undefined;
+  if (discountCode) {
+    try {
+      const lookup = await lookupDiscountCode(discountCode);
+      if (lookup) {
+        const rule = await getPriceRule(lookup.price_rule_id);
+        if (rule) {
+          appliedDiscount = {
+            title: discountCode.toUpperCase(),
+            value_type: rule.value_type,
+            value: Math.abs(parseFloat(rule.value)).toString(),
+          };
+        }
+      }
+    } catch {
+      // İndirim kodu geçersizse sessizce devam et
+    }
+  }
 
   const body = {
     draft_order: {
@@ -142,6 +164,7 @@ export async function createDraftOrder(params: DraftOrderParams): Promise<{ id: 
         price: shippingPrice,
         code: shippingTitle.includes('Hızlı') ? 'fast' : 'standard',
       },
+      ...(appliedDiscount ? { applied_discount: appliedDiscount } : {}),
     },
   };
 
@@ -661,7 +684,6 @@ async function fetchRawRates(): Promise<{ title: string; price: number }[]> {
     ...(domestic?.weight_based_shipping_rates ?? []),
     ...(domestic?.price_based_shipping_rates ?? []),
   ].map((r) => ({ title: r.name, price: parseFloat(r.price) }));
-
 
   ratesCachedAt = Date.now();
   return ratesCache;

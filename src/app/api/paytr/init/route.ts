@@ -138,6 +138,9 @@ export async function POST(req: NextRequest) {
   const totalTL = subtotalTL + shipping.price;
   const totalKurus = Math.round(totalTL * 100);
 
+  // Cart'taki applicable discount code — client'tan değil Shopify'dan alıyoruz
+  const discountCode = cart.discountCodes.find((d) => d.applicable)?.code;
+
   const lineItems = lines.map((line) => ({
     variantId: line.merchandise.id,
     quantity: line.quantity,
@@ -175,6 +178,7 @@ export async function POST(req: NextRequest) {
       shippingTitle: shipping.title,
       shippingPrice: shipping.price.toFixed(2),
       merchantOid: baseOid,
+      discountCode,
     });
     draftOrderId = draft.id;
   } catch {
