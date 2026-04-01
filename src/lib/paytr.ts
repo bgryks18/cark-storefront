@@ -45,8 +45,8 @@ export async function getPayTRToken(params: TokenParams): Promise<string> {
     failUrl,
   } = params;
 
-  const noInstallment = '1';
-  const maxInstallment = '0';
+  const noInstallment = '0';
+  const maxInstallment = '12';
   const currency = 'TL';
 
   const userBasket = Buffer.from(
