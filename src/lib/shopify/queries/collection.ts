@@ -73,9 +73,9 @@ const COLLECTIONS_QUERY = `#graphql
 `;
 
 const COLLECTION_FILTERS_QUERY = `#graphql
-  query CollectionFilters($handle: String!) {
+  query CollectionFilters($handle: String!, $filters: [ProductFilter!]) {
     collection(handle: $handle) {
-      products(first: 1) {
+      products(first: 20, filters: $filters) {
         filters {
           id
           label
@@ -176,10 +176,10 @@ export async function getCollections(
   return data.collections;
 }
 
-export async function getCollectionFilters(handle: string): Promise<ProductFilter[]> {
+export async function getCollectionFilters(handle: string, filters?: Record<string, unknown>[]): Promise<ProductFilter[]> {
   const data = await shopifyFetch<{
     collection: { products: { filters: ProductFilter[] } } | null;
-  }>(COLLECTION_FILTERS_QUERY, { handle }, { next: { revalidate: 3600, tags: [`collection-${handle}`] } });
+  }>(COLLECTION_FILTERS_QUERY, { handle, filters }, { next: { revalidate: 3600, tags: [`collection-${handle}`] } });
 
   return data.collection?.products.filters ?? [];
 }

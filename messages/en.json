@@ -86,7 +86,11 @@
     "activeFiltersCount": "{count} filters active",
     "showFilters": "Show filters",
     "hideFilters": "Hide filters",
-    "breadcrumbHome": "Home"
+    "breadcrumbHome": "Home",
+    "priceRange": "Price Range",
+    "priceMin": "Min ₺",
+    "priceMax": "Max ₺",
+    "apply": "Apply"
   },
   "product": {
     "description": "Description",

@@ -26,10 +26,13 @@ const containedClasses: Record<ButtonColor, string> = {
 };
 
 const outlinedClasses: Record<ButtonColor, string> = {
-  primary: 'border border-primary text-primary bg-transparent hover:bg-primary-hover focus-visible:ring-primary',
-  secondary: 'border border-gray text-black bg-transparent hover:bg-gray-light focus-visible:ring-gray',
+  primary:
+    'border border-primary text-primary bg-transparent hover:bg-primary-hover focus-visible:ring-primary',
+  secondary:
+    'border border-gray text-black bg-transparent hover:bg-gray-light focus-visible:ring-gray',
   danger: 'border border-red text-red bg-transparent hover:bg-red/10 focus-visible:ring-red',
-  warning: 'border border-warning text-warning bg-transparent hover:bg-warning/10 focus-visible:ring-warning',
+  warning:
+    'border border-warning text-warning bg-transparent hover:bg-warning/10 focus-visible:ring-warning',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -61,7 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         aria-busy={loading || undefined}
         className={cn(
-          'inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl font-semibold transition-colors duration-150',
+          'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-60',
           variantClass,

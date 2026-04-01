@@ -86,7 +86,11 @@
     "activeFiltersCount": "{count} filtre aktif",
     "showFilters": "Filtreleri göster",
     "hideFilters": "Filtreleri gizle",
-    "breadcrumbHome": "Ana Sayfa"
+    "breadcrumbHome": "Ana Sayfa",
+    "priceRange": "Fiyat Aralığı",
+    "priceMin": "Min ₺",
+    "priceMax": "Maks ₺",
+    "apply": "Uygula"
   },
   "product": {
     "description": "Açıklama",

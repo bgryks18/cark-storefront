@@ -14,9 +14,10 @@ import {
 } from '@/lib/shopify/queries/collection';
 import type { SortKey } from '@/lib/shopify/types';
 
+import { CollectionProductsClient } from '@/components/ui/CollectionProductsClient';
 import { Container } from '@/components/ui/Container';
 import { FilterPanel } from '@/components/ui/FilterPanel';
-import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
+import { ProductCardSkeleton } from '@/components/ui/ProductCard';
 import { SortSelect } from '@/components/ui/SortSelect';
 
 interface CollectionPageProps {
@@ -92,7 +93,6 @@ async function ProductGrid({
   activeFilters: string[];
 }) {
   const { sortKey, reverse } = SORT_MAP[sort] ?? SORT_MAP.manual;
-  // Shopify filter input'ları URL'den JSON olarak gelir, parse edip geçiriyoruz
   const filters = activeFilters.flatMap((f) => {
     try {
       return [JSON.parse(f) as Record<string, unknown>];
@@ -102,7 +102,7 @@ async function ProductGrid({
   });
   const collection = await getCollection({
     handle,
-    first: 48,
+    first: 30,
     sortKey,
     reverse,
     locale,
@@ -112,20 +112,18 @@ async function ProductGrid({
   if (!collection) notFound();
 
   const products = flattenConnection(collection.products);
-
-  if (products.length === 0) {
-    const tGrid = await getTranslations({ locale, namespace: 'collection' });
-    return <p className="py-16 text-center text-text-muted">{tGrid('noProducts')}</p>;
-  }
+  const tGrid = await getTranslations({ locale, namespace: 'collection' });
 
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-      {products.map((product) => (
-        <li key={product.id}>
-          <ProductCard product={product} headingLevel="h2" />
-        </li>
-      ))}
-    </ul>
+    <CollectionProductsClient
+      initialProducts={products}
+      initialPageInfo={collection.products.pageInfo}
+      handle={handle}
+      sort={sort}
+      locale={locale}
+      activeFilters={activeFilters}
+      noProductsText={tGrid('noProducts')}
+    />
   );
 }
 
@@ -145,10 +143,17 @@ export default async function CollectionPage({ params, searchParams }: Collectio
   const { locale, handle } = await params;
   const { sort = 'manual', filter } = await searchParams;
   const activeFilters = Array.isArray(filter) ? filter : filter ? [filter] : [];
+  const parsedFilters = activeFilters.flatMap((f) => {
+    try {
+      return [JSON.parse(f) as Record<string, unknown>];
+    } catch {
+      return [];
+    }
+  });
 
   const [collection, filters, t] = await Promise.all([
     getCollection({ handle, first: 1, locale }),
-    getCollectionFilters(handle),
+    getCollectionFilters(handle, parsedFilters.length ? parsedFilters : undefined),
     getTranslations({ locale, namespace: 'collection' }),
   ]);
 
