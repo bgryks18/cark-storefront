@@ -113,7 +113,11 @@ export default function CartPage() {
       <section className="py-16 sm:py-24">
         <Container>
           <div className="flex flex-col items-center gap-4 text-center">
-            <ShoppingBag className="h-16 w-16 text-text-muted" strokeWidth={1.25} aria-hidden="true" />
+            <ShoppingBag
+              className="h-16 w-16 text-text-muted"
+              strokeWidth={1.25}
+              aria-hidden="true"
+            />
             <h1 className="text-2xl font-bold text-black-dark">{t('empty')}</h1>
             <p className="text-text-muted">{t('emptyDescription')}</p>
             <Link
@@ -210,8 +214,13 @@ export default function CartPage() {
                         </p>
                       )}
 
-                      <p className="text-sm font-semibold text-primary">
-                        {formatMoney(line.cost.amountPerQuantity)}
+                      <p className="flex justify-between">
+                        <span className="text-sm font-semibold text-primary">
+                          {formatMoney(line.cost.amountPerQuantity)}
+                        </span>
+                        <span className="text-sm font-semibold text-text-base">
+                          {formatMoney(line.cost.totalAmount)}
+                        </span>
                       </p>
 
                       {/* Miktar + sil */}
@@ -242,10 +251,6 @@ export default function CartPage() {
                             {lineErrors[line.id]}
                           </p>
                         )}
-
-                        <p className="ml-auto text-sm font-semibold text-text-base">
-                          {formatMoney(line.cost.totalAmount)}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -255,7 +260,10 @@ export default function CartPage() {
 
             {/* ─── Pagination ───────────────────────────────────────────────── */}
             {totalPages > 1 && (
-              <nav aria-label={tCommon('pagination')} className="mt-6 flex items-center justify-center gap-1">
+              <nav
+                aria-label={tCommon('pagination')}
+                className="mt-6 flex items-center justify-center gap-1"
+              >
                 <button
                   onClick={() => setPage((p) => p - 1)}
                   disabled={safePage === 1}
