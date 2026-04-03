@@ -9,7 +9,9 @@ import { routing } from '@/i18n/routing';
 
 import { authOptions } from '@/lib/auth';
 
-import { CookieConsent } from '@/components/analytics/CookieConsent';
+import { CookieBanner } from '@/components/analytics/CookieBanner';
+import { CookieConsentProvider } from '@/components/analytics/CookieConsentProvider';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
 import { NavigationSpinner } from '@/components/layout/NavigationSpinner';
@@ -90,15 +92,18 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           {tCommon('skipToContent')}
         </a>
         <NextIntlClientProvider messages={messages}>
-          <CookieConsent />
-          <Providers session={session}>
-            <Navbar />
-            <NavigationSpinner />
-            <main id="main-content" className="flex-1">
-              <PageTransition>{children}</PageTransition>
-            </main>
-            <Footer />
-          </Providers>
+          <CookieConsentProvider>
+            <CookieBanner />
+            <GoogleAnalytics />
+            <Providers session={session}>
+              <Navbar />
+              <NavigationSpinner />
+              <main id="main-content" className="flex-1">
+                <PageTransition>{children}</PageTransition>
+              </main>
+              <Footer />
+            </Providers>
+          </CookieConsentProvider>
         </NextIntlClientProvider>
       </body>
     </html>

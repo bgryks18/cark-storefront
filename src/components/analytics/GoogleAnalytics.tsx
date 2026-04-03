@@ -1,13 +1,15 @@
+'use client';
+
 import Script from 'next/script';
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? '';
+import { useCookieConsent } from '@/components/analytics/CookieConsentProvider';
 
-/**
- * gtag.js her zaman yüklenir; Consent Mode ile başlangıçta ölçüm kapalı,
- * kullanıcı onayından sonra `applyGtagConsentUpdate(true)` ile açılır.
- */
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? 'G-C1ZBHSVMNC';
+
 export function GoogleAnalytics() {
-  if (!GA_MEASUREMENT_ID) {
+  const { consent } = useCookieConsent();
+
+  if (!GA_MEASUREMENT_ID || consent !== 'accepted') {
     return null;
   }
 
@@ -17,17 +19,10 @@ export function GoogleAnalytics() {
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         strategy="afterInteractive"
       />
-      <Script id="google-analytics-consent-default" strategy="afterInteractive">
+      <Script id="google-analytics" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
-          gtag('consent', 'default', {
-            ad_storage: 'denied',
-            analytics_storage: 'denied',
-            ad_user_data: 'denied',
-            ad_personalization: 'denied',
-            wait_for_update: 500
-          });
           gtag('js', new Date());
           gtag('config', '${GA_MEASUREMENT_ID}');
         `}
