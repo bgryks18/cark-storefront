@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { flattenConnection } from '@/lib/shopify/normalize';
 import { getCollections } from '@/lib/shopify/queries/collection';
+import { PRODUCT_CARD_GRID_CLASS } from '@/lib/ui/productCardGrid';
 
 import { CollectionCard, CollectionCardSkeleton } from '@/components/ui/CollectionCard';
 import { Container } from '@/components/ui/Container';
@@ -23,7 +24,7 @@ async function CollectionGrid() {
   }
 
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className={PRODUCT_CARD_GRID_CLASS}>
       {collections.map((collection) => (
         <li key={collection.id}>
           <CollectionCard collection={collection} headingLevel="h2" />
@@ -35,7 +36,7 @@ async function CollectionGrid() {
 
 function CollectionGridSkeleton() {
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className={PRODUCT_CARD_GRID_CLASS}>
       {Array.from({ length: 8 }).map((_, i) => (
         <li key={i}>
           <CollectionCardSkeleton />

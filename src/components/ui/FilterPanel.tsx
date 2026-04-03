@@ -9,6 +9,7 @@ import { usePathname, useRouter } from '@/i18n/navigation';
 import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
 
 import type { ProductFilter } from '@/lib/shopify/queries/collection';
+import { cn } from '@/lib/utils/cn';
 
 import { Button } from './Button';
 
@@ -166,8 +167,9 @@ export function FilterPanel({ filters }: FilterPanelProps) {
         </span>
         {activeCount > 0 && (
           <button
+            type="button"
             onClick={clearAll}
-            className="text-xs text-text-muted transition-colors hover:text-primary"
+            className="cursor-pointer text-xs text-text-muted transition-colors hover:text-primary"
           >
             {t('clearFilters')}
           </button>
@@ -192,7 +194,13 @@ export function FilterPanel({ filters }: FilterPanelProps) {
             className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${(openGroups['price'] ?? true) ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
           >
             <div className="overflow-hidden">
-              <div className="mt-3 flex flex-col gap-2">
+              <form
+                className="mt-3 flex flex-col gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  applyPrice();
+                }}
+              >
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -212,10 +220,10 @@ export function FilterPanel({ filters }: FilterPanelProps) {
                     className="w-full rounded-md border border-card-border bg-surface px-2 py-1.5 text-sm text-text-base placeholder:text-text-muted focus:border-primary focus:outline-none"
                   />
                 </div>
-                <Button type="button" size="sm" onClick={applyPrice}>
+                <Button type="submit" size="sm">
                   {t('apply')}
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -285,8 +293,8 @@ export function FilterPanel({ filters }: FilterPanelProps) {
   );
 
   return (
-    // Tek container: mobilde tam genişlik, desktopda w-56 sidebar
-    <div className="w-full lg:w-56 lg:shrink-0">
+    // Mobilde sıralama ile aynı satırda paylaşım için flex-1; lg’de sabit sidebar genişliği
+    <div className="min-w-0 flex-1 lg:w-56 lg:shrink-0 lg:flex-none">
       {/* Mobil: absolute panel (lg:contents kullanma — relative positioning bozulabiliyor) */}
       <div ref={mobileWrapRef} className="relative z-20 w-full lg:hidden">
         {/* ─── Mobil toggle butonu ─────────────────────────────────────────────── */}
@@ -306,26 +314,32 @@ export function FilterPanel({ filters }: FilterPanelProps) {
           )}
         </button>
 
-        {/* ─── Mobil: absolute panel (içeriği itmez) ───────────────────────────── */}
-        {isOpen && (
-          <div
-            id="filter-panel-mobile"
-            className="absolute left-0 right-0 top-full z-100 mt-2 max-h-[min(70vh,28rem)] overflow-y-auto rounded-xl border border-border bg-card p-4 shadow-xl"
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <span className="font-semibold text-text-base">{t('filters')}</span>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                aria-label={t('hideFilters')}
-                className="text-text-muted hover:text-text-base"
-              >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-            {panelContent}
+        {/* ─── Mobil: absolute panel — accordion ile aynı 200ms ease-in-out ───── */}
+        <div
+          id="filter-panel-mobile"
+          aria-hidden={!isOpen}
+          inert={!isOpen ? true : undefined}
+          className={cn(
+            'absolute left-0 right-0 top-full z-100 mt-2 max-h-[min(70vh,28rem)] origin-top overflow-y-auto rounded-xl border border-border bg-card p-4 shadow-xl',
+            'transition-[opacity,transform] duration-200 ease-in-out',
+            isOpen
+              ? 'translate-y-0 opacity-100'
+              : 'pointer-events-none -translate-y-1 opacity-0',
+          )}
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <span className="font-semibold text-text-base">{t('filters')}</span>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              aria-label={t('hideFilters')}
+              className="text-text-muted hover:text-text-base"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
-        )}
+          {panelContent}
+        </div>
       </div>
 
       {/* ─── Desktop sidebar ─────────────────────────────────────────────────── */}

@@ -18,6 +18,7 @@ import {
   getCollectionMeta,
 } from '@/lib/shopify/queries/collection';
 import type { SortKey } from '@/lib/shopify/types';
+import { PRODUCT_CARD_GRID_CLASS } from '@/lib/ui/productCardGrid';
 
 import { CollectionProductsClient } from '@/components/ui/CollectionProductsClient';
 import { Container } from '@/components/ui/Container';
@@ -138,7 +139,7 @@ async function ProductGrid({
 
 function ProductGridSkeleton() {
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className={PRODUCT_CARD_GRID_CLASS}>
       {Array.from({ length: 12 }).map((_, i) => (
         <li key={i}>
           <ProductCardSkeleton />
@@ -256,15 +257,17 @@ export default async function CollectionPage({ params, searchParams }: Collectio
       {/* ─── Ürün ızgarası ────────────────────────────────────────────────── */}
       <section className="py-8 sm:py-10">
         <Container>
-          {/* Mobile: dikey yığın; Desktop: yatay (sidebar + içerik) */}
+          {/* Mobil: filtre + sıralama aynı satır; lg: sidebar | içerik */}
           <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-            {/* FilterPanel: mobilde toggle+panel, desktopda sidebar */}
-            <FilterPanel filters={filters} />
+            <div className="flex items-start justify-between gap-3 lg:contents">
+              <FilterPanel filters={filters} />
+              <div className="shrink-0 lg:hidden">
+                <SortSelect options={sortOptions} currentSort={sort} label={t('sort')} />
+              </div>
+            </div>
 
-            {/* Ana içerik */}
             <div className="min-w-0 flex-1">
-              {/* Sıralama çubuğu */}
-              <div className="mb-6 flex items-center justify-end">
+              <div className="mb-6 hidden items-center justify-end lg:flex">
                 <SortSelect options={sortOptions} currentSort={sort} label={t('sort')} />
               </div>
 

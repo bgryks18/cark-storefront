@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { sortVariantCardsByCollectionSort } from '@/lib/shopify/normalize';
 import type { CollectionVariantCard } from '@/lib/shopify/types';
+import { PRODUCT_CARD_GRID_CLASS } from '@/lib/ui/productCardGrid';
 
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 
@@ -86,7 +87,7 @@ export function CollectionProductsClient({
 
   return (
     <>
-      <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className={PRODUCT_CARD_GRID_CLASS}>
         {items.map(({ product, variant }) => (
           <li key={`${product.id}-${variant.id}`}>
             <ProductCard product={product} variant={variant} headingLevel="h2" />

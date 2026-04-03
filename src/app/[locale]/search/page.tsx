@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { searchProducts } from '@/lib/shopify/queries/search';
+import { PRODUCT_CARD_GRID_CLASS } from '@/lib/ui/productCardGrid';
 
 import { Container } from '@/components/ui/Container';
 import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
@@ -33,7 +34,7 @@ async function SearchResults({ query, locale }: { query: string; locale: string 
   return (
     <>
       <p className="mb-6 text-sm text-text-muted">{t('resultCount', { count: totalCount })}</p>
-      <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className={PRODUCT_CARD_GRID_CLASS}>
         {products.map((product) => (
           <li key={product.id}>
             <ProductCard product={product} headingLevel="h2" />
@@ -46,7 +47,7 @@ async function SearchResults({ query, locale }: { query: string; locale: string 
 
 function SearchResultsSkeleton() {
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className={PRODUCT_CARD_GRID_CLASS}>
       {Array.from({ length: 8 }).map((_, i) => (
         <li key={i}>
           <ProductCardSkeleton />

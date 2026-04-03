@@ -7,6 +7,7 @@ import sanitizeHtml from 'sanitize-html';
 
 import { flattenConnection } from '@/lib/shopify/normalize';
 import { getProduct, getRecommendedProducts } from '@/lib/shopify/queries/product';
+import { PRODUCT_CARD_GRID_CLASS } from '@/lib/ui/productCardGrid';
 
 import { ProductForm } from '@/components/product/ProductForm';
 import { ProductGallery } from '@/components/product/ProductGallery';
@@ -70,7 +71,7 @@ async function RelatedProducts({ productId }: { productId: string }) {
   if (products.length === 0) return null;
 
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+    <ul className={PRODUCT_CARD_GRID_CLASS}>
       {products.map((product) => (
         <li key={product.id}>
           <ProductCard product={product} />
@@ -82,7 +83,7 @@ async function RelatedProducts({ productId }: { productId: string }) {
 
 function RelatedProductsSkeleton() {
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+    <ul className={PRODUCT_CARD_GRID_CLASS}>
       {Array.from({ length: 4 }).map((_, i) => (
         <li key={i}>
           <ProductCardSkeleton />

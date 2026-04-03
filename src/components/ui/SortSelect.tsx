@@ -1,5 +1,7 @@
 'use client';
 
+import { useId } from 'react';
+
 import { useSearchParams } from 'next/navigation';
 
 import { usePathname, useRouter } from '@/i18n/navigation';
@@ -17,6 +19,7 @@ interface SortSelectProps {
 }
 
 export function SortSelect({ options, currentSort, label }: SortSelectProps) {
+  const id = useId();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -36,10 +39,12 @@ export function SortSelect({ options, currentSort, label }: SortSelectProps) {
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor="sort-select" className="text-xs font-medium text-text-muted">{label}</label>
+      <label htmlFor={id} className="text-xs font-medium text-text-muted">
+        {label}
+      </label>
       <div className="relative">
         <select
-          id="sort-select"
+          id={id}
           value={currentSort}
           onChange={handleChange}
           className="h-10 appearance-none rounded-xl border border-card-border bg-card pl-3 pr-9 text-sm text-text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary"

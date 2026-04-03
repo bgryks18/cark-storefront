@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { ShopifyProduct } from '@/lib/shopify/types';
+import { PRODUCT_CARD_GRID_CLASS } from '@/lib/ui/productCardGrid';
 
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 
@@ -53,7 +54,7 @@ export function FeaturedProductsClient({ initialProducts, initialPageInfo }: Pro
 
   return (
     <>
-      <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+      <ul className={PRODUCT_CARD_GRID_CLASS}>
         {products.map((product) => (
           <li key={product.id}>
             <ProductCard product={product} />
