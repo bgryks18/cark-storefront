@@ -322,9 +322,7 @@ export function FilterPanel({ filters }: FilterPanelProps) {
           className={cn(
             'absolute left-0 right-0 top-full z-100 mt-2 max-h-[min(70vh,28rem)] origin-top overflow-y-auto rounded-xl border border-border bg-card p-4 shadow-xl',
             'transition-[opacity,transform] duration-200 ease-in-out',
-            isOpen
-              ? 'translate-y-0 opacity-100'
-              : 'pointer-events-none -translate-y-1 opacity-0',
+            isOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-1 opacity-0',
           )}
         >
           <div className="mb-3 flex items-center justify-between">
