@@ -98,6 +98,13 @@ export interface ShopifyProduct {
   images: Connection<ShopifyImage>;
   options: ProductOption[];
   variants: Connection<ProductVariant>;
+  materialTypeMetafield?: { value: string } | null;
+}
+
+/** Koleksiyon ızgarasında her satır bir varyant */
+export interface CollectionVariantCard {
+  product: ShopifyProduct;
+  variant: ProductVariant;
 }
 
 // ─── Collection (Shopify) / UI: kategori ───────────────────────────────────

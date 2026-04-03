@@ -2,18 +2,47 @@
 
 import { useEffect, useState } from 'react';
 
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import { Check, Minus, Plus, ShoppingCart } from 'lucide-react';
 
-import { formatMoney } from '@/lib/shopify/normalize';
+import { formatMoney, variantNumericId } from '@/lib/shopify/normalize';
 import { CartErrorCode } from '@/lib/shopify/queries/cart';
 import type { MoneyV2, ProductOption, ProductVariant } from '@/lib/shopify/types';
 import { cn } from '@/lib/utils/cn';
 
+import { usePathname, useRouter } from '@/i18n/navigation';
+
 import { useCart } from '@/hooks/useCart';
 
 import { Button } from '@/components/ui/Button';
+
+function selectedOptionsFromVariant(v: ProductVariant): Record<string, string> {
+  return Object.fromEntries(v.selectedOptions.map((so) => [so.name, so.value]));
+}
+
+/** `?variant=` yoksa veya geçersizse Shopify sırasındaki ilk varyant. */
+export function resolveSelectedOptionsForUrl(
+  variants: ProductVariant[],
+  options: ProductOption[],
+  variantNumeric: string | null | undefined,
+): Record<string, string> {
+  if (variants.length === 0) {
+    return Object.fromEntries(options.map((o) => [o.name, o.values[0]]));
+  }
+  if (variantNumeric) {
+    const found = variants.find((v) => variantNumericId(v.id) === String(variantNumeric));
+    if (found) return selectedOptionsFromVariant(found);
+  }
+  return selectedOptionsFromVariant(variants[0]);
+}
+
+function sameSelectedOptions(a: Record<string, string>, b: Record<string, string>): boolean {
+  const keys = Object.keys(a);
+  if (Object.keys(b).length !== keys.length) return false;
+  return keys.every((k) => a[k] === b[k]);
+}
 
 interface ProductFormProps {
   options: ProductOption[];
@@ -23,6 +52,8 @@ interface ProductFormProps {
   addToCartLabel: string;
   outOfStockLabel: string;
   quantityLabel: string;
+  /** Sunucudaki `searchParams.variant` — hidrasyon ile URL uyumu */
+  initialVariantNumericId?: string | null;
 }
 
 export function ProductForm({
@@ -33,9 +64,13 @@ export function ProductForm({
   addToCartLabel,
   outOfStockLabel,
   quantityLabel,
+  initialVariantNumericId = null,
 }: ProductFormProps) {
   const { addToCart, cart } = useCart();
   const t = useTranslations('cart');
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const hasRealOptions = !(
     options.length === 1 &&
@@ -44,15 +79,38 @@ export function ProductForm({
   );
 
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() =>
-    Object.fromEntries(options.map((o) => [o.name, o.values[0]])),
+    resolveSelectedOptionsForUrl(variants, options, initialVariantNumericId),
   );
   const [quantity, setQuantity] = useState(1);
   const [state, setState] = useState<'idle' | 'loading' | 'added'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const variantFromUrl = searchParams.get('variant');
+
   const selectedVariant = variants.find((v) =>
     v.selectedOptions.every((so) => selectedOptions[so.name] === so.value),
   );
+
+  // Geri/ileri: `variant` query değişince seçenekleri güncelle
+  useEffect(() => {
+    setSelectedOptions((prev) => {
+      const next = resolveSelectedOptionsForUrl(variants, options, variantFromUrl);
+      return sameSelectedOptions(prev, next) ? prev : next;
+    });
+    // variants/options ürün değişiminde key={handle} ile yenilenir
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- yalnızca URL senkronu
+  }, [variantFromUrl]);
+
+  // Seçim → `?variant=` (diğer query parametreleri korunur)
+  useEffect(() => {
+    if (!selectedVariant) return;
+    const id = variantNumericId(selectedVariant.id);
+    if (searchParams.get('variant') === id) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('variant', id);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [selectedVariant?.id, pathname, router, searchParams]);
 
   const price = selectedVariant?.price ?? minPrice;
   const compareAtPrice = selectedVariant?.compareAtPrice ?? null;

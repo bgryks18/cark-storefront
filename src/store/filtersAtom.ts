@@ -1,11 +1,6 @@
 import { atom } from 'jotai';
 
-export type CollectionSortKey =
-  | 'MANUAL'
-  | 'BEST_SELLING'
-  | 'TITLE'
-  | 'PRICE'
-  | 'CREATED';
+export type CollectionSortKey = 'MANUAL' | 'TITLE' | 'PRICE' | 'CREATED';
 
 export interface CollectionFiltersState {
   sortKey: CollectionSortKey;

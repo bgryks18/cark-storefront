@@ -75,7 +75,7 @@ const COLLECTIONS_QUERY = `#graphql
 const COLLECTION_FILTERS_QUERY = `#graphql
   query CollectionFilters($handle: String!, $filters: [ProductFilter!]) {
     collection(handle: $handle) {
-      products(first: 20, filters: $filters) {
+      products(first: 250, filters: $filters) {
         filters {
           id
           label
@@ -182,4 +182,16 @@ export async function getCollectionFilters(handle: string, filters?: Record<stri
   }>(COLLECTION_FILTERS_QUERY, { handle, filters }, { next: { revalidate: 3600, tags: [`collection-${handle}`] } });
 
   return data.collection?.products.filters ?? [];
+}
+
+/** Filtre şeması Shopify’dan; `count` değerleri grid ile uyumlu **varyant** sayısıdır (`activeFilterStrings` ile facet daraltması). */
+export async function getCollectionFiltersWithVariantCounts(
+  handle: string,
+  filters?: Record<string, unknown>[],
+  locale?: string,
+  activeFilterStrings: string[] = [],
+): Promise<ProductFilter[]> {
+  const base = await getCollectionFilters(handle, filters);
+  const { enrichCollectionFiltersWithVariantCounts } = await import('../collectionVariantFilterCounts');
+  return enrichCollectionFiltersWithVariantCounts(base, handle, filters, locale, activeFilterStrings);
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import type { ShopifyProduct } from '@/lib/shopify/types';
+import { sortVariantCardsByCollectionSort } from '@/lib/shopify/normalize';
+import type { CollectionVariantCard } from '@/lib/shopify/types';
 
 import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 
@@ -12,7 +13,7 @@ interface PageInfo {
 }
 
 interface Props {
-  initialProducts: ShopifyProduct[];
+  initialItems: CollectionVariantCard[];
   initialPageInfo: PageInfo;
   handle: string;
   sort: string;
@@ -22,7 +23,7 @@ interface Props {
 }
 
 export function CollectionProductsClient({
-  initialProducts,
+  initialItems,
   initialPageInfo,
   handle,
   sort,
@@ -30,16 +31,15 @@ export function CollectionProductsClient({
   activeFilters,
   noProductsText,
 }: Props) {
-  const [products, setProducts] = useState(initialProducts);
+  const [items, setItems] = useState(initialItems);
   const [pageInfo, setPageInfo] = useState(initialPageInfo);
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Sort/filter değişince başa dön
   useEffect(() => {
-    setProducts(initialProducts);
+    setItems(initialItems);
     setPageInfo(initialPageInfo);
-  }, [initialProducts, initialPageInfo]);
+  }, [initialItems, initialPageInfo]);
 
   useEffect(() => {
     if (!pageInfo.hasNextPage) return;
@@ -70,24 +70,26 @@ export function CollectionProductsClient({
       activeFilters.forEach((f) => params.append('filter', f));
 
       const res = await fetch(`/api/collection-products?${params.toString()}`);
-      const data = (await res.json()) as { products: ShopifyProduct[]; pageInfo: PageInfo };
-      setProducts((prev) => [...prev, ...data.products]);
+      const data = (await res.json()) as { items: CollectionVariantCard[]; pageInfo: PageInfo };
+      setItems((prev) =>
+        sortVariantCardsByCollectionSort([...prev, ...data.items], sort),
+      );
       setPageInfo(data.pageInfo);
     } finally {
       setLoading(false);
     }
   }
 
-  if (products.length === 0) {
+  if (items.length === 0) {
     return <p className="py-16 text-center text-text-muted">{noProductsText}</p>;
   }
 
   return (
     <>
       <ul className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map((product) => (
-          <li key={product.id}>
-            <ProductCard product={product} headingLevel="h2" />
+        {items.map(({ product, variant }) => (
+          <li key={`${product.id}-${variant.id}`}>
+            <ProductCard product={product} variant={variant} headingLevel="h2" />
           </li>
         ))}
         {loading &&

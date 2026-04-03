@@ -71,7 +71,6 @@
     "sort": "Sırala",
     "sortOptions": {
       "manual": "Öne çıkanlar",
-      "bestSelling": "En çok satanlar",
       "titleAsc": "İsim (A-Z)",
       "titleDesc": "İsim (Z-A)",
       "priceAsc": "Fiyat (düşükten yükseğe)",

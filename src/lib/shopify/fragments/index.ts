@@ -53,6 +53,7 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
     id
     handle
     title
+    publishedAt
     availableForSale
     tags
     vendor
@@ -67,18 +68,18 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
     featuredImage {
       ...ImageFields
     }
-    variants(first: 1) {
+    materialTypeMetafield: metafield(namespace: "custom", key: "material_type") {
+      value
+    }
+    variants(first: 250) {
       edges {
         node {
-          id
-          availableForSale
-          selectedOptions { name value }
-          price { ...MoneyFields }
-          compareAtPrice { ...MoneyFields }
+          ...ProductVariantFields
         }
       }
     }
   }
+  ${PRODUCT_VARIANT_FRAGMENT}
 `;
 
 export const CART_LINE_FRAGMENT = `#graphql

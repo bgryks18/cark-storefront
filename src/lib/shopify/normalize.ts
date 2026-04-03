@@ -1,10 +1,97 @@
-import type { CartLineItem, Connection, MoneyV2, ShopifyCart, ShopifyProduct } from './types';
+import type {
+  CartLineItem,
+  CollectionVariantCard,
+  Connection,
+  MoneyV2,
+  ShopifyCart,
+  ShopifyProduct,
+} from './types';
 
 // ─── Connection → Array ───────────────────────────────────────────────────────
 // Shopify GraphQL connection'larını düz array'e çevirir
 
 export function flattenConnection<T>(connection: Connection<T>): T[] {
   return connection.edges.map((edge) => edge.node);
+}
+
+/** Shopify GID → `?variant=` için sayısal id */
+export function variantNumericId(variantGid: string): string {
+  return variantGid.split('/').pop() ?? variantGid;
+}
+
+/** Koleksiyon: her ürünü varyant kartlarına böler */
+export function expandProductsToVariantCards(products: ShopifyProduct[]): CollectionVariantCard[] {
+  const out: CollectionVariantCard[] = [];
+  for (const product of products) {
+    for (const variant of flattenConnection(product.variants)) {
+      out.push({ product, variant });
+    }
+  }
+  return out;
+}
+
+/** Aynı ürünün varyantları arasında tutarlı ikincil sıra */
+function compareVariantTieBreak(a: CollectionVariantCard, b: CollectionVariantCard): number {
+  const sa = a.variant.selectedOptions.map((o) => `${o.name}\u0000${o.value}`).join('\u0001');
+  const sb = b.variant.selectedOptions.map((o) => `${o.name}\u0000${o.value}`).join('\u0001');
+  const s = sa.localeCompare(sb, undefined, { sensitivity: 'base' });
+  if (s !== 0) return s;
+  return a.variant.id.localeCompare(b.variant.id);
+}
+
+/**
+ * Koleksiyon sıralaması Shopify’da **ürün** düzeyinde; grid **varyant kartı**.
+ * Bu fonksiyon, seçilen `sort`a göre kartları **varyant mantığıyla** yeniden sıralar.
+ *
+ * - `manual`: Shopify’ın döndüğü ürün sırası × varyant sırası korunur (yeniden sıralama yok).
+ *
+ * Sayfalama ürün cursor’ı ile olduğu için “tüm katalogda” mükemmel sıra garantisi yok;
+ * yüklenen kartlar arasında tutarlılık sağlanır.
+ */
+export function sortVariantCardsByCollectionSort(
+  cards: CollectionVariantCard[],
+  sort: string,
+): CollectionVariantCard[] {
+  if (sort === 'manual') {
+    return cards;
+  }
+
+  const copy = [...cards];
+
+  switch (sort) {
+    case 'priceAsc':
+    case 'priceDesc': {
+      const mult = sort === 'priceAsc' ? 1 : -1;
+      return copy.sort((a, b) => {
+        const pa = parseFloat(a.variant.price.amount);
+        const pb = parseFloat(b.variant.price.amount);
+        if (Number.isNaN(pa) || Number.isNaN(pb)) return 0;
+        if (pa !== pb) return (pa - pb) * mult;
+        return compareVariantTieBreak(a, b);
+      });
+    }
+    case 'titleAsc':
+      return copy.sort((a, b) => {
+        const t = a.product.title.localeCompare(b.product.title, undefined, { sensitivity: 'base' });
+        if (t !== 0) return t;
+        return compareVariantTieBreak(a, b);
+      });
+    case 'titleDesc':
+      return copy.sort((a, b) => {
+        const t = b.product.title.localeCompare(a.product.title, undefined, { sensitivity: 'base' });
+        if (t !== 0) return t;
+        return compareVariantTieBreak(a, b);
+      });
+    case 'createdDesc':
+      return copy.sort((a, b) => {
+        const da = new Date(a.product.publishedAt ?? 0).getTime();
+        const db = new Date(b.product.publishedAt ?? 0).getTime();
+        if (da !== db) return db - da;
+        return compareVariantTieBreak(a, b);
+      });
+    default:
+      return cards;
+  }
 }
 
 // ─── Para formatlama ──────────────────────────────────────────────────────────

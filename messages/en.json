@@ -71,7 +71,6 @@
     "sort": "Sort",
     "sortOptions": {
       "manual": "Featured",
-      "bestSelling": "Best selling",
       "titleAsc": "Name (A-Z)",
       "titleDesc": "Name (Z-A)",
       "priceAsc": "Price (low to high)",

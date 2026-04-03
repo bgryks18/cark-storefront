@@ -16,6 +16,7 @@ import { ProductCard, ProductCardSkeleton } from '@/components/ui/ProductCard';
 
 interface ProductPageProps {
   params: Promise<{ locale: string; handle: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
@@ -91,8 +92,17 @@ function RelatedProductsSkeleton() {
   );
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+function parseVariantParam(sp: Record<string, string | string[] | undefined> | undefined): string | null {
+  const v = sp?.variant;
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v) && v[0]) return v[0];
+  return null;
+}
+
+export default async function ProductPage({ params, searchParams }: ProductPageProps) {
   const { locale, handle } = await params;
+  const sp = searchParams ? await searchParams : undefined;
+  const initialVariantNumericId = parseVariantParam(sp);
 
   const [product, t] = await Promise.all([
     getProduct(handle, locale),
@@ -190,15 +200,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
               )}
               <p className="text-2xl font-bold text-black-dark sm:text-3xl">{product.title}</p>
 
-              <ProductForm
-                options={product.options}
-                variants={variants}
-                minPrice={product.priceRange.minVariantPrice}
-                availableForSale={product.availableForSale}
-                addToCartLabel={t('addToCart')}
-                outOfStockLabel={t('outOfStock')}
-                quantityLabel={t('quantity')}
-              />
+              <Suspense
+                fallback={<div className="min-h-[280px] animate-pulse rounded-xl bg-skeleton/40" aria-hidden />}
+              >
+                <ProductForm
+                  key={handle}
+                  options={product.options}
+                  variants={variants}
+                  minPrice={product.priceRange.minVariantPrice}
+                  availableForSale={product.availableForSale}
+                  addToCartLabel={t('addToCart')}
+                  outOfStockLabel={t('outOfStock')}
+                  quantityLabel={t('quantity')}
+                  initialVariantNumericId={initialVariantNumericId}
+                />
+              </Suspense>
 
               {product.descriptionHtml && (
                 <div className="border-t border-border pt-6">

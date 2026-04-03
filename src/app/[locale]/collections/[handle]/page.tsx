@@ -6,10 +6,15 @@ import { notFound } from 'next/navigation';
 
 import { Link } from '@/i18n/navigation';
 
-import { flattenConnection } from '@/lib/shopify/normalize';
+import { filterVariantCardsByActiveFilters } from '@/lib/shopify/filterVariantMatch';
+import {
+  expandProductsToVariantCards,
+  flattenConnection,
+  sortVariantCardsByCollectionSort,
+} from '@/lib/shopify/normalize';
 import {
   getCollection,
-  getCollectionFilters,
+  getCollectionFiltersWithVariantCounts,
   getCollectionMeta,
 } from '@/lib/shopify/queries/collection';
 import type { SortKey } from '@/lib/shopify/types';
@@ -27,7 +32,6 @@ interface CollectionPageProps {
 
 const SORT_MAP: Record<string, { sortKey: SortKey; reverse: boolean }> = {
   manual: { sortKey: 'MANUAL', reverse: false },
-  bestSelling: { sortKey: 'BEST_SELLING', reverse: false },
   titleAsc: { sortKey: 'TITLE', reverse: false },
   titleDesc: { sortKey: 'TITLE', reverse: true },
   priceAsc: { sortKey: 'PRICE', reverse: false },
@@ -112,11 +116,16 @@ async function ProductGrid({
   if (!collection) notFound();
 
   const products = flattenConnection(collection.products);
+  const variantItems = sortVariantCardsByCollectionSort(
+    filterVariantCardsByActiveFilters(expandProductsToVariantCards(products), activeFilters),
+    sort,
+  );
+
   const tGrid = await getTranslations({ locale, namespace: 'collection' });
 
   return (
     <CollectionProductsClient
-      initialProducts={products}
+      initialItems={variantItems}
       initialPageInfo={collection.products.pageInfo}
       handle={handle}
       sort={sort}
@@ -153,7 +162,12 @@ export default async function CollectionPage({ params, searchParams }: Collectio
 
   const [collection, filters, t] = await Promise.all([
     getCollection({ handle, first: 1, locale }),
-    getCollectionFilters(handle, parsedFilters.length ? parsedFilters : undefined),
+    getCollectionFiltersWithVariantCounts(
+      handle,
+      parsedFilters.length ? parsedFilters : undefined,
+      locale,
+      activeFilters,
+    ),
     getTranslations({ locale, namespace: 'collection' }),
   ]);
 
@@ -188,7 +202,6 @@ export default async function CollectionPage({ params, searchParams }: Collectio
 
   const sortOptions = [
     { value: 'manual', label: t('sortOptions.manual') },
-    { value: 'bestSelling', label: t('sortOptions.bestSelling') },
     { value: 'titleAsc', label: t('sortOptions.titleAsc') },
     { value: 'titleDesc', label: t('sortOptions.titleDesc') },
     { value: 'priceAsc', label: t('sortOptions.priceAsc') },

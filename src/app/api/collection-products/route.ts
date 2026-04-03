@@ -1,12 +1,16 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-import { flattenConnection } from '@/lib/shopify/normalize';
+import { filterVariantCardsByActiveFilters } from '@/lib/shopify/filterVariantMatch';
+import {
+  expandProductsToVariantCards,
+  flattenConnection,
+  sortVariantCardsByCollectionSort,
+} from '@/lib/shopify/normalize';
 import { getCollection } from '@/lib/shopify/queries/collection';
 import type { SortKey } from '@/lib/shopify/types';
 
 const SORT_MAP: Record<string, { sortKey: SortKey; reverse: boolean }> = {
   manual: { sortKey: 'MANUAL', reverse: false },
-  bestSelling: { sortKey: 'BEST_SELLING', reverse: false },
   titleAsc: { sortKey: 'TITLE', reverse: false },
   titleDesc: { sortKey: 'TITLE', reverse: true },
   priceAsc: { sortKey: 'PRICE', reverse: false },
@@ -24,7 +28,11 @@ export async function GET(req: NextRequest) {
 
   const { sortKey, reverse } = SORT_MAP[sort] ?? SORT_MAP.manual;
   const filters = filterParams.flatMap((f) => {
-    try { return [JSON.parse(f) as Record<string, unknown>]; } catch { return []; }
+    try {
+      return [JSON.parse(f) as Record<string, unknown>];
+    } catch {
+      return [];
+    }
   });
 
   try {
@@ -40,10 +48,17 @@ export async function GET(req: NextRequest) {
 
     if (!collection) return NextResponse.json({ error: 'Koleksiyon bulunamadı' }, { status: 404 });
 
-    return NextResponse.json({
-      products: flattenConnection(collection.products),
+    const products = flattenConnection(collection.products);
+    const items = sortVariantCardsByCollectionSort(
+      filterVariantCardsByActiveFilters(expandProductsToVariantCards(products), filterParams),
+      sort,
+    );
+    const payload = {
+      items,
       pageInfo: collection.products.pageInfo,
-    });
+    };
+
+    return NextResponse.json(payload);
   } catch {
     return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });
   }
