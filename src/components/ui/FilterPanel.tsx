@@ -195,7 +195,7 @@ export function FilterPanel({ filters }: FilterPanelProps) {
           >
             <div className="overflow-hidden">
               <form
-                className="mt-3 flex flex-col gap-2"
+                className="mt-3 flex flex-col gap-4"
                 onSubmit={(e) => {
                   e.preventDefault();
                   applyPrice();
