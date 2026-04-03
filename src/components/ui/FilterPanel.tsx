@@ -293,54 +293,62 @@ export function FilterPanel({ filters }: FilterPanelProps) {
   );
 
   return (
-    // Mobilde sıralama ile aynı satırda paylaşım için flex-1; lg’de sabit sidebar genişliği
-    <div className="min-w-0 flex-1 lg:w-56 lg:shrink-0 lg:flex-none">
-      {/* Mobil: absolute panel (lg:contents kullanma — relative positioning bozulabiliyor) */}
+    <div className="min-w-0 w-full lg:w-56 lg:shrink-0 lg:flex-none">
+      {/* Mobil: tam genişlik tetikleyici + tam ekran genişliğinde alt sayfa (bottom sheet) */}
       <div ref={mobileWrapRef} className="relative z-20 w-full lg:hidden">
-        {/* ─── Mobil toggle butonu ─────────────────────────────────────────────── */}
         <button
           type="button"
           onClick={() => setIsOpen((v) => !v)}
           aria-expanded={isOpen}
           aria-controls="filter-panel-mobile"
-          className="flex items-center gap-2 rounded-lg border border-card-border bg-card px-3 py-1.5 text-sm text-text-base transition-colors hover:border-primary hover:text-primary lg:hidden"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-card-border bg-card px-3 py-2.5 text-sm font-medium text-text-base transition-colors hover:border-primary hover:text-primary sm:justify-start"
         >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+          <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden="true" />
           {isOpen ? t('hideFilters') : t('showFilters')}
           {activeCount > 0 && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-micro font-semibold text-white">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-micro font-semibold text-white">
               {activeCount}
             </span>
           )}
         </button>
 
-        {/* ─── Mobil: absolute panel — accordion ile aynı 200ms ease-in-out ───── */}
+        {/* Backdrop */}
+        <div
+          role="presentation"
+          aria-hidden={!isOpen}
+          className={cn(
+            'fixed inset-0 z-90 bg-black/50 transition-opacity duration-200 lg:hidden',
+            isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+          )}
+          onClick={() => setIsOpen(false)}
+        />
+
+        {/* Bottom sheet: viewport genişliği — dar sütun yanında sıkışmış panel sorunu biter */}
         <div
           id="filter-panel-mobile"
           aria-hidden={!isOpen}
           inert={!isOpen ? true : undefined}
           className={cn(
-            'absolute left-0 right-0 top-full z-100 mt-2 max-h-[min(70vh,28rem)] origin-top overflow-y-auto rounded-xl border border-border bg-card p-4 shadow-xl',
-            'transition-[opacity,transform] duration-200 ease-in-out',
-            isOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-1 opacity-0',
+            'fixed inset-x-0 bottom-0 z-100 max-h-[min(88vh,32rem)] overflow-y-auto rounded-t-2xl border border-border border-b-0 bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl lg:hidden',
+            'transition-[opacity,transform] duration-200 ease-out',
+            isOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0',
           )}
         >
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mx-auto mb-3 flex max-w-2xl items-center justify-between">
             <span className="font-semibold text-text-base">{t('filters')}</span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label={t('hideFilters')}
-              className="text-text-muted hover:text-text-base"
+              className="rounded-md p-1 text-text-muted hover:bg-surface hover:text-text-base"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
-          {panelContent}
+          <div className="mx-auto max-w-2xl">{panelContent}</div>
         </div>
       </div>
 
-      {/* ─── Desktop sidebar ─────────────────────────────────────────────────── */}
       <aside className="hidden lg:block">{panelContent}</aside>
     </div>
   );

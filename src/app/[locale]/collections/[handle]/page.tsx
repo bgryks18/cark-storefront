@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
 import { Link } from '@/i18n/navigation';
+import sanitizeHtml from 'sanitize-html';
 
 import { filterVariantCardsByActiveFilters } from '@/lib/shopify/filterVariantMatch';
 import {
@@ -244,12 +245,23 @@ export default async function CollectionPage({ params, searchParams }: Collectio
                 />
               </div>
             )}
-            <div>
-              <h1 className="text-2xl font-bold text-black-dark sm:text-3xl">{collection.title}</h1>
-              {collection.description && (
-                <p className="mt-1.5 max-w-2xl text-sm text-text-muted">{collection.description}</p>
+            <header className="min-w-0">
+              <h1
+                id={`collection-title-${handle}`}
+                className="text-2xl font-bold text-black-dark sm:text-3xl"
+              >
+                {collection.title}
+              </h1>
+              {collection.seo.description && (
+                <section
+                  className="prose prose-sm mt-1.5 max-w-2xl text-text-muted"
+                  aria-labelledby={`collection-title-${handle}`}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(collection.seo.description),
+                  }}
+                />
               )}
-            </div>
+            </header>
           </div>
         </Container>
       </section>
@@ -259,9 +271,10 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         <Container>
           {/* Mobil: filtre + sıralama aynı satır; lg: sidebar | içerik */}
           <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-            <div className="flex items-start justify-between gap-3 lg:contents">
+            {/* Mobil: filtre + sıralama alt alta tam genişlik (dar sütun + sıkışmış panel önlenir) */}
+            <div className="flex w-full flex-col gap-3 lg:contents">
               <FilterPanel filters={filters} />
-              <div className="shrink-0 lg:hidden">
+              <div className="w-full lg:hidden">
                 <SortSelect options={sortOptions} currentSort={sort} label={t('sort')} />
               </div>
             </div>
