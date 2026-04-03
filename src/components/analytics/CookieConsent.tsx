@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 
 import { Link } from '@/i18n/navigation';
 
+import { applyGtagConsentUpdate } from '@/lib/analytics/gtagConsent';
 import { cn } from '@/lib/utils/cn';
 
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
@@ -26,6 +27,7 @@ export function CookieConsent() {
       const v = window.localStorage.getItem(STORAGE_KEY);
       if (v === 'granted' || v === 'denied') {
         setConsent(v);
+        applyGtagConsentUpdate(v === 'granted');
       }
     } catch {
       // localStorage erişilemezse banner göster
@@ -39,6 +41,7 @@ export function CookieConsent() {
       /* ignore */
     }
     setConsent('granted');
+    applyGtagConsentUpdate(true);
   }
 
   function reject() {
@@ -48,13 +51,14 @@ export function CookieConsent() {
       /* ignore */
     }
     setConsent('denied');
+    applyGtagConsentUpdate(false);
   }
 
   const showBanner = mounted && consent === 'unknown';
 
   return (
     <>
-      {consent === 'granted' && <GoogleAnalytics />}
+      <GoogleAnalytics />
 
       <div
         role="dialog"
