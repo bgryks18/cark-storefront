@@ -41,6 +41,13 @@
     "clearSearch": "Aramayı temizle",
     "navigating": "Yönlendiriliyor"
   },
+  "cookies": {
+    "bannerTitle": "Çerez tercihleri",
+    "bannerText": "Siteyi çalıştırmak için zorunlu çerezler kullanılır. İsteğe bağlı olarak ziyaretleri ölçmek için Google Analytics çerezlerine izin verebilirsiniz.",
+    "acceptAnalytics": "Tamam",
+    "rejectOptional": "Reddet",
+    "privacyLink": "Gizlilik Politikası"
+  },
   "nav": {
     "home": "Ana Sayfa",
     "storeName": "carkstore",

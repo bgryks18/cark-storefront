@@ -41,6 +41,13 @@
     "clearSearch": "Clear search",
     "navigating": "Navigating"
   },
+  "cookies": {
+    "bannerTitle": "Cookie preferences",
+    "bannerText": "Essential cookies are required for the site to work. You can optionally allow Google Analytics cookies to measure visits.",
+    "acceptAnalytics": "OK",
+    "rejectOptional": "Reject",
+    "privacyLink": "Privacy Policy"
+  },
   "nav": {
     "home": "Home",
     "storeName": "carkstore",
