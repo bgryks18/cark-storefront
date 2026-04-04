@@ -7,6 +7,7 @@ import Script from 'next/script';
 import { useCookieConsent } from '@/components/analytics/CookieConsentProvider';
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? '';
+const AW_MEASUREMENT_ID = process.env.NEXT_PUBLIC_AW_MEASUREMENT_ID ?? '';
 
 export function GoogleAnalytics() {
   const { consent } = useCookieConsent();
@@ -45,6 +46,7 @@ export function GoogleAnalytics() {
             security_storage: 'granted'
           });
           gtag('config', '${GA_MEASUREMENT_ID}');
+          gtag('config', '${AW_MEASUREMENT_ID}');
         `}
       </Script>
     </>
