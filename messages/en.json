@@ -43,7 +43,7 @@
   },
   "cookies": {
     "bannerTitle": "Cookie preferences",
-    "bannerText": "Essential cookies are required for the site to work. You can optionally allow Google Analytics cookies to measure visits.",
+    "bannerText": "We use cookies to provide and improve our services.",
     "acceptAnalytics": "OK",
     "rejectOptional": "Reject",
     "privacyLink": "Privacy Policy"
