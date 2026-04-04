@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
@@ -21,6 +21,7 @@ import { formatMoney, formatPrice, getCartLines } from '@/lib/shopify/normalize'
 import { useCart } from '@/hooks/useCart';
 
 import { AddressFormModal } from '@/components/account/AddressFormModal';
+import { useCookieConsent } from '@/components/analytics/CookieConsentProvider';
 import { AlertBox } from '@/components/ui/AlertBox';
 import { Container } from '@/components/ui/Container';
 import { PageBreadcrumb } from '@/components/ui/PageBreadcrumb';
@@ -198,6 +199,9 @@ export default function CheckoutPage() {
     [t],
   );
 
+  const { consent } = useCookieConsent();
+  const checkoutPaymentScreenConversionFired = useRef(false);
+
   const { status } = useSession();
   const isAuthenticated = status === 'authenticated';
   const {
@@ -340,6 +344,36 @@ export default function CheckoutPage() {
       router.replace('/cart');
     }
   }, [mounted, isCartLoading, lines.length, router]);
+
+  useEffect(() => {
+    if (consent !== 'accepted' || checkoutPaymentScreenConversionFired.current) return;
+    if (
+      !mounted ||
+      isCartLoading ||
+      (!cart && !!cartId) ||
+      lines.length === 0 ||
+      (isAuthenticated && customerProfilePending)
+    ) {
+      return;
+    }
+    checkoutPaymentScreenConversionFired.current = true;
+    window.gtag?.('event', 'ads_conversion_Alı_veri_Sepeti_1', {
+      cart_sub_total: cartSubtotal,
+      total: totalTL,
+      currency: currencyCode,
+      item_list_quantity: lines.length,
+      item_list_value: totalTL,
+    });
+  }, [
+    consent,
+    mounted,
+    isCartLoading,
+    cart,
+    cartId,
+    lines.length,
+    isAuthenticated,
+    customerProfilePending,
+  ]);
 
   if (
     !mounted ||
